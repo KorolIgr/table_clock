@@ -2,20 +2,23 @@
 #include <Wire.h>
 #include "config.h"
 #include "led_controller.h"
+#include "display_controller.h"
 
 // =============================================================================
 // Table Clock - Main Entry Point
-// Stage 3: Basic ESP8266 initialization + APA106 LED testing
+// Stage 3: Basic ESP8266 initialization + APA106 LED testing + SSD1306 displays
 // =============================================================================
 
-// Global LED controller instance
+// Global controller instances
 LEDController leds(LED_PIN, LED_COUNT);
+DisplayController displays;
 
 // =============================================================================
 // Forward declarations
 // =============================================================================
 void printSystemInfo();
 void runLEDTests();
+void runDisplayTests();
 
 // =============================================================================
 // Setup
@@ -50,6 +53,17 @@ void setup() {
     // Run LED tests to verify all 8 LEDs are working
     Serial.println(F("\n[TEST] Starting LED tests..."));
     runLEDTests();
+
+    // Initialize Display controller (TCA9548A + SSD1306)
+    Serial.println(F("\n[DISP] Initializing Display subsystem..."));
+    if (!displays.begin()) {
+        Serial.println(F("[DISP] WARNING: Display initialization failed or no displays found!"));
+        Serial.println(F("[DISP] Continuing without displays..."));
+    }
+
+    // Run Display tests
+    Serial.println(F("\n[TEST] Starting Display tests..."));
+    runDisplayTests();
 
     Serial.println(F("\n[MAIN] Setup complete. Entering main loop."));
     Serial.println(F("========================================\n"));
@@ -136,5 +150,38 @@ void runLEDTests() {
 
     Serial.println(F("\n[TEST] ---- LED Test Suite Complete ----"));
     Serial.println(F("[TEST] If all 8 LEDs lit up correctly, hardware is OK."));
+    Serial.println(F("[TEST] Check serial output above for any errors."));
+}
+
+/**
+ * @brief Run all display tests to verify TCA9548A and SSD1306 displays
+ *        Tests are run sequentially with serial output for debugging
+ */
+void runDisplayTests() {
+    Serial.println(F("[TEST] ---- Display Test Suite ----"));
+
+    // Test 1: I2C bus scan (before TCA channel selection)
+    Serial.println(F("\n[TEST] Test 1/4: I2C bus scan"));
+    displays.testI2CScan();
+
+    // Test 2: TCA9548A channel scan
+    Serial.println(F("\n[TEST] Test 2/4: TCA9548A channel scan"));
+    displays.testTCAChannels();
+
+    // Test 3: Display test (show channel number on each display)
+    Serial.println(F("\n[TEST] Test 3/4: Display channel number test"));
+    displays.testDisplays();
+
+    // Test 4: Test pattern on all displays
+    Serial.println(F("\n[TEST] Test 4/4: Test pattern (border + diagonals)"));
+    displays.showTestPattern();
+    delay(3000);
+
+    // Final state: clear all displays
+    displays.clearAll();
+    displays.showAll();
+
+    Serial.println(F("\n[TEST] ---- Display Test Suite Complete ----"));
+    Serial.printf("[TEST] Displays found: %d/%d\n", displays.getDisplayCount(), DISPLAY_COUNT);
     Serial.println(F("[TEST] Check serial output above for any errors."));
 }
