@@ -1,0 +1,16 @@
+# PlatformIO build artifacts
+.pio/
+
+# VS Code local settings (keep c_cpp_properties.json and settings.json)
+.vscode/launch.json
+.vscode/ipch/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled binaries
+*.bin
+*.elf
+*.hex
+*.map
