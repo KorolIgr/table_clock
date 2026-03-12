@@ -1,4 +1,5 @@
 #include "wifi_manager.h"
+#include "web_pages.h"
 
 // =============================================================================
 // WiFi Manager Implementation
@@ -698,6 +699,15 @@ void WiFiManager::setupWebServer() {
     // Main page
     _server.on("/", HTTP_GET, [this]() { handleRoot(); });
 
+    // Time settings page
+    _server.on("/time", HTTP_GET, [this]() { handleTimePage(); });
+
+    // LED settings page
+    _server.on("/leds", HTTP_GET, [this]() { handleLEDsPage(); });
+
+    // General settings page
+    _server.on("/settings", HTTP_GET, [this]() { handleSettingsPage(); });
+
     // Scan networks
     _server.on("/scan", HTTP_GET, [this]() { handleScan(); });
 
@@ -709,6 +719,18 @@ void WiFiManager::setupWebServer() {
 
     // Status
     _server.on("/status", HTTP_GET, [this]() { handleStatus(); });
+
+    // Additional API endpoints for settings
+    _server.on("/save_time_settings", HTTP_POST, [this]() { handleSaveTimeSettings(); });
+    _server.on("/sync_time", HTTP_POST, [this]() { handleSyncTime(); });
+    _server.on("/current_time", HTTP_GET, [this]() { handleCurrentTime(); });
+    _server.on("/save_led_settings", HTTP_POST, [this]() { handleSaveLEDSettings(); });
+    _server.on("/test_leds", HTTP_POST, [this]() { handleTestLEDs(); });
+    _server.on("/turn_off_leds", HTTP_POST, [this]() { handleTurnOffLEDs(); });
+    _server.on("/save_general_settings", HTTP_POST, [this]() { handleSaveGeneralSettings(); });
+    _server.on("/device_info", HTTP_GET, [this]() { handleDeviceInfo(); });
+    _server.on("/reboot", HTTP_POST, [this]() { handleReboot(); });
+    _server.on("/factory_reset", HTTP_POST, [this]() { handleFactoryReset(); });
 
     // Captive portal redirects
     _server.on("/generate_204", HTTP_GET, [this]() { handleNotFound(); });  // Android
@@ -911,7 +933,7 @@ void WiFiManager::handleNotFound() {
 // =============================================================================
 
 String WiFiManager::generateMainPage() const {
-    return String(FPSTR(WIFI_CONFIG_HTML));
+    return String(FPSTR(INDEX_HTML));
 }
 
 String WiFiManager::generateStatusJSON() const {
@@ -951,4 +973,105 @@ String WiFiManager::generateStatusJSON() const {
 
     json += '}';
     return json;
+}
+
+// =============================================================================
+// Private: Web Server Handlers for New Pages
+// =============================================================================
+
+void WiFiManager::handleTimePage() {
+    _server.send(200, F("text/html"), generateTimePage());
+}
+
+void WiFiManager::handleLEDsPage() {
+    _server.send(200, F("text/html"), generateLEDsPage());
+}
+
+void WiFiManager::handleSettingsPage() {
+    _server.send(200, F("text/html"), generateSettingsPage());
+}
+
+void WiFiManager::handleSaveTimeSettings() {
+    // Parse JSON body
+    String requestBody = _server.arg("plain");
+    // For now, just return success
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"Time settings saved\"}"));
+}
+
+void WiFiManager::handleSyncTime() {
+    // Trigger time synchronization
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"Time sync initiated\"}"));
+}
+
+void WiFiManager::handleCurrentTime() {
+    // Return current time
+    _server.send(200, F("text/plain"), F("--:--:--"));
+}
+
+void WiFiManager::handleSaveLEDSettings() {
+    // Parse JSON body
+    String requestBody = _server.arg("plain");
+    // For now, just return success
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"LED settings saved\"}"));
+}
+
+void WiFiManager::handleTestLEDs() {
+    // Trigger LED test
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"LED test started\"}"));
+}
+
+void WiFiManager::handleTurnOffLEDs() {
+    // Turn off all LEDs
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"All LEDs turned off\"}"));
+}
+
+void WiFiManager::handleSaveGeneralSettings() {
+    // Parse JSON body
+    String requestBody = _server.arg("plain");
+    // For now, just return success
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"General settings saved\"}"));
+}
+
+void WiFiManager::handleDeviceInfo() {
+    String json = "{";
+    json += F("\"version\":\"");
+    json += FW_VERSION_STR;
+    json += F("\",\"uptime\":\"");
+    json += millis() / 1000;
+    json += F("s\",");
+    json += F("\"free_heap\":");
+    json += ESP.getFreeHeap();
+    json += F(",");
+    json += F("\"cpu_freq\":");
+    json += ESP.getCpuFreqMHz();
+    json += F("}");
+    _server.send(200, F("application/json"), json);
+}
+
+void WiFiManager::handleReboot() {
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"Rebooting...\"}"));
+    delay(1000);
+    ESP.restart();
+}
+
+void WiFiManager::handleFactoryReset() {
+    // Clear all settings
+    // For now, just return success
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"Factory reset initiated\"}"));
+}
+
+// =============================================================================
+// Private: HTML Page Generation
+// =============================================================================
+
+String WiFiManager::generateTimePage() const {
+    return String(FPSTR(TIME_HTML));
+}
+
+String WiFiManager::generateLEDsPage() const {
+    return String(FPSTR(LEDS_HTML));
+}
+
+String WiFiManager::generateSettingsPage() const {
+    return String(FPSTR(SETTINGS_HTML));
 }

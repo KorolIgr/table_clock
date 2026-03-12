@@ -181,6 +181,15 @@ private:
     // GET / - Main configuration page
     void handleRoot();
 
+    // GET /time - Time settings page
+    void handleTimePage();
+
+    // GET /leds - LED settings page
+    void handleLEDsPage();
+
+    // GET /settings - General settings page
+    void handleSettingsPage();
+
     // GET /scan - Scan for WiFi networks, return JSON
     void handleScan();
 
@@ -193,11 +202,50 @@ private:
     // GET /status - Get current WiFi status as JSON
     void handleStatus();
 
+    // POST /save_time_settings - Save time settings
+    void handleSaveTimeSettings();
+
+    // POST /sync_time - Sync time from NTP
+    void handleSyncTime();
+
+    // GET /current_time - Get current time
+    void handleCurrentTime();
+
+    // POST /save_led_settings - Save LED settings
+    void handleSaveLEDSettings();
+
+    // POST /test_leds - Test LEDs
+    void handleTestLEDs();
+
+    // POST /turn_off_leds - Turn off all LEDs
+    void handleTurnOffLEDs();
+
+    // POST /save_general_settings - Save general settings
+    void handleSaveGeneralSettings();
+
+    // GET /device_info - Get device information
+    void handleDeviceInfo();
+
+    // POST /reboot - Reboot device
+    void handleReboot();
+
+    // POST /factory_reset - Factory reset
+    void handleFactoryReset();
+
     // Handle 404 / captive portal redirect
     void handleNotFound();
 
     // Generate main HTML page
     String generateMainPage() const;
+
+    // Generate time settings page
+    String generateTimePage() const;
+
+    // Generate LED settings page
+    String generateLEDsPage() const;
+
+    // Generate general settings page
+    String generateSettingsPage() const;
 
     // Generate status JSON
     String generateStatusJSON() const;
