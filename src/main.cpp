@@ -3,15 +3,21 @@
 #include "config.h"
 #include "led_controller.h"
 #include "display_controller.h"
+#include "wifi_manager.h"
 
 // =============================================================================
 // Table Clock - Main Entry Point
-// Stage 3: Basic ESP8266 initialization + APA106 LED testing + SSD1306 displays
+// Stage 4: WiFi and Network Functionality
+//   - Hybrid AP+STA mode
+//   - Web server for WiFi configuration
+//   - EEPROM credential storage
+//   - Auto-connect and reconnect
 // =============================================================================
 
 // Global controller instances
-LEDController leds(LED_PIN, LED_COUNT);
+LEDController    leds(LED_PIN, LED_COUNT);
 DisplayController displays;
+WiFiManager      wifiMgr;
 
 // =============================================================================
 // Forward declarations
@@ -19,6 +25,8 @@ DisplayController displays;
 void printSystemInfo();
 void runLEDTests();
 void runDisplayTests();
+void setupWiFiCallbacks();
+void printWiFiStatus();
 
 // =============================================================================
 // Setup
@@ -65,6 +73,27 @@ void setup() {
     Serial.println(F("\n[TEST] Starting Display tests..."));
     runDisplayTests();
 
+    // ==========================================================================
+    // Stage 4: WiFi Initialization
+    // ==========================================================================
+    Serial.println(F("\n[WiFi] ========================================"));
+    Serial.println(F("[WiFi] Stage 4: WiFi Initialization"));
+    Serial.println(F("[WiFi] ========================================"));
+
+    // Setup WiFi event callbacks
+    setupWiFiCallbacks();
+
+    // Initialize WiFi Manager
+    // This will:
+    //  1. Start AP mode (TableClock-Setup)
+    //  2. Load saved credentials from EEPROM
+    //  3. Attempt STA connection if credentials exist
+    //  4. Start web server on port 80
+    wifiMgr.begin();
+
+    // Print initial WiFi status
+    printWiFiStatus();
+
     Serial.println(F("\n[MAIN] Setup complete. Entering main loop."));
     Serial.println(F("========================================\n"));
 }
@@ -73,20 +102,53 @@ void setup() {
 // Main Loop
 // =============================================================================
 void loop() {
-    // Simple heartbeat: pulse all LEDs in blue every 5 seconds
+    // --- WiFi Manager loop (MUST be called every iteration) ---
+    // Handles: DNS captive portal, web server requests, reconnection logic
+    wifiMgr.loop();
+
+    // --- Heartbeat LED ---
+    // Blink pattern depends on WiFi state:
+    //   CONNECTED:    slow green pulse (5s)
+    //   CONNECTING:   fast orange blink (1s)
+    //   AP_ONLY:      slow blue pulse (5s)
+    //   RECONNECTING: medium yellow blink (2s)
     static uint32_t lastHeartbeat = 0;
     static bool ledsOn = false;
 
     uint32_t now = millis();
+    WifiMgrState wifiState = wifiMgr.getState();
 
-    if (now - lastHeartbeat >= 5000) {
+    uint32_t heartbeatInterval = 5000;
+    RGBColor heartbeatColor = Colors::BLUE;
+
+    switch (wifiState) {
+        case WifiMgrState::CONNECTED:
+            heartbeatInterval = 5000;
+            heartbeatColor = Colors::GREEN;
+            break;
+        case WifiMgrState::CONNECTING:
+            heartbeatInterval = 500;
+            heartbeatColor = Colors::ORANGE;
+            break;
+        case WifiMgrState::RECONNECTING:
+            heartbeatInterval = 1000;
+            heartbeatColor = Colors::YELLOW;
+            break;
+        case WifiMgrState::AP_ONLY:
+        case WifiMgrState::DISCONNECTED:
+        default:
+            heartbeatInterval = 3000;
+            heartbeatColor = Colors::BLUE;
+            break;
+    }
+
+    if (now - lastHeartbeat >= heartbeatInterval) {
         lastHeartbeat = now;
         ledsOn = !ledsOn;
 
         if (ledsOn) {
-            // Dim blue pulse to indicate the device is alive
             leds.setBrightness(20);
-            leds.setAll(Colors::BLUE);
+            leds.setAll(heartbeatColor);
             leds.show();
         } else {
             leds.clear();
@@ -94,8 +156,55 @@ void loop() {
         }
     }
 
+    // --- Periodic WiFi status print (every 30 seconds) ---
+    static uint32_t lastStatusPrint = 0;
+    if (now - lastStatusPrint >= 30000) {
+        lastStatusPrint = now;
+        printWiFiStatus();
+    }
+
     // Yield to allow ESP8266 background tasks (WiFi stack, watchdog, etc.)
     yield();
+}
+
+// =============================================================================
+// WiFi Callbacks Setup
+// =============================================================================
+
+/**
+ * @brief Setup WiFi event callbacks for logging and display updates
+ */
+void setupWiFiCallbacks() {
+    // Called when STA connection is established
+    wifiMgr.onConnected([](const String& ssid, IPAddress ip) {
+        Serial.println(F("\n[WiFi] *** CONNECTED ***"));
+        Serial.printf("[WiFi] Network: %s\n", ssid.c_str());
+        Serial.printf("[WiFi] IP Address: %s\n", ip.toString().c_str());
+        Serial.printf("[WiFi] AP still active at: %s\n",
+                      WiFi.softAPIP().toString().c_str());
+        Serial.println(F("[WiFi] Web interface: http://") );
+        Serial.println(ip.toString());
+        Serial.println();
+
+        // TODO (Stage 5): Update display to show IP address
+        // TODO (Stage 6): Start NTP sync
+    });
+
+    // Called when STA connection is lost
+    wifiMgr.onDisconnected([]() {
+        Serial.println(F("\n[WiFi] *** DISCONNECTED ***"));
+        Serial.println(F("[WiFi] Will attempt reconnection..."));
+        Serial.println();
+
+        // TODO (Stage 5): Update display to show disconnected status
+    });
+
+    // Called when new credentials are saved via web interface
+    wifiMgr.onCredentialsSaved([](const String& ssid) {
+        Serial.printf("\n[WiFi] New credentials saved for: %s\n", ssid.c_str());
+        Serial.println(F("[WiFi] Attempting connection..."));
+        Serial.println();
+    });
 }
 
 // =============================================================================
@@ -113,6 +222,31 @@ void printSystemInfo() {
     Serial.printf("[SYS] SDK Version: %s\n", ESP.getSdkVersion());
     Serial.printf("[SYS] Chip ID: 0x%08X\n", ESP.getChipId());
     Serial.printf("[SYS] Reset Reason: %s\n", ESP.getResetReason().c_str());
+}
+
+/**
+ * @brief Print current WiFi status to serial
+ */
+void printWiFiStatus() {
+    Serial.println(F("\n[WiFi] --- Status ---"));
+    Serial.printf("[WiFi] State: %s\n", wifiMgr.getStateString().c_str());
+    Serial.printf("[WiFi] AP: %s (IP: %s)\n",
+                  WIFI_AP_SSID,
+                  wifiMgr.getAPIP().toString().c_str());
+    if (wifiMgr.isConnected()) {
+        Serial.printf("[WiFi] STA: Connected to %s\n", wifiMgr.getConnectedSSID().c_str());
+        Serial.printf("[WiFi] STA IP: %s\n", wifiMgr.getSTAIP().toString().c_str());
+        Serial.printf("[WiFi] RSSI: %d dBm\n", wifiMgr.getRSSI());
+    } else {
+        Serial.println(F("[WiFi] STA: Not connected"));
+        if (wifiMgr.hasCredentials()) {
+            Serial.println(F("[WiFi] Saved credentials: YES"));
+        } else {
+            Serial.println(F("[WiFi] Saved credentials: NO"));
+        }
+    }
+    Serial.printf("[WiFi] Free Heap: %d bytes\n", ESP.getFreeHeap());
+    Serial.println(F("[WiFi] ---"));
 }
 
 /**

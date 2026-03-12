@@ -54,6 +54,46 @@
 
 // --- Firmware Version ---
 #define FW_VERSION_MAJOR 0
-#define FW_VERSION_MINOR 1
+#define FW_VERSION_MINOR 2
 #define FW_VERSION_PATCH 0
-#define FW_VERSION_STR   "0.1.0"
+#define FW_VERSION_STR   "0.2.0"
+
+// =============================================================================
+// WiFi Configuration (Stage 4)
+// =============================================================================
+
+// --- Access Point (AP) Settings ---
+// SSID точки доступа для первоначальной настройки
+#define WIFI_AP_SSID        "TableClock-Setup"
+// Пароль AP (минимум 8 символов, или "" для открытой сети)
+#define WIFI_AP_PASSWORD    "12345678"
+// IP адрес точки доступа
+#define WIFI_AP_IP          IPAddress(192, 168, 4, 1)
+// Маска подсети AP
+#define WIFI_AP_SUBNET      IPAddress(255, 255, 255, 0)
+// Канал WiFi для AP
+#define WIFI_AP_CHANNEL     6
+
+// --- STA (Station) Connection Settings ---
+// Таймаут подключения к WiFi (мс)
+#define WIFI_CONNECT_TIMEOUT_MS   15000
+// Интервал повторных попыток подключения (мс)
+#define WIFI_RECONNECT_INTERVAL_MS 30000
+// Максимальное количество попыток подключения
+#define WIFI_MAX_RETRIES          5
+
+// --- EEPROM / Flash Storage ---
+// Адрес начала хранения WiFi настроек в EEPROM
+#define WIFI_EEPROM_START_ADDR    0
+// Размер EEPROM для хранения настроек
+#define WIFI_EEPROM_SIZE          512
+// Магическое число для проверки валидности данных
+#define WIFI_EEPROM_MAGIC         0xA5B6C7D8UL
+
+// --- Web Server ---
+// Порт веб-сервера
+#define WIFI_WEB_SERVER_PORT      80
+
+// --- DNS ---
+// Порт DNS сервера (для captive portal в режиме AP)
+#define WIFI_DNS_PORT             53
