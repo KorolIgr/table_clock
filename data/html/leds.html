@@ -284,15 +284,12 @@ function updateStatus(data) {
   if (data.state === 'CONNECTED') {
     dot.classList.add('connected');
     text.innerHTML = 'Connected to <strong>' + data.ssid + '</strong> &mdash; IP: <strong>' + data.ip + '</strong> (RSSI: ' + data.rssi + ' dBm)';
-    document.getElementById('forgetBtn').style.display = 'block';
   } else if (data.state === 'CONNECTING' || data.state === 'RECONNECTING') {
     dot.classList.add('connecting');
     text.innerHTML = '<span class="spinner"></span>Connecting to <strong>' + (data.ssid || '...') + '</strong>';
-    document.getElementById('forgetBtn').style.display = 'none';
   } else {
     dot.classList.add('disconnected');
     text.innerHTML = 'Not connected &mdash; AP: <strong>' + data.ap_ip + '</strong>';
-    document.getElementById('forgetBtn').style.display = data.has_credentials ? 'block' : 'none';
   }
 }
 
