@@ -1,0 +1,5 @@
+- Refactor the HTML page for LED control according to the new **agent web interface rules** (use native HTML elements, minimal CSS, compact code, no custom styling)
+- Add new LED patterns:
+   - **Running Fire (Ping-Pong)** – LED pattern moves back and forth
+   - **Wave** – LED brightness shifts like a sine wave, each step moves by one LED
+- Enable pattern selection via the web page **without saving state to flash memory**

@@ -1,0 +1,5 @@
+- Study the ESP8266 documentation
+- Study the I2C protocol and how to work with the TCA9548A
+- Study how to work with SSD1306 displays
+- Study how to work with APA106 addressable LEDs
+- Select libraries for working with the components

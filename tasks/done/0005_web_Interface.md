@@ -1,0 +1,5 @@
+- Develop an HTML/CSS interface for clock configuration
+- Implement the WiFi configuration page
+- Implement the time display configuration page
+- Implement the LED control page
+- Implement the general settings page

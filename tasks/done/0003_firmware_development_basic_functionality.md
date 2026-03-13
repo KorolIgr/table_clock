@@ -1,0 +1,7 @@
+- Create the basic project structure for PlatformIO
+- Implement basic ESP8266 initialization
+- Implement control of APA106 LEDs
+- Test all 8 LEDs
+- Implement I2C communication via TCA9548A
+- Test connection of all 8 SSD1306 displays
+- Implement displaying test text on the displays

@@ -1,0 +1,6 @@
+- Implement WiFi connection
+- Implement hybrid access mode (AP + STA mode)
+- Create a web server for WiFi configuration
+- Implement saving WiFi settings to flash
+- Implement the ability to forget the access point connected in STA mode
+- Implement automatic reconnection on startup and after connection loss
