@@ -57,6 +57,10 @@ public:
     void testAllColors(uint32_t delayMs = LED_TEST_DELAY_MS);
     void testBlink(uint8_t times = 3, uint32_t delayMs = 300);
 
+    // Pattern functions
+    void patternRunningFire(uint8_t red, uint8_t green, uint8_t blue, uint32_t delayMs = 100);
+    void patternWave(uint8_t red, uint8_t green, uint8_t blue, uint32_t delayMs = 100);
+
     // Utility
     uint8_t getCount() const { return _count; }
     bool isInitialized() const { return _initialized; }

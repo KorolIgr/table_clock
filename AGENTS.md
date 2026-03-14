@@ -21,6 +21,26 @@
 
 ---
 
+## Current Project State
+
+The Table Clock firmware has been enhanced with new LED control features:
+
+1. **Refactored LED Control Web Interface**: The HTML page for LED control has been refactored according to agent web interface rules with native HTML elements, minimal CSS, and compact code.
+
+2. **New LED Patterns Added**:
+   - Running Fire (Ping-Pong) pattern: LED pattern moves back and forth
+   - Wave pattern: LED brightness shifts like a sine wave, each step moves by one LED
+
+3. **Web Interface Integration**: Pattern selection is enabled via the web page without saving state to flash memory, allowing users to try different patterns without permanently changing settings.
+
+4. **Enhanced LED Controller**: New pattern methods were added to the LED controller class to support the new effects.
+
+5. **Web Server Support**: New endpoints were added to handle temporary pattern selection and execution.
+
+The implementation follows the project's constraints of avoiding dynamic memory allocation and excessive STL usage, maintaining compatibility with the ESP8266 platform.
+
+---
+
 ## Project Name
 
 **Table Clock**

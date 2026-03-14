@@ -195,3 +195,90 @@ uint32_t LEDController::colorWheel(uint8_t pos) {
     pos -= 170;
     return _strip.Color(pos * 3, 255 - pos * 3, 0);
 }
+
+// =============================================================================
+// Pattern Functions
+// =============================================================================
+
+/**
+ * @brief Running Fire (Ping-Pong) pattern: LED pattern moves back and forth
+ * @param red Red component intensity (0-255)
+ * @param green Green component intensity (0-255)
+ * @param blue Blue component intensity (0-255)
+ * @param delayMs Delay between steps in milliseconds
+ */
+void LEDController::patternRunningFire(uint8_t red, uint8_t green, uint8_t blue, uint32_t delayMs) {
+    static uint8_t position = 0;
+    static bool directionForward = true; // true for moving forward, false for backward
+    
+    // Clear all LEDs first
+    clear();
+    
+    // Set the current LED to the fire color
+    setPixel(position, red, green, blue);
+    
+    // Show the pattern
+    show();
+    
+    // Move to next position based on direction
+    if (directionForward) {
+        position++;
+        if (position >= _count - 1) {
+            directionForward = false; // Change direction at the end
+        }
+    } else {
+        position--;
+        if (position == 0) {
+            directionForward = true; // Change direction at the start
+        }
+    }
+    
+    delay(delayMs);
+}
+
+/**
+ * @brief Wave pattern: LED brightness shifts like a sine wave
+ * @param red Red component intensity (0-255)
+ * @param green Green component intensity (0-255)
+ * @param blue Blue component intensity (0-255)
+ * @param delayMs Delay between steps in milliseconds
+ */
+void LEDController::patternWave(uint8_t red, uint8_t green, uint8_t blue, uint32_t delayMs) {
+    static uint8_t wavePosition = 0;
+    
+    // Calculate brightness for each LED based on distance from wave position
+    for (uint8_t i = 0; i < _count; i++) {
+        // Calculate distance from current wave position (with wrap-around)
+        int8_t distance;
+        if (wavePosition >= i) {
+            distance = wavePosition - i;
+        } else {
+            // Handle wrap-around by checking both directions
+            int8_t distForward = (_count - i) + wavePosition;
+            int8_t distBackward = i - wavePosition;
+            distance = (distForward < distBackward) ? distForward : distBackward;
+        }
+        
+        // Calculate brightness based on sine wave (maximum brightness at wave position)
+        float angle = (float)(distance % 8) * (2 * PI / 8); // 8 positions per wave cycle
+        float brightnessFactor = sin(angle);
+        if (brightnessFactor < 0) brightnessFactor = -brightnessFactor; // Make it positive (half wave)
+        
+        // Scale the color by the brightness factor
+        uint8_t scaledRed = (uint8_t)(red * brightnessFactor);
+        uint8_t scaledGreen = (uint8_t)(green * brightnessFactor);
+        uint8_t scaledBlue = (uint8_t)(blue * brightnessFactor);
+        
+        setPixel(i, scaledRed, scaledGreen, scaledBlue);
+    }
+    
+    show();
+    
+    // Move wave position
+    wavePosition++;
+    if (wavePosition >= _count) {
+        wavePosition = 0;
+    }
+    
+    delay(delayMs);
+}

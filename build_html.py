@@ -10,7 +10,7 @@ from pathlib import Path
 def html_to_cpp_constant(html_content, constant_name):
     """Преобразует HTML-контент в строковую константу C++ с использованием сырых строк (raw strings)"""
     # Экранируем двойные кавычки и обратные слэши
-    escaped_content = html_content.replace('\\', '\\\\').replace('"', '\\"')
+    escaped_content = html_content.replace('\\', '\\\\').replace('"', '\\"').replace("'", "\\'")
     
     # Создаем сырую строку C++
     cpp_code = f'static const char {constant_name}[] PROGMEM = R"rawhtml(\n{escaped_content})rawhtml";\n'

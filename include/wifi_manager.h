@@ -220,6 +220,12 @@ private:
     // POST /turn_off_leds - Turn off all LEDs
     void handleTurnOffLEDs();
 
+    // POST /set_led_pattern - Set LED pattern temporarily
+    void handleSetLEDPattern();
+
+    // POST /run_led_pattern - Run LED pattern once
+    void handleRunLEDPattern();
+
     // POST /save_general_settings - Save general settings
     void handleSaveGeneralSettings();
 

@@ -12,7 +12,7 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;
     background: #1a1a2e;
     color: #eee;
     min-height: 100vh;
@@ -204,10 +204,10 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
   </div>
 
   <div class=\"nav\">
-    <button class=\"nav-btn active\" onclick=\"navigateTo('index')\">WiFi</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('time')\">Time</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('leds')\">LEDs</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('settings')\">Settings</button>
+    <button class=\"nav-btn active\" onclick=\"navigateTo(\'index\')\">WiFi</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'time\')\">Time</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'leds\')\">LEDs</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'settings\')\">Settings</button>
   </div>
 
   <div class=\"status-bar\" id=\"statusBar\">
@@ -251,134 +251,134 @@ static const char INDEX_HTML[] PROGMEM = R"rawhtml(
 </div>
 
 <script>
-var selectedSSID = '';
+var selectedSSID = \'\';
 var statusInterval = null;
 
 function navigateTo(page) {
-  window.location.href = '/' + page;
+  window.location.href = \'/\' + page;
 }
 
 function showMessage(text, type) {
-  var el = document.getElementById('message');
+  var el = document.getElementById(\'message\');
   el.textContent = text;
-  el.className = 'message ' + type;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 5000);
+  el.className = \'message \' + type;
+  el.style.display = \'block\';
+  setTimeout(function() { el.style.display = \'none\'; }, 5000);
 }
 
 function updateStatus(data) {
-  var dot = document.getElementById('statusDot');
-  var text = document.getElementById('statusText');
-  dot.className = 'status-dot';
-  if (data.state === 'CONNECTED') {
-    dot.classList.add('connected');
-    text.innerHTML = 'Connected to <strong>' + data.ssid + '</strong> &mdash; IP: <strong>' + data.ip + '</strong> (RSSI: ' + data.rssi + ' dBm)';
-    document.getElementById('forgetBtn').style.display = 'block';
-  } else if (data.state === 'CONNECTING' || data.state === 'RECONNECTING') {
-    dot.classList.add('connecting');
-    text.innerHTML = '<span class=\"spinner\"></span>Connecting to <strong>' + (data.ssid || '...') + '</strong>';
-    document.getElementById('forgetBtn').style.display = 'none';
+  var dot = document.getElementById(\'statusDot\');
+  var text = document.getElementById(\'statusText\');
+  dot.className = \'status-dot\';
+  if (data.state === \'CONNECTED\') {
+    dot.classList.add(\'connected\');
+    text.innerHTML = \'Connected to <strong>\' + data.ssid + \'</strong> &mdash; IP: <strong>\' + data.ip + \'</strong> (RSSI: \' + data.rssi + \' dBm)\';
+    document.getElementById(\'forgetBtn\').style.display = \'block\';
+  } else if (data.state === \'CONNECTING\' || data.state === \'RECONNECTING\') {
+    dot.classList.add(\'connecting\');
+    text.innerHTML = \'<span class=\"spinner\"></span>Connecting to <strong>\' + (data.ssid || \'...\') + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = \'none\';
   } else {
-    dot.classList.add('disconnected');
-    text.innerHTML = 'Not connected &mdash; AP: <strong>' + data.ap_ip + '</strong>';
-    document.getElementById('forgetBtn').style.display = data.has_credentials ? 'block' : 'none';
+    dot.classList.add(\'disconnected\');
+    text.innerHTML = \'Not connected &mdash; AP: <strong>\' + data.ap_ip + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = data.has_credentials ? \'block\' : \'none\';
   }
 }
 
 function fetchStatus() {
-  fetch('/status')
+  fetch(\'/status\')
     .then(function(r) { return r.json(); })
     .then(function(data) { updateStatus(data); })
     .catch(function() {});
 }
 
 function scanNetworks() {
-  var list = document.getElementById('networksList');
-  list.innerHTML = '<div class=\"loading\"><span class=\"spinner\"></span>Scanning...</div>';
-  fetch('/scan')
+  var list = document.getElementById(\'networksList\');
+  list.innerHTML = \'<div class=\"loading\"><span class=\"spinner\"></span>Scanning...</div>\';
+  fetch(\'/scan\')
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.networks || data.networks.length === 0) {
-        list.innerHTML = '<div class=\"loading\">No networks found</div>';
+        list.innerHTML = \'<div class=\"loading\">No networks found</div>\';
         return;
       }
-      var html = '';
+      var html = \'\';
       data.networks.forEach(function(n) {
-        var rssiIcon = n.rssi > -60 ? '&#9646;&#9646;&#9646;' : n.rssi > -75 ? '&#9646;&#9646;&#9647;' : '&#9646;&#9647;&#9647;';
-        var lockIcon = n.encrypted ? ' &#128274;' : '';
-        html += '<div class=\"network-item\" onclick=\"selectNetwork(\\'' + escapeHtml(n.ssid) + '\\')\" id=\"net-' + escapeId(n.ssid) + '\">';
-        html += '<span class=\"network-name\">' + escapeHtml(n.ssid) + lockIcon + '</span>';
-        html += '<span class=\"network-info\"><span class=\"network-rssi\">' + n.rssi + ' dBm</span><span class=\"signal-icon\">' + rssiIcon + '</span></span>';
-        html += '</div>';
+        var rssiIcon = n.rssi > -60 ? \'&#9646;&#9646;&#9646;\' : n.rssi > -75 ? \'&#9646;&#9646;&#9647;\' : \'&#9646;&#9647;&#9647;\';
+        var lockIcon = n.encrypted ? \' &#128274;\' : \'\';
+        html += \'<div class=\"network-item\" onclick=\"selectNetwork(\\\'\' + escapeHtml(n.ssid) + \'\\\')\" id=\"net-\' + escapeId(n.ssid) + \'\">\';
+        html += \'<span class=\"network-name\">\' + escapeHtml(n.ssid) + lockIcon + \'</span>\';
+        html += \'<span class=\"network-info\"><span class=\"network-rssi\">\' + n.rssi + \' dBm</span><span class=\"signal-icon\">\' + rssiIcon + \'</span></span>\';
+        html += \'</div>\';
       });
       list.innerHTML = html;
     })
     .catch(function() {
-      list.innerHTML = '<div class=\"loading\">Scan failed. Try again.</div>';
+      list.innerHTML = \'<div class=\"loading\">Scan failed. Try again.</div>\';
     });
 }
 
 function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;');
+  return str.replace(/&/g,\'&amp;\').replace(/</g,\'&lt;\').replace(/>/g,\'&gt;\').replace(/\"/g,\'&quot;\').replace(/\'/g,\'&#39;\');
 }
 
 function escapeId(str) {
-  return str.replace(/[^a-zA-Z0-9]/g, '_');
+  return str.replace(/[^a-zA-Z0-9]/g, \'_\');
 }
 
 function selectNetwork(ssid) {
-  document.querySelectorAll('.network-item').forEach(function(el) { el.classList.remove('selected'); });
-  var el = document.getElementById('net-' + escapeId(ssid));
-  if (el) el.classList.add('selected');
-  document.getElementById('ssid').value = ssid;
-  document.getElementById('password').focus();
+  document.querySelectorAll(\'.network-item\').forEach(function(el) { el.classList.remove(\'selected\'); });
+  var el = document.getElementById(\'net-\' + escapeId(ssid));
+  if (el) el.classList.add(\'selected\');
+  document.getElementById(\'ssid\').value = ssid;
+  document.getElementById(\'password\').focus();
   selectedSSID = ssid;
 }
 
 function connectWiFi(e) {
   e.preventDefault();
-  var ssid = document.getElementById('ssid').value.trim();
-  var password = document.getElementById('password').value;
-  if (!ssid) { showMessage('Please enter SSID', 'error'); return; }
-  var btn = document.getElementById('connectBtn');
+  var ssid = document.getElementById(\'ssid\').value.trim();
+  var password = document.getElementById(\'password\').value;
+  if (!ssid) { showMessage(\'Please enter SSID\', \'error\'); return; }
+  var btn = document.getElementById(\'connectBtn\');
   btn.disabled = true;
-  btn.innerHTML = '<span class=\"spinner\"></span>Connecting...';
+  btn.innerHTML = \'<span class=\"spinner\"></span>Connecting...\';
   var formData = new FormData();
-  formData.append('ssid', ssid);
-  formData.append('password', password);
-  fetch('/connect', { method: 'POST', body: formData })
+  formData.append(\'ssid\', ssid);
+  formData.append(\'password\', password);
+  fetch(\'/connect\', { method: \'POST\', body: formData })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       btn.disabled = false;
-      btn.textContent = 'Connect';
+      btn.textContent = \'Connect\';
       if (data.success) {
-        showMessage('Connecting to ' + ssid + '... Please wait.', 'info');
+        showMessage(\'Connecting to \' + ssid + \'... Please wait.\', \'info\');
       } else {
-        showMessage('Error: ' + (data.message || 'Failed to connect'), 'error');
+        showMessage(\'Error: \' + (data.message || \'Failed to connect\'), \'error\');
       }
     })
     .catch(function() {
       btn.disabled = false;
-      btn.textContent = 'Connect';
-      showMessage('Request failed. Check connection.', 'error');
+      btn.textContent = \'Connect\';
+      showMessage(\'Request failed. Check connection.\', \'error\');
     });
 }
 
 function forgetWiFi() {
-  if (!confirm('Forget saved WiFi network?')) return;
-  fetch('/forget', { method: 'POST' })
+  if (!confirm(\'Forget saved WiFi network?\')) return;
+  fetch(\'/forget\', { method: \'POST\' })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        showMessage('WiFi credentials forgotten.', 'success');
-        document.getElementById('forgetBtn').style.display = 'none';
-        document.getElementById('ssid').value = '';
-        document.getElementById('password').value = '';
+        showMessage(\'WiFi credentials forgotten.\', \'success\');
+        document.getElementById(\'forgetBtn\').style.display = \'none\';
+        document.getElementById(\'ssid\').value = \'\';
+        document.getElementById(\'password\').value = \'\';
       } else {
-        showMessage('Failed to forget credentials.', 'error');
+        showMessage(\'Failed to forget credentials.\', \'error\');
       }
     })
-    .catch(function() { showMessage('Request failed.', 'error'); });
+    .catch(function() { showMessage(\'Request failed.\', \'error\'); });
 }
 
 // Init
@@ -387,8 +387,8 @@ scanNetworks();
 statusInterval = setInterval(fetchStatus, 5000);
 
 // Update active nav button
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('.nav-btn[onclick=\"navigateTo(\\'index\\')\"]').classList.add('active');
+document.addEventListener(\'DOMContentLoaded\', function() {
+  document.querySelector(\'.nav-btn[onclick=\"navigateTo(\\\'index\\\')\"]\').classList.add(\'active\');
 });
 </script>
 </body>
@@ -396,226 +396,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
 static const char LEDS_HTML[] PROGMEM = R"rawhtml(
 <!DOCTYPE html>
-<html lang=\"ru\">
+<html lang=\"en\">
 <head>
 <meta charset=\"UTF-8\">
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
 <title>Table Clock - LED Settings</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #1a1a2e;
-    color: #eee;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .container {
-    background: #16213e;
-    border-radius: 16px;
-    padding: 32px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  }
-  .header {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .header h1 {
-    font-size: 24px;
-    color: #4fc3f7;
-    letter-spacing: 2px;
-  }
-  .header p {
-    color: #888;
-    font-size: 13px;
-    margin-top: 4px;
-  }
-  .nav {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-  .nav-btn {
-    padding: 8px 16px;
-    background: #0f3460;
-    border: 1px solid #1a4a7a;
-    border-radius: 8px;
-    color: #4fc3f7;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.2s;
-  }
-  .nav-btn:hover {
-    background: #1a5a9a;
-  }
-  .nav-btn.active {
-    background: #4fc3f7;
-    color: #1a1a2e;
-  }
-  .status-bar {
-    background: #0f3460;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .status-dot.connected { background: #4caf50; box-shadow: 0 0 8px #4caf50; }
-  .status-dot.connecting { background: #ff9800; box-shadow: 0 0 8px #ff9800; animation: pulse 1s infinite; }
-  .status-dot.disconnected { background: #f44336; box-shadow: 0 0 8px #f44336; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .status-text { font-size: 13px; color: #aaa; }
-  .status-text strong { color: #eee; }
-  .section-title {
-    font-size: 13px;
-    color: #4fc3f7;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .form-group { margin-bottom: 16px; }
-  .form-group label {
-    display: block;
-    font-size: 13px;
-    color: #aaa;
-    margin-bottom: 6px;
-  }
-  .form-group input, .form-group select {
-    width: 100%;
-    background: #0f3460;
-    border: 1px solid #1a4a7a;
-    border-radius: 8px;
-    padding: 10px 14px;
-    color: #eee;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-group input:focus, .form-group select:focus { border-color: #4fc3f7; }
-  .btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    letter-spacing: 0.5px;
-  }
-  .btn:active { transform: scale(0.98); }
-  .btn-primary { background: #4fc3f7; color: #1a1a2e; margin-bottom: 10px; }
-  .btn-primary:hover { opacity: 0.9; }
-  .btn-danger { background: #f44336; color: #fff; }
-  .btn-danger:hover { opacity: 0.9; }
-  .btn-secondary {
-    background: transparent;
-    border: 1px solid #4fc3f7;
-    color: #4fc3f7;
-    margin-bottom: 10px;
-  }
-  .btn-secondary:hover { background: rgba(79,195,247,0.1); }
-  .message {
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 16px;
-    display: none;
-  }
-  .message.success { background: rgba(76,175,80,0.2); border: 1px solid #4caf50; color: #81c784; }
-  .message.error { background: rgba(244,67,54,0.2); border: 1px solid #f44336; color: #ef9a9a; }
-  .message.info { background: rgba(79,195,247,0.2); border: 1px solid #4fc3f7; color: #81d4fa; }
-  .divider { border: none; border-top: 1px solid #1a4a7a; margin: 20px 0; }
-  .loading { text-align: center; color: #888; font-size: 13px; padding: 16px; }
-  .spinner {
-    display: inline-block;
-    width: 16px; height: 16px;
-    border: 2px solid #333;
-    border-top-color: #4fc3f7;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .color-picker {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .color-preview {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 2px solid #4fc3f7;
-  }
-  .brightness-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .brightness-slider {
-    flex-grow: 1;
-  }
-  .led-effect {
-    background: #0f3460;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
+  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f0f0f0; }
+  .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  .header { text-align: center; margin-bottom: 20px; }
+  .nav { display: flex; gap: 5px; margin-bottom: 20px; }
+  .nav-btn { flex: 1; padding: 8px; text-decoration: none; background: #e0e0e0; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+  .nav-btn.active { background: #007cba; color: white; }
+  .form-group { margin-bottom: 15px; }
+  label { display: block; margin-bottom: 5px; font-weight: bold; }
+  input, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+  input[type=\"range\"] { width: calc(100% - 60px); }
+  .btn { width: 100%; padding: 10px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
+  .btn:hover { background: #005a87; }
+  .btn.danger { background: #d32f2f; }
+  .btn.danger:hover { background: #b71c1c; }
+  .btn.secondary { background: #6c757d; }
+  .btn.secondary:hover { background: #545b62; }
+  .message { padding: 10px; margin-bottom: 15px; border-radius: 4px; display: none; }
+  .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  .message.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  .status-bar { background: #e9ecef; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+  .color-picker { display: flex; gap: 10px; align-items: center; }
+  .color-preview { width: 30px; height: 30px; border: 1px solid #ccc; border-radius: 4px; }
+  .brightness-control { display: flex; gap: 10px; align-items: center; }
 </style>
 </head>
 <body>
 <div class=\"container\">
   <div class=\"header\">
-    <h1>&#9719; TABLE CLOCK</h1>
+    <h1>TABLE CLOCK</h1>
     <p>LED Settings</p>
   </div>
 
   <div class=\"nav\">
-    <button class=\"nav-btn\" onclick=\"navigateTo('index')\">WiFi</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('time')\">Time</button>
-    <button class=\"nav-btn active\" onclick=\"navigateTo('leds')\">LEDs</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('settings')\">Settings</button>
+    <a class=\"nav-btn\" href=\"/\">WiFi</a>
+    <a class=\"nav-btn\" href=\"/time\">Time</a>
+    <a class=\"nav-btn active\" href=\"/leds\">LEDs</a>
+    <a class=\"nav-btn\" href=\"/settings\">Settings</a>
   </div>
 
   <div class=\"status-bar\" id=\"statusBar\">
-    <div class=\"status-dot disconnected\" id=\"statusDot\"></div>
-    <div class=\"status-text\" id=\"statusText\">Loading...</div>
+    <div id=\"statusText\">Loading...</div>
   </div>
 
   <div id=\"message\" class=\"message\"></div>
 
-  <div class=\"section-title\">
-    <span>Brightness Control</span>
-  </div>
-  <div class=\"form-group brightness-control\">
-    <label for=\"brightness\">Level:</label>
-    <input type=\"range\" id=\"brightness\" name=\"brightness\" min=\"0\" max=\"255\" value=\"100\" class=\"brightness-slider\">
-    <span id=\"brightnessValue\">100</span>
+  <div class=\"form-group\">
+    <label for=\"brightness\">Brightness Level:</label>
+    <div class=\"brightness-control\">
+      <input type=\"range\" id=\"brightness\" name=\"brightness\" min=\"0\" max=\"255\" value=\"100\">
+      <span id=\"brightnessValue\">100</span>
+    </div>
   </div>
 
-  <div class=\"section-title\">
-    <span>Color Settings</span>
-  </div>
   <div class=\"form-group\">
-    <label>Select Color</label>
+    <label for=\"ledColor\">Select Color:</label>
     <div class=\"color-picker\">
       <input type=\"color\" id=\"ledColor\" name=\"ledColor\" value=\"#ffffff\">
       <div class=\"color-preview\" id=\"colorPreview\" style=\"background-color: #ffffff;\"></div>
@@ -623,32 +465,27 @@ static const char LEDS_HTML[] PROGMEM = R"rawhtml(
     </div>
   </div>
 
-  <div class=\"section-title\">
-    <span>LED Effects</span>
-  </div>
-  <div class=\"led-effect\">
-    <div class=\"form-group\">
-      <label for=\"effectType\">Effect Type</label>
-      <select id=\"effectType\" name=\"effectType\">
-        <option value=\"static\">Static Color</option>
-        <option value=\"rainbow\">Rainbow</option>
-        <option value=\"pulse\">Pulse</option>
-        <option value=\"chase\">Chase</option>
-        <option value=\"fire\">Fire</option>
-        <option value=\"breathe\">Breathe</option>
-      </select>
-    </div>
-    <div class=\"form-group\">
-      <label for=\"effectSpeed\">Effect Speed</label>
-      <input type=\"range\" id=\"effectSpeed\" name=\"effectSpeed\" min=\"1\" max=\"10\" value=\"5\">
-    </div>
+  <div class=\"form-group\">
+    <label for=\"effectType\">Effect Type:</label>
+    <select id=\"effectType\" name=\"effectType\">
+      <option value=\"static\">Static Color</option>
+      <option value=\"rainbow\">Rainbow</option>
+      <option value=\"pulse\">Pulse</option>
+      <option value=\"chase\">Chase</option>
+      <option value=\"fire\">Fire</option>
+      <option value=\"breathe\">Breathe</option>
+      <option value=\"running_fire\">Running Fire (Ping-Pong)</option>
+      <option value=\"wave\">Wave</option>
+    </select>
   </div>
 
-  <div class=\"section-title\">
-    <span>LED Behavior</span>
-  </div>
   <div class=\"form-group\">
-    <label for=\"ledMode\">Mode</label>
+    <label for=\"effectSpeed\">Effect Speed:</label>
+    <input type=\"range\" id=\"effectSpeed\" name=\"effectSpeed\" min=\"1\" max=\"10\" value=\"5\">
+  </div>
+
+  <div class=\"form-group\">
+    <label for=\"ledMode\">LED Mode:</label>
     <select id=\"ledMode\" name=\"ledMode\">
       <option value=\"time_sync\">Synchronized with time</option>
       <option value=\"manual\">Manual control</option>
@@ -656,53 +493,45 @@ static const char LEDS_HTML[] PROGMEM = R"rawhtml(
     </select>
   </div>
 
-  <button class=\"btn btn-primary\" onclick=\"saveLEDSettings()\">Save LED Settings</button>
-  <button class=\"btn btn-secondary\" onclick=\"testLEDs()\">Test LEDs</button>
-  <button class=\"btn btn-danger\" onclick=\"turnOffLEDs()\">Turn Off All</button>
+  <button class=\"btn\" onclick=\"saveLEDSettings()\">Save LED Settings</button>
+  <button class=\"btn secondary\" onclick=\"testLEDs()\">Test LEDs</button>
+  <button class=\"btn danger\" onclick=\"turnOffLEDs()\">Turn Off All</button>
+  <button class=\"btn\" onclick=\"applyPattern()\">Apply Pattern</button>
 </div>
 
 <script>
-function navigateTo(page) {
-  window.location.href = '/' + page;
-}
-
 function showMessage(text, type) {
-  var el = document.getElementById('message');
+  var el = document.getElementById(\'message\');
   el.textContent = text;
-  el.className = 'message ' + type;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 5000);
+  el.className = \'message \' + type;
+  el.style.display = \'block\';
+  setTimeout(function() { el.style.display = \'none\'; }, 5000);
 }
 
 function updateStatus(data) {
-  var dot = document.getElementById('statusDot');
-  var text = document.getElementById('statusText');
-  dot.className = 'status-dot';
-  if (data.state === 'CONNECTED') {
-    dot.classList.add('connected');
-    text.innerHTML = 'Connected to <strong>' + data.ssid + '</strong> &mdash; IP: <strong>' + data.ip + '</strong> (RSSI: ' + data.rssi + ' dBm)';
-  } else if (data.state === 'CONNECTING' || data.state === 'RECONNECTING') {
-    dot.classList.add('connecting');
-    text.innerHTML = '<span class=\"spinner\"></span>Connecting to <strong>' + (data.ssid || '...') + '</strong>';
+  var text = document.getElementById(\'statusText\');
+  if (data.state === \'CONNECTED\') {
+    text.innerHTML = \'Connected to \' + data.ssid + \' &mdash; IP: \' + data.ip + \' (RSSI: \' + data.rssi + \' dBm)\';
+  } else if (data.state === \'CONNECTING\' || data.state === \'RECONNECTING\') {
+    text.innerHTML = \'Connecting to \' + (data.ssid || \'...\');
   } else {
-    dot.classList.add('disconnected');
-    text.innerHTML = 'Not connected &mdash; AP: <strong>' + data.ap_ip + '</strong>';
+    text.innerHTML = \'Not connected &mdash; AP: \' + data.ap_ip;
   }
 }
 
 function fetchStatus() {
-  fetch('/status')
+  fetch(\'/status\')
     .then(function(r) { return r.json(); })
     .then(function(data) { updateStatus(data); })
     .catch(function() {});
 }
 
 function saveLEDSettings() {
-  var brightness = document.getElementById('brightness').value;
-  var ledColor = document.getElementById('ledColor').value;
-  var effectType = document.getElementById('effectType').value;
-  var effectSpeed = document.getElementById('effectSpeed').value;
-  var ledMode = document.getElementById('ledMode').value;
+  var brightness = document.getElementById(\'brightness\').value;
+  var ledColor = document.getElementById(\'ledColor\').value;
+  var effectType = document.getElementById(\'effectType\').value;
+  var effectSpeed = document.getElementById(\'effectSpeed\').value;
+  var ledMode = document.getElementById(\'ledMode\').value;
 
   var settings = {
     brightness: parseInt(brightness),
@@ -712,73 +541,101 @@ function saveLEDSettings() {
     mode: ledMode
   };
 
-  fetch('/save_led_settings', {
-    method: 'POST',
+  fetch(\'/save_led_settings\', {
+    method: \'POST\',
     headers: {
-      'Content-Type': 'application/json'
+      \'Content-Type\': \'application/json\'
     },
     body: JSON.stringify(settings)
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.success) {
-      showMessage('LED settings saved successfully!', 'success');
+      showMessage(\'LED settings saved successfully!\', \'success\');
     } else {
-      showMessage('Error: ' + (data.message || 'Failed to save settings'), 'error');
+      showMessage(\'Error: \' + (data.message || \'Failed to save settings\'), \'error\');
     }
   })
   .catch(function() {
-    showMessage('Request failed. Check connection.', 'error');
+    showMessage(\'Request failed. Check connection.\', \'error\');
   });
 }
 
 function testLEDs() {
-  fetch('/test_leds', { method: 'POST' })
+  fetch(\'/test_leds\', { method: \'POST\' })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        showMessage('LED test started!', 'info');
+        showMessage(\'LED test started!\', \'info\');
       } else {
-        showMessage('Error: ' + (data.message || 'Failed to start LED test'), 'error');
+        showMessage(\'Error: \' + (data.message || \'Failed to start LED test\'), \'error\');
       }
     })
     .catch(function() {
-      showMessage('Request failed. Check connection.', 'error');
+      showMessage(\'Request failed. Check connection.\', \'error\');
     });
 }
 
 function turnOffLEDs() {
-  fetch('/turn_off_leds', { method: 'POST' })
+  fetch(\'/turn_off_leds\', { method: \'POST\' })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        showMessage('All LEDs turned off!', 'info');
+        showMessage(\'All LEDs turned off!\', \'info\');
       } else {
-        showMessage('Error: ' + (data.message || 'Failed to turn off LEDs'), 'error');
+        showMessage(\'Error: \' + (data.message || \'Failed to turn off LEDs\'), \'error\');
       }
     })
     .catch(function() {
-      showMessage('Request failed. Check connection.', 'error');
+      showMessage(\'Request failed. Check connection.\', \'error\');
     });
 }
 
+function applyPattern() {
+  var ledColor = document.getElementById(\'ledColor\').value;
+  var effectType = document.getElementById(\'effectType\').value;
+  var effectSpeed = document.getElementById(\'effectSpeed\').value;
+
+  var patternData = {
+    pattern: effectType,
+    color: ledColor,
+    speed: parseInt(effectSpeed)
+  };
+
+  fetch(\'/set_led_pattern\', {
+    method: \'POST\',
+    headers: {
+      \'Content-Type\': \'application/json\'
+    },
+    body: JSON.stringify(patternData)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      showMessage(\'LED pattern applied!\', \'success\');
+    } else {
+      showMessage(\'Error: \' + (data.message || \'Failed to apply pattern\'), \'error\');
+    }
+  })
+  .catch(function() {
+    showMessage(\'Request failed. Check connection.\', \'error\');
+  });
+}
+
 // Update color preview when color picker changes
-document.getElementById('ledColor').addEventListener('input', function() {
+document.getElementById(\'ledColor\').addEventListener(\'input\', function() {
   var color = this.value;
-  document.getElementById('colorPreview').style.backgroundColor = color;
-  document.getElementById('colorHex').textContent = color;
+  document.getElementById(\'colorPreview\').style.backgroundColor = color;
+  document.getElementById(\'colorHex\').textContent = color;
 });
 
 // Update brightness value display
-document.getElementById('brightness').addEventListener('input', function() {
-  document.getElementById('brightnessValue').textContent = this.value;
+document.getElementById(\'brightness\').addEventListener(\'input\', function() {
+  document.getElementById(\'brightnessValue\').textContent = this.value;
 });
 
-// Update active nav button
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('.nav-btn[onclick=\"navigateTo(\\'leds\\')\"]').classList.add('active');
-  
-  // Load initial status
+// Load initial status
+document.addEventListener(\'DOMContentLoaded\', function() {
   fetchStatus();
   // Refresh status every 5 seconds
   setInterval(fetchStatus, 5000);
@@ -797,7 +654,7 @@ static const char SETTINGS_HTML[] PROGMEM = R"rawhtml(
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;
     background: #1a1a2e;
     color: #eee;
     min-height: 100vh;
@@ -976,10 +833,10 @@ static const char SETTINGS_HTML[] PROGMEM = R"rawhtml(
   </div>
 
   <div class=\"nav\">
-    <button class=\"nav-btn\" onclick=\"navigateTo('index')\">WiFi</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('time')\">Time</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('leds')\">LEDs</button>
-    <button class=\"nav-btn active\" onclick=\"navigateTo('settings')\">Settings</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'index\')\">WiFi</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'time\')\">Time</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'leds\')\">LEDs</button>
+    <button class=\"nav-btn active\" onclick=\"navigateTo(\'settings\')\">Settings</button>
   </div>
 
   <div class=\"status-bar\" id=\"statusBar\">
@@ -1057,67 +914,67 @@ static const char SETTINGS_HTML[] PROGMEM = R"rawhtml(
 
 <script>
 function navigateTo(page) {
-  window.location.href = '/' + page;
+  window.location.href = \'/\' + page;
 }
 
 function showMessage(text, type) {
-  var el = document.getElementById('message');
+  var el = document.getElementById(\'message\');
   el.textContent = text;
-  el.className = 'message ' + type;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 5000);
+  el.className = \'message \' + type;
+  el.style.display = \'block\';
+  setTimeout(function() { el.style.display = \'none\'; }, 5000);
 }
 
 function updateStatus(data) {
-  var dot = document.getElementById('statusDot');
-  var text = document.getElementById('statusText');
-  dot.className = 'status-dot';
-  if (data.state === 'CONNECTED') {
-    dot.classList.add('connected');
-    text.innerHTML = 'Connected to <strong>' + data.ssid + '</strong> &mdash; IP: <strong>' + data.ip + '</strong> (RSSI: ' + data.rssi + ' dBm)';
-    document.getElementById('forgetBtn').style.display = 'block';
-  } else if (data.state === 'CONNECTING' || data.state === 'RECONNECTING') {
-    dot.classList.add('connecting');
-    text.innerHTML = '<span class=\"spinner\"></span>Connecting to <strong>' + (data.ssid || '...') + '</strong>';
-    document.getElementById('forgetBtn').style.display = 'none';
+  var dot = document.getElementById(\'statusDot\');
+  var text = document.getElementById(\'statusText\');
+  dot.className = \'status-dot\';
+  if (data.state === \'CONNECTED\') {
+    dot.classList.add(\'connected\');
+    text.innerHTML = \'Connected to <strong>\' + data.ssid + \'</strong> &mdash; IP: <strong>\' + data.ip + \'</strong> (RSSI: \' + data.rssi + \' dBm)\';
+    document.getElementById(\'forgetBtn\').style.display = \'block\';
+  } else if (data.state === \'CONNECTING\' || data.state === \'RECONNECTING\') {
+    dot.classList.add(\'connecting\');
+    text.innerHTML = \'<span class=\"spinner\"></span>Connecting to <strong>\' + (data.ssid || \'...\') + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = \'none\';
   } else {
-    dot.classList.add('disconnected');
-    text.innerHTML = 'Not connected &mdash; AP: <strong>' + data.ap_ip + '</strong>';
-    document.getElementById('forgetBtn').style.display = data.has_credentials ? 'block' : 'none';
+    dot.classList.add(\'disconnected\');
+    text.innerHTML = \'Not connected &mdash; AP: <strong>\' + data.ap_ip + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = data.has_credentials ? \'block\' : \'none\';
   }
 }
 
 function fetchStatus() {
-  fetch('/status')
+  fetch(\'/status\')
     .then(function(r) { return r.json(); })
     .then(function(data) { updateStatus(data); })
     .catch(function() {});
 }
 
 function updateDeviceInfo() {
-  fetch('/device_info')
+  fetch(\'/device_info\')
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      document.getElementById('firmwareVersion').textContent = data.version || '-';
-      document.getElementById('uptime').textContent = data.uptime || '-';
-      document.getElementById('freeHeap').textContent = data.free_heap ? data.free_heap + ' bytes' : '-';
-      document.getElementById('cpuFreq').textContent = data.cpu_freq ? data.cpu_freq + ' MHz' : '-';
+      document.getElementById(\'firmwareVersion\').textContent = data.version || \'-\';
+      document.getElementById(\'uptime\').textContent = data.uptime || \'-\';
+      document.getElementById(\'freeHeap\').textContent = data.free_heap ? data.free_heap + \' bytes\' : \'-\';
+      document.getElementById(\'cpuFreq\').textContent = data.cpu_freq ? data.cpu_freq + \' MHz\' : \'-\';
     })
     .catch(function() {
-      document.getElementById('firmwareVersion').textContent = 'Error';
-      document.getElementById('uptime').textContent = 'Error';
-      document.getElementById('freeHeap').textContent = 'Error';
-      document.getElementById('cpuFreq').textContent = 'Error';
+      document.getElementById(\'firmwareVersion\').textContent = \'Error\';
+      document.getElementById(\'uptime\').textContent = \'Error\';
+      document.getElementById(\'freeHeap\').textContent = \'Error\';
+      document.getElementById(\'cpuFreq\').textContent = \'Error\';
     });
 }
 
 function saveGeneralSettings() {
-  var displayBrightness = document.getElementById('displayBrightness').value;
-  var displayTimeout = document.getElementById('displayTimeout').value;
-  var nightModeStart = document.getElementById('nightModeStart').value;
-  var nightModeEnd = document.getElementById('nightModeEnd').value;
-  var nightBrightness = document.getElementById('nightBrightness').value;
-  var deviceName = document.getElementById('deviceName').value;
+  var displayBrightness = document.getElementById(\'displayBrightness\').value;
+  var displayTimeout = document.getElementById(\'displayTimeout\').value;
+  var nightModeStart = document.getElementById(\'nightModeStart\').value;
+  var nightModeEnd = document.getElementById(\'nightModeEnd\').value;
+  var nightBrightness = document.getElementById(\'nightBrightness\').value;
+  var deviceName = document.getElementById(\'deviceName\').value;
 
   var settings = {
     display_brightness: parseInt(displayBrightness),
@@ -1128,63 +985,63 @@ function saveGeneralSettings() {
     device_name: deviceName
   };
 
-  fetch('/save_general_settings', {
-    method: 'POST',
+  fetch(\'/save_general_settings\', {
+    method: \'POST\',
     headers: {
-      'Content-Type': 'application/json'
+      \'Content-Type\': \'application/json\'
     },
     body: JSON.stringify(settings)
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.success) {
-      showMessage('General settings saved successfully!', 'success');
+      showMessage(\'General settings saved successfully!\', \'success\');
     } else {
-      showMessage('Error: ' + (data.message || 'Failed to save settings'), 'error');
+      showMessage(\'Error: \' + (data.message || \'Failed to save settings\'), \'error\');
     }
   })
   .catch(function() {
-    showMessage('Request failed. Check connection.', 'error');
+    showMessage(\'Request failed. Check connection.\', \'error\');
   });
 }
 
 function rebootDevice() {
-  if (!confirm('Reboot the device? This will temporarily disconnect the web interface.')) return;
+  if (!confirm(\'Reboot the device? This will temporarily disconnect the web interface.\')) return;
   
-  fetch('/reboot', { method: 'POST' })
+  fetch(\'/reboot\', { method: \'POST\' })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        showMessage('Device is rebooting...', 'info');
+        showMessage(\'Device is rebooting...\', \'info\');
       } else {
-        showMessage('Error: ' + (data.message || 'Failed to reboot device'), 'error');
+        showMessage(\'Error: \' + (data.message || \'Failed to reboot device\'), \'error\');
       }
     })
     .catch(function() {
-      showMessage('Request failed. Check connection.', 'error');
+      showMessage(\'Request failed. Check connection.\', \'error\');
     });
 }
 
 function resetSettings() {
-  if (!confirm('Perform factory reset? This will erase all settings and require reconfiguration.')) return;
+  if (!confirm(\'Perform factory reset? This will erase all settings and require reconfiguration.\')) return;
   
-  fetch('/factory_reset', { method: 'POST' })
+  fetch(\'/factory_reset\', { method: \'POST\' })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        showMessage('Settings reset. Device will restart...', 'info');
+        showMessage(\'Settings reset. Device will restart...\', \'info\');
       } else {
-        showMessage('Error: ' + (data.message || 'Failed to reset settings'), 'error');
+        showMessage(\'Error: \' + (data.message || \'Failed to reset settings\'), \'error\');
       }
     })
     .catch(function() {
-      showMessage('Request failed. Check connection.', 'error');
+      showMessage(\'Request failed. Check connection.\', \'error\');
     });
 }
 
 // Update active nav button
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('.nav-btn[onclick=\"navigateTo(\\'settings\\')\"]').classList.add('active');
+document.addEventListener(\'DOMContentLoaded\', function() {
+  document.querySelector(\'.nav-btn[onclick=\"navigateTo(\\\'settings\\\')\"]\').classList.add(\'active\');
   
   // Load initial status
   fetchStatus();
@@ -1209,7 +1066,7 @@ static const char TEMPLATE_HTML[] PROGMEM = R"rawhtml(
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;
     background: #1a1a2e;
     color: #eee;
     min-height: 100vh;
@@ -1379,10 +1236,10 @@ static const char TEMPLATE_HTML[] PROGMEM = R"rawhtml(
   </div>
 
   <div class=\"nav\">
-    <button class=\"nav-btn\" onclick=\"navigateTo('index')\">WiFi</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('time')\">Time</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('leds')\">LEDs</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('settings')\">Settings</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'index\')\">WiFi</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'time\')\">Time</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'leds\')\">LEDs</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'settings\')\">Settings</button>
   </div>
 
   <div class=\"status-bar\" id=\"statusBar\">
@@ -1399,54 +1256,54 @@ static const char TEMPLATE_HTML[] PROGMEM = R"rawhtml(
 <script>
 // Navigation function
 function navigateTo(page) {
-  window.location.href = '/' + page;
+  window.location.href = \'/\' + page;
 }
 
 // Common functions for all pages
 function showMessage(text, type) {
-  var el = document.getElementById('message');
+  var el = document.getElementById(\'message\');
   el.textContent = text;
-  el.className = 'message ' + type;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 5000);
+  el.className = \'message \' + type;
+  el.style.display = \'block\';
+  setTimeout(function() { el.style.display = \'none\'; }, 5000);
 }
 
 function updateStatus(data) {
-  var dot = document.getElementById('statusDot');
-  var text = document.getElementById('statusText');
-  dot.className = 'status-dot';
-  if (data.state === 'CONNECTED') {
-    dot.classList.add('connected');
-    text.innerHTML = 'Connected to <strong>' + data.ssid + '</strong> &mdash; IP: <strong>' + data.ip + '</strong> (RSSI: ' + data.rssi + ' dBm)';
-    document.getElementById('forgetBtn').style.display = 'block';
-  } else if (data.state === 'CONNECTING' || data.state === 'RECONNECTING') {
-    dot.classList.add('connecting');
-    text.innerHTML = '<span class=\"spinner\"></span>Connecting to <strong>' + (data.ssid || '...') + '</strong>';
-    document.getElementById('forgetBtn').style.display = 'none';
+  var dot = document.getElementById(\'statusDot\');
+  var text = document.getElementById(\'statusText\');
+  dot.className = \'status-dot\';
+  if (data.state === \'CONNECTED\') {
+    dot.classList.add(\'connected\');
+    text.innerHTML = \'Connected to <strong>\' + data.ssid + \'</strong> &mdash; IP: <strong>\' + data.ip + \'</strong> (RSSI: \' + data.rssi + \' dBm)\';
+    document.getElementById(\'forgetBtn\').style.display = \'block\';
+  } else if (data.state === \'CONNECTING\' || data.state === \'RECONNECTING\') {
+    dot.classList.add(\'connecting\');
+    text.innerHTML = \'<span class=\"spinner\"></span>Connecting to <strong>\' + (data.ssid || \'...\') + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = \'none\';
   } else {
-    dot.classList.add('disconnected');
-    text.innerHTML = 'Not connected &mdash; AP: <strong>' + data.ap_ip + '</strong>';
-    document.getElementById('forgetBtn').style.display = data.has_credentials ? 'block' : 'none';
+    dot.classList.add(\'disconnected\');
+    text.innerHTML = \'Not connected &mdash; AP: <strong>\' + data.ap_ip + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = data.has_credentials ? \'block\' : \'none\';
   }
 }
 
 function fetchStatus() {
-  fetch('/status')
+  fetch(\'/status\')
     .then(function(r) { return r.json(); })
     .then(function(data) { updateStatus(data); })
     .catch(function() {});
 }
 
 // Update active nav button
-document.addEventListener('DOMContentLoaded', function() {
-  var currentPage = window.location.pathname.substring(1) || 'index';
-  if(currentPage === '') currentPage = 'index';
-  var activeBtn = document.querySelector('.nav-btn[onclick=\"navigateTo(\\'' + currentPage + '\\')\"');
+document.addEventListener(\'DOMContentLoaded\', function() {
+  var currentPage = window.location.pathname.substring(1) || \'index\';
+  if(currentPage === \'\') currentPage = \'index\';
+  var activeBtn = document.querySelector(\'.nav-btn[onclick=\"navigateTo(\\\'\' + currentPage + \'\\\')\"\');
   if(activeBtn) {
-    activeBtn.classList.add('active');
+    activeBtn.classList.add(\'active\');
   } else {
     // Default to index
-    document.querySelector('.nav-btn[onclick=\"navigateTo(\\'index\\')\"]').classList.add('active');
+    document.querySelector(\'.nav-btn[onclick=\"navigateTo(\\\'index\\\')\"]\').classList.add(\'active\');
   }
   
   // Load initial status
@@ -1468,7 +1325,7 @@ static const char TIME_HTML[] PROGMEM = R"rawhtml(
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;
     background: #1a1a2e;
     color: #eee;
     min-height: 100vh;
@@ -1638,10 +1495,10 @@ static const char TIME_HTML[] PROGMEM = R"rawhtml(
   </div>
 
   <div class=\"nav\">
-    <button class=\"nav-btn\" onclick=\"navigateTo('index')\">WiFi</button>
-    <button class=\"nav-btn active\" onclick=\"navigateTo('time')\">Time</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('leds')\">LEDs</button>
-    <button class=\"nav-btn\" onclick=\"navigateTo('settings')\">Settings</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'index\')\">WiFi</button>
+    <button class=\"nav-btn active\" onclick=\"navigateTo(\'time\')\">Time</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'leds\')\">LEDs</button>
+    <button class=\"nav-btn\" onclick=\"navigateTo(\'settings\')\">Settings</button>
   </div>
 
   <div class=\"status-bar\" id=\"statusBar\">
@@ -1694,48 +1551,48 @@ static const char TIME_HTML[] PROGMEM = R"rawhtml(
 
 <script>
 function navigateTo(page) {
-  window.location.href = '/' + page;
+  window.location.href = \'/\' + page;
 }
 
 function showMessage(text, type) {
-  var el = document.getElementById('message');
+  var el = document.getElementById(\'message\');
   el.textContent = text;
-  el.className = 'message ' + type;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 5000);
+  el.className = \'message \' + type;
+  el.style.display = \'block\';
+  setTimeout(function() { el.style.display = \'none\'; }, 5000);
 }
 
 function updateStatus(data) {
-  var dot = document.getElementById('statusDot');
-  var text = document.getElementById('statusText');
-  dot.className = 'status-dot';
-  if (data.state === 'CONNECTED') {
-    dot.classList.add('connected');
-    text.innerHTML = 'Connected to <strong>' + data.ssid + '</strong> &mdash; IP: <strong>' + data.ip + '</strong> (RSSI: ' + data.rssi + ' dBm)';
-    document.getElementById('forgetBtn').style.display = 'block';
-  } else if (data.state === 'CONNECTING' || data.state === 'RECONNECTING') {
-    dot.classList.add('connecting');
-    text.innerHTML = '<span class=\"spinner\"></span>Connecting to <strong>' + (data.ssid || '...') + '</strong>';
-    document.getElementById('forgetBtn').style.display = 'none';
+  var dot = document.getElementById(\'statusDot\');
+  var text = document.getElementById(\'statusText\');
+  dot.className = \'status-dot\';
+  if (data.state === \'CONNECTED\') {
+    dot.classList.add(\'connected\');
+    text.innerHTML = \'Connected to <strong>\' + data.ssid + \'</strong> &mdash; IP: <strong>\' + data.ip + \'</strong> (RSSI: \' + data.rssi + \' dBm)\';
+    document.getElementById(\'forgetBtn\').style.display = \'block\';
+  } else if (data.state === \'CONNECTING\' || data.state === \'RECONNECTING\') {
+    dot.classList.add(\'connecting\');
+    text.innerHTML = \'<span class=\"spinner\"></span>Connecting to <strong>\' + (data.ssid || \'...\') + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = \'none\';
   } else {
-    dot.classList.add('disconnected');
-    text.innerHTML = 'Not connected &mdash; AP: <strong>' + data.ap_ip + '</strong>';
-    document.getElementById('forgetBtn').style.display = data.has_credentials ? 'block' : 'none';
+    dot.classList.add(\'disconnected\');
+    text.innerHTML = \'Not connected &mdash; AP: <strong>\' + data.ap_ip + \'</strong>\';
+    document.getElementById(\'forgetBtn\').style.display = data.has_credentials ? \'block\' : \'none\';
   }
 }
 
 function fetchStatus() {
-  fetch('/status')
+  fetch(\'/status\')
     .then(function(r) { return r.json(); })
     .then(function(data) { updateStatus(data); })
     .catch(function() {});
 }
 
 function saveTimeSettings() {
-  var timeFormat = document.getElementById('timeFormat').value;
-  var dateFormat = document.getElementById('dateFormat').value;
-  var ntpServer = document.getElementById('ntpServer').value;
-  var timeZone = document.getElementById('timeZone').value;
+  var timeFormat = document.getElementById(\'timeFormat\').value;
+  var dateFormat = document.getElementById(\'dateFormat\').value;
+  var ntpServer = document.getElementById(\'ntpServer\').value;
+  var timeZone = document.getElementById(\'timeZone\').value;
 
   var settings = {
     timeFormat: timeFormat,
@@ -1744,56 +1601,56 @@ function saveTimeSettings() {
     timeZone: timeZone
   };
 
-  fetch('/save_time_settings', {
-    method: 'POST',
+  fetch(\'/save_time_settings\', {
+    method: \'POST\',
     headers: {
-      'Content-Type': 'application/json'
+      \'Content-Type\': \'application/json\'
     },
     body: JSON.stringify(settings)
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if (data.success) {
-      showMessage('Time settings saved successfully!', 'success');
+      showMessage(\'Time settings saved successfully!\', \'success\');
     } else {
-      showMessage('Error: ' + (data.message || 'Failed to save settings'), 'error');
+      showMessage(\'Error: \' + (data.message || \'Failed to save settings\'), \'error\');
     }
   })
   .catch(function() {
-    showMessage('Request failed. Check connection.', 'error');
+    showMessage(\'Request failed. Check connection.\', \'error\');
   });
 }
 
 function syncTime() {
-  fetch('/sync_time', { method: 'POST' })
+  fetch(\'/sync_time\', { method: \'POST\' })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.success) {
-        showMessage('Time synchronized successfully!', 'success');
+        showMessage(\'Time synchronized successfully!\', \'success\');
         updateTimeDisplay();
       } else {
-        showMessage('Error: ' + (data.message || 'Failed to sync time'), 'error');
+        showMessage(\'Error: \' + (data.message || \'Failed to sync time\'), \'error\');
       }
     })
     .catch(function() {
-      showMessage('Request failed. Check connection.', 'error');
+      showMessage(\'Request failed. Check connection.\', \'error\');
     });
 }
 
 function updateTimeDisplay() {
-  fetch('/current_time')
+  fetch(\'/current_time\')
     .then(function(r) { return r.text(); })
     .then(function(time) {
-      document.getElementById('currentTime').textContent = time;
+      document.getElementById(\'currentTime\').textContent = time;
     })
     .catch(function() {
-      document.getElementById('currentTime').textContent = '--:--:--';
+      document.getElementById(\'currentTime\').textContent = \'--:--:--\';
     });
 }
 
 // Update active nav button
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelector('.nav-btn[onclick=\"navigateTo(\\'time\\')\"]').classList.add('active');
+document.addEventListener(\'DOMContentLoaded\', function() {
+  document.querySelector(\'.nav-btn[onclick=\"navigateTo(\\\'time\\\')\"]\').classList.add(\'active\');
   
   // Load initial status
   fetchStatus();

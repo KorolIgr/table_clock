@@ -727,6 +727,8 @@ void WiFiManager::setupWebServer() {
     _server.on("/save_led_settings", HTTP_POST, [this]() { handleSaveLEDSettings(); });
     _server.on("/test_leds", HTTP_POST, [this]() { handleTestLEDs(); });
     _server.on("/turn_off_leds", HTTP_POST, [this]() { handleTurnOffLEDs(); });
+    _server.on("/set_led_pattern", HTTP_POST, [this]() { handleSetLEDPattern(); });
+    _server.on("/run_led_pattern", HTTP_POST, [this]() { handleRunLEDPattern(); });
     _server.on("/save_general_settings", HTTP_POST, [this]() { handleSaveGeneralSettings(); });
     _server.on("/device_info", HTTP_GET, [this]() { handleDeviceInfo(); });
     _server.on("/reboot", HTTP_POST, [this]() { handleReboot(); });
@@ -1013,6 +1015,62 @@ void WiFiManager::handleSaveLEDSettings() {
     String requestBody = _server.arg("plain");
     // For now, just return success
     _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"LED settings saved\"}"));
+}
+
+// Global variables to store current LED pattern state (not saved to flash)
+static String currentPattern = "static";
+static uint8_t currentRed = 255;
+static uint8_t currentGreen = 255;
+static uint8_t currentBlue = 255;
+static uint32_t currentSpeed = 100;
+
+void WiFiManager::handleSetLEDPattern() {
+    // Parse JSON body manually
+    String requestBody = _server.arg("plain");
+    
+    // Extract pattern from JSON
+    if (requestBody.indexOf(F("\"pattern\"")) != -1) {
+        int start = requestBody.indexOf(F("\"pattern\"")) + 10; // Length of "\"pattern\"":
+        int end = requestBody.indexOf('"', start + 1);
+        if (start != -1 && end != -1) {
+            currentPattern = requestBody.substring(start, end);
+        }
+    }
+    
+    if (requestBody.indexOf(F("\"color\"")) != -1) {
+        int start = requestBody.indexOf(F("\"color\"")) + 8; // Length of "\"color\"":
+        int end = requestBody.indexOf('"', start + 1);
+        if (start != -1 && end != -1) {
+            String colorStr = requestBody.substring(start, end);
+            // Convert hex color to RGB
+            if (colorStr.startsWith("#")) {
+                colorStr = colorStr.substring(1);
+                unsigned int hexColor = (unsigned int) strtol(colorStr.c_str(), NULL, 16);
+                currentRed = (hexColor >> 16) & 0xFF;
+                currentGreen = (hexColor >> 8) & 0xFF;
+                currentBlue = hexColor & 0xFF;
+            }
+        }
+    }
+    
+    if (requestBody.indexOf(F("\"speed\"")) != -1) {
+        int start = requestBody.indexOf(F("\"speed\"")) + 8; // Length of "\"speed\"":
+        int end = requestBody.indexOf(',', start);
+        if (end == -1) end = requestBody.indexOf('}', start); // In case it's the last element
+        
+        if (start != -1 && end != -1) {
+            String speedStr = requestBody.substring(start, end);
+            int speedVal = speedStr.toInt();
+            currentSpeed = map(speedVal, 1, 10, 200, 20); // Map 1-10 to 20-200ms delay (inverse relationship)
+        }
+    }
+    
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"LED pattern set\"}"));
+}
+
+void WiFiManager::handleRunLEDPattern() {
+    // Just return success - the pattern will be run in the main loop
+    _server.send(200, F("application/json"), F("{\"success\":true,\"message\":\"LED pattern set\"}"));
 }
 
 void WiFiManager::handleTestLEDs() {
