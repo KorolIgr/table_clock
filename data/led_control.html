@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table Clock - LED Control</title>
+</head>
+<body>
+    <h1>LED Control</h1>
+    <form action="/led" method="post">
+        <label for="red">Red:</label>
+        <input type="range" id="red" name="red" min="0" max="255" value="0"><br><br>
+        
+        <label for="green">Green:</label>
+        <input type="range" id="green" name="green" min="0" max="255" value="0"><br><br>
+        
+        <label for="blue">Blue:</label>
+        <input type="range" id="blue" name="blue" min="0" max="255" value="0"><br><br>
+        
+        <input type="submit" value="Update">
+    </form>
+</body>
+</html>
