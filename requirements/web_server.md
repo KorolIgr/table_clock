@@ -1,0 +1,1 @@
+* By default, the web server returns the index page (the page template is described in `requirements\web\index.md`)

@@ -445,104 +445,6 @@ void WiFiManager::saveCredentials(const char* ssid, const char* password) {
     _storedPassword[sizeof(_storedPassword) - 1] = '\0';
 }
 
-bool WiFiManager::hasStoredApCredentials() {
-    // Initialize EEPROM
-    EEPROM.begin(512);
-    
-    // Check a different location in EEPROM for AP credentials
-    // Use address 256 onwards for AP credentials to separate from STA credentials
-    char firstByte = EEPROM.read(256);
-    EEPROM.end();
-    
-    return firstByte != 255;
-}
-
-bool WiFiManager::loadStoredApCredentials(String& ssid, String& password) {
-    // Initialize EEPROM
-    EEPROM.begin(512);
-    
-    // Check if AP credentials exist (marked at address 256)
-    char firstByte = EEPROM.read(256);
-    if (firstByte == 255) {
-        // No stored AP credentials
-        EEPROM.end();
-        return false;
-    }
-    
-    // Read stored AP SSID length (at address 257)
-    int ssidLen = EEPROM.read(257);
-    if (ssidLen <= 0 || ssidLen > 32) {
-        // Invalid length
-        EEPROM.end();
-        return false;
-    }
-    
-    // Read AP SSID (starting at address 258)
-    for (int i = 0; i < ssidLen; i++) {
-        _storedApSsid[i] = EEPROM.read(258 + i);
-    }
-    _storedApSsid[ssidLen] = '\0';  // Null terminate
-    
-    // Read AP password length (after SSID data)
-    int pwdLen = EEPROM.read(258 + ssidLen);
-    if (pwdLen < 0 || pwdLen > 64) {
-        // Invalid length
-        EEPROM.end();
-        return false;
-    }
-    
-    // Read AP password (after length byte)
-    for (int i = 0; i < pwdLen; i++) {
-        _storedApPassword[i] = EEPROM.read(258 + ssidLen + 1 + i);
-    }
-    _storedApPassword[pwdLen] = '\0';  // Null terminate
-    
-    // Set return values
-    ssid = String(_storedApSsid);
-    password = String(_storedApPassword);
-    
-    EEPROM.end();
-    return true;
-}
-
-void WiFiManager::saveApCredentials(const char* ssid, const char* password) {
-    // Initialize EEPROM
-    EEPROM.begin(512);
-    
-    int addr = 256; // Start at address 256 for AP credentials
-    
-    // Mark that we have stored AP credentials (use 1 to indicate presence)
-    EEPROM.write(addr++, 1);
-    
-    // Store AP SSID length
-    int ssidLen = strlen(ssid);
-    EEPROM.write(addr++, ssidLen);
-    
-    // Store AP SSID
-    for (int i = 0; i < ssidLen; i++) {
-        EEPROM.write(addr++, ssid[i]);
-    }
-    
-    // Store AP password length
-    int pwdLen = strlen(password);
-    EEPROM.write(addr++, pwdLen);
-    
-    // Store AP password
-    for (int i = 0; i < pwdLen; i++) {
-        EEPROM.write(addr++, password[i]);
-    }
-    
-    // Commit to EEPROM
-    EEPROM.commit();
-    EEPROM.end();
-    
-    // Update cached values
-    strncpy(_storedApSsid, ssid, sizeof(_storedApSsid) - 1);
-    _storedApSsid[sizeof(_storedApSsid) - 1] = '\0';
-    strncpy(_storedApPassword, password, sizeof(_storedApPassword) - 1);
-    _storedApPassword[sizeof(_storedApPassword) - 1] = '\0';
-}
-
 void WiFiManager::handleWifiAP() {
     if (_server->method() == HTTP_POST) {
         // Handle AP configuration update
@@ -550,21 +452,119 @@ void WiFiManager::handleWifiAP() {
         String password = _server->arg("password");
         
         if (ssid.length() > 0 && password.length() >= 8) { // Minimum 8 characters for WPA2
-            // Save AP credentials to EEPROM
-            saveApCredentials(ssid.c_str(), password.c_str());
+            // Save credentials to EEPROM
+            saveCredentials(ssid.c_str(), password.c_str());
             
             // Restart AP with new credentials
             WiFi.softAPdisconnect(true); // Disconnect current AP
             delay(100);
             WiFi.softAP(ssid.c_str(), password.c_str());
         }
+        
+        bool WiFiManager::hasStoredApCredentials() {
+            // Initialize EEPROM
+            EEPROM.begin(512);
+            
+            // Check a different location in EEPROM for AP credentials
+            // Use address 256 onwards for AP credentials to separate from STA credentials
+            char firstByte = EEPROM.read(256);
+            EEPROM.end();
+            
+            return firstByte != 255;
+        }
+        
+        bool WiFiManager::loadStoredApCredentials(String& ssid, String& password) {
+            // Initialize EEPROM
+            EEPROM.begin(512);
+            
+            // Check if AP credentials exist (marked at address 256)
+            char firstByte = EEPROM.read(256);
+            if (firstByte == 255) {
+                // No stored AP credentials
+                EEPROM.end();
+                return false;
+            }
+            
+            // Read stored AP SSID length (at address 257)
+            int ssidLen = EEPROM.read(257);
+            if (ssidLen <= 0 || ssidLen > 32) {
+                // Invalid length
+                EEPROM.end();
+                return false;
+            }
+            
+            // Read AP SSID (starting at address 258)
+            for (int i = 0; i < ssidLen; i++) {
+                _storedApSsid[i] = EEPROM.read(258 + i);
+            }
+            _storedApSsid[ssidLen] = '\0';  // Null terminate
+            
+            // Read AP password length (after SSID data)
+            int pwdLen = EEPROM.read(258 + ssidLen);
+            if (pwdLen < 0 || pwdLen > 64) {
+                // Invalid length
+                EEPROM.end();
+                return false;
+            }
+            
+            // Read AP password (after length byte)
+            for (int i = 0; i < pwdLen; i++) {
+                _storedApPassword[i] = EEPROM.read(258 + ssidLen + 1 + i);
+            }
+            _storedApPassword[pwdLen] = '\0';  // Null terminate
+            
+            // Set return values
+            ssid = String(_storedApSsid);
+            password = String(_storedApPassword);
+            
+            EEPROM.end();
+            return true;
+        }
+        
+        void WiFiManager::saveApCredentials(const char* ssid, const char* password) {
+            // Initialize EEPROM
+            EEPROM.begin(512);
+            
+            int addr = 256; // Start at address 256 for AP credentials
+            
+            // Mark that we have stored AP credentials (use 1 to indicate presence)
+            EEPROM.write(addr++, 1);
+            
+            // Store AP SSID length
+            int ssidLen = strlen(ssid);
+            EEPROM.write(addr++, ssidLen);
+            
+            // Store AP SSID
+            for (int i = 0; i < ssidLen; i++) {
+                EEPROM.write(addr++, ssid[i]);
+            }
+            
+            // Store AP password length
+            int pwdLen = strlen(password);
+            EEPROM.write(addr++, pwdLen);
+            
+            // Store AP password
+            for (int i = 0; i < pwdLen; i++) {
+                EEPROM.write(addr++, password[i]);
+            }
+            
+            // Commit to EEPROM
+            EEPROM.commit();
+            EEPROM.end();
+            
+            // Update cached values
+            strncpy(_storedApSsid, ssid, sizeof(_storedApSsid) - 1);
+            _storedApSsid[sizeof(_storedApSsid) - 1] = '\0';
+            strncpy(_storedApPassword, password, sizeof(_storedApPassword) - 1);
+            _storedApPassword[sizeof(_storedApPassword) - 1] = '\0';
+        }
     }
     
     // Load current AP settings
     String currentSsid, currentPassword;
-    if (hasStoredApCredentials()) {
-        if (loadStoredApCredentials(currentSsid, currentPassword)) {
-            // Use stored AP credentials
+    if (hasStoredCredentials()) {
+        if (loadStoredCredentials(currentSsid, currentPassword)) {
+            // Use stored credentials
         } else {
             // Fallback to defaults if loading failed
             currentSsid = DEFAULT_AP_SSID;

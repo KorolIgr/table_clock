@@ -15,7 +15,7 @@ void MainApplication::begin() {
     initHardware();
     delay(100); // Small delay after hardware init
     
-    //initWiFi();
+    initWiFi();
     delay(100); // Small delay after WiFi init
     
     //initDisplay();
@@ -24,14 +24,20 @@ void MainApplication::begin() {
     initLED();
     delay(100); // Small delay after LED init
     
-    //connectLEDControllerToWiFi();
+    connectLEDControllerToWiFi();
     
     Serial.println("Table Clock Application started successfully.");
 }
 
 void MainApplication::appLoop() {
-    //_wifiManager->update();
-    _ledController->updatePattern();
+    // Add null pointer checks before calling update methods
+    if (_wifiManager) {
+        _wifiManager->update();
+    }
+    
+    if (_ledController) {
+        _ledController->updatePattern();
+    }
     
     // Periodic heartbeat to indicate the device is running
     static unsigned long lastHeartbeat = 0;
@@ -49,14 +55,20 @@ void MainApplication::initHardware() {
 void MainApplication::initWiFi() {
     _wifiManager = new WiFiManager();
     
-    // Check if we have stored WiFi credentials
-    String storedSsid, storedPassword;
-    if (_wifiManager->loadStoredCredentials(storedSsid, storedPassword)) {
-        // Use stored credentials for both AP and STA modes
-        _wifiManager->begin(storedSsid.c_str(), storedPassword.c_str(), WIFI_AP_STA);
-    } else {
-        // Use default AP credentials, but don't try to connect to STA without stored credentials
-        _wifiManager->begin(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD, WIFI_AP_STA);
+    if (_wifiManager) {
+        // Check if we have stored WiFi credentials
+        String storedSsid = "";
+        String storedPassword = "";
+        if (_wifiManager->loadStoredCredentials(storedSsid, storedPassword)) {
+            // Use stored credentials for both AP and STA modes
+            _wifiManager->begin(storedSsid.c_str(), storedPassword.c_str(), WIFI_AP_STA);
+        } else {
+            // Use default AP credentials, but don't try to connect to STA without stored credentials
+            _wifiManager->begin(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD, WIFI_AP_STA);
+        }
+        
+        // Small delay after WiFi initialization
+        delay(200);
     }
 }
 
