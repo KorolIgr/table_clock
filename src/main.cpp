@@ -1,6 +1,6 @@
 #include "main.h"
 
-MainApplication::MainApplication() 
+MainApplication::MainApplication()
     : _ledController(nullptr), _displayManager(nullptr), _wifiManager(nullptr) {
 }
 
@@ -11,7 +11,7 @@ void MainApplication::begin() {
     initLED();
 }
 
-void MainApplication::loop() {
+void MainApplication::appLoop() {
     _wifiManager->update();
 }
 
@@ -21,7 +21,7 @@ void MainApplication::initHardware() {
 
 void MainApplication::initWiFi() {
     _wifiManager = new WiFiManager();
-    _wifiManager->begin(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD, MODE_AP_STA);
+    _wifiManager->begin(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD, WIFI_AP_STA);
 }
 
 void MainApplication::initDisplay() {
@@ -33,4 +33,17 @@ void MainApplication::initDisplay() {
 void MainApplication::initLED() {
     _ledController = new LEDController(LED_DATA_PIN);
     _ledController->begin();
+}
+
+// Global application instance
+MainApplication app;
+
+// Standard Arduino setup function
+void setup() {
+    app.begin();
+}
+
+// Standard Arduino loop function
+void loop() {
+    app.appLoop();
 }

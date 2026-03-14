@@ -11,7 +11,7 @@ class MainApplication {
 public:
     MainApplication();
     void begin();
-    void loop();
+    void appLoop();  // Renamed from loop to avoid conflict with Arduino's loop
 
 private:
     LEDController* _ledController;

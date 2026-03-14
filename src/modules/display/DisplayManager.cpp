@@ -2,7 +2,7 @@
 
 DisplayManager::DisplayManager(uint8_t address, uint8_t sdaPin, uint8_t sclPin)
     : _address(address), _sdaPin(sdaPin), _sclPin(sclPin) {
-    _display = new Adafruit_SSD1306(SSD1306_WIDTH, SSD1306_HEIGHT, &Wire, -1);
+    _display = new Adafruit_SSD1306(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, &Wire, -1);
 }
 
 void DisplayManager::begin() {

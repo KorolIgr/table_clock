@@ -1,18 +1,19 @@
 #include "WiFiManager.h"
+#include "../../app_config.h"
 
 WiFiManager::WiFiManager() : _server(nullptr) {
 }
 
-void WiFiManager::begin(const char* ssid, const char* password, WiFiMode mode) {
+void WiFiManager::begin(const char* ssid, const char* password, WiFiMode_t mode) {
     _mode = mode;
     _ssid = ssid;
     _password = password;
     
-    if (_mode == MODE_AP || _mode == MODE_AP_STA) {
+    if (_mode == WIFI_AP || _mode == WIFI_AP_STA) {
         setupAP();
     }
     
-    if (_mode == MODE_STA || _mode == MODE_AP_STA) {
+    if (_mode == WIFI_STA || _mode == WIFI_AP_STA) {
         setupSTA(ssid, password);
     }
     
@@ -28,7 +29,7 @@ void WiFiManager::update() {
         _server->handleClient();
     }
     
-    if (_mode == MODE_STA || _mode == MODE_AP_STA) {
+    if (_mode == WIFI_STA || _mode == WIFI_AP_STA) {
         if (WiFi.status() != WL_CONNECTED) {
             // Try to reconnect
             WiFi.begin(_ssid.c_str(), _password.c_str());
@@ -37,20 +38,20 @@ void WiFiManager::update() {
 }
 
 bool WiFiManager::isConnected() {
-    if (_mode == MODE_AP) {
+    if (_mode == WIFI_AP) {
         return true;  // AP always "connected"
     }
     return WiFi.status() == WL_CONNECTED;
 }
 
-WiFiMode WiFiManager::getMode() {
+WiFiMode_t WiFiManager::getMode() {
     return _mode;
 }
 
 const char* WiFiManager::getLocalIP() {
     if (WiFi.status() == WL_CONNECTED) {
         _localIP = WiFi.localIP().toString();
-    } else if (_mode == MODE_AP) {
+    } else if (_mode == WIFI_AP) {
         _localIP = WiFi.softAPIP().toString();
     }
     return _localIP.c_str();

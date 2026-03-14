@@ -1,7 +1,7 @@
 #ifndef LED_CONTROLLER_H
 #define LED_CONTROLLER_H
 
-#include <APA106.h>
+#include <NeoPixelBus.h>
 
 class LEDController {
 public:
@@ -14,7 +14,7 @@ public:
     void clear();
 
 private:
-    APA106* _ledStrip;
+    NeoPixelBus<NeoRgbFeature, NeoEsp8266Dma800KbpsMethod>* _ledStrip;
     uint8_t _dataPin;
     uint16_t _numLEDs;
 };
