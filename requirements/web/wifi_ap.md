@@ -1,13 +1,7 @@
-Header: WiFi
-
-AP
+Header: WiFi AP
 
 SSID:       [           ]
 Password:   [           ]
-
-STA
-
-SSID:       [           ]
-Password:   [           ]
+IP:         [           ]
 
 [ Save ]

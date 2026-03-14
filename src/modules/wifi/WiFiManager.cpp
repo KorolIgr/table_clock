@@ -253,11 +253,41 @@ void WiFiManager::setupAP() {
             WiFi.softAP(apSsid.c_str(), apPassword.c_str());
         } else {
             // Use default credentials for AP mode if loading failed
+            // Configure static IP for AP mode
+            IPAddress ip(192, 168, 4, 1);
+            IPAddress gateway(192, 168, 4, 1);
+            IPAddress subnet(255, 255, 255, 0);
+            
+            WiFi.softAPConfig(ip, gateway, subnet);
             WiFi.softAP(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD);
+            
+            // Display AP connection information in console
+            Serial.println("Access Point initialized with default settings:");
+            Serial.print("SSID: ");
+            Serial.println(DEFAULT_AP_SSID);
+            Serial.print("Password: ");
+            Serial.println(DEFAULT_AP_PASSWORD);
+            Serial.print("IP Address: ");
+            Serial.println(WiFi.softAPIP().toString());
         }
     } else {
         // Use default credentials for AP mode
+        // Configure static IP for AP mode
+        IPAddress ip(192, 168, 4, 1);
+        IPAddress gateway(192, 168, 4, 1);
+        IPAddress subnet(255, 255, 255, 0);
+        
+        WiFi.softAPConfig(ip, gateway, subnet);
         WiFi.softAP(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD);
+        
+        // Display AP connection information in console
+        Serial.println("Access Point initialized with default settings:");
+        Serial.print("SSID: ");
+        Serial.println(DEFAULT_AP_SSID);
+        Serial.print("Password: ");
+        Serial.println(DEFAULT_AP_PASSWORD);
+        Serial.print("IP Address: ");
+        Serial.println(WiFi.softAPIP().toString());
     }
     delay(200); // Allow AP to start
 }
