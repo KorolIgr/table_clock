@@ -7,6 +7,7 @@ The system controls multiple RGB LEDs using configurable lighting patterns.
 * Each lighting pattern must be implemented in a separate source file.
 * Each pattern must support individual configuration parameters.
 * If a parameter is not provided, the default value must be used.
+* When loading the controller, the LEDs should work according to the selected pattern, if it is not selected, then run the default pattern
 
 # Supported Patterns
 

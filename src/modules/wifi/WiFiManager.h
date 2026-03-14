@@ -3,6 +3,7 @@
 
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include "../led/LEDController.h"
 
 class WiFiManager {
 public:
@@ -14,6 +15,10 @@ public:
     WiFiMode_t getMode();
     const char* getLocalIP();
     ESP8266WebServer* getServer();
+    void setLEDController(LEDController* ledController);
+    bool hasStoredCredentials();
+    bool loadStoredCredentials(String& ssid, String& password);
+    void saveCredentials(const char* ssid, const char* password);
 
 private:
     WiFiMode_t _mode;
@@ -21,11 +26,18 @@ private:
     String _password;
     String _localIP;
     ESP8266WebServer* _server;
+    LEDController* _ledController;
+    bool _credentialsLoaded;
+    bool _hasCredentials;
+    char _storedSsid[33];  // Max SSID length is 32 + null terminator
+    char _storedPassword[65];  // Max password length is 64 + null terminator
     
     void setupAP();
     void setupSTA(const char* ssid, const char* password);
     void handleRoot();
     void handleConfig();
+    void handleLED();
+    void handleLEDPattern();
 };
 
 #endif // WIFI_MANAGER_H

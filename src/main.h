@@ -22,6 +22,7 @@ private:
     void initWiFi();
     void initDisplay();
     void initLED();
+    void connectLEDControllerToWiFi();
 };
 
 #endif // MAIN_H

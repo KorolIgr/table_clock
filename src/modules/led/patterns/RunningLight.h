@@ -3,13 +3,15 @@
 
 #include <NeoPixelBus.h>
 
+typedef NeoPixelBus<NeoRgbFeature, NeoEsp8266BitBang800KbpsMethod> LedStripType;
+
 class RunningLight {
 public:
-    RunningLight(NeoPixelBus<NeoRgbFeature, NeoEsp8266Dma800KbpsMethod>* ledStrip, uint16_t numLEDs);
+    RunningLight(LedStripType* ledStrip, uint16_t numLEDs);
     void update(bool direction, uint16_t speed, RgbColor color);
 
 private:
-    NeoPixelBus<NeoRgbFeature, NeoEsp8266Dma800KbpsMethod>* _ledStrip;
+    LedStripType* _ledStrip;
     uint16_t _numLEDs;
     uint16_t _currentIndex;
     uint32_t _lastUpdate;

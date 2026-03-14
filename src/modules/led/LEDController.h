@@ -2,6 +2,7 @@
 #define LED_CONTROLLER_H
 
 #include <NeoPixelBus.h>
+#include <EEPROM.h>
 #include "patterns/RunningLight.h"
 #include "patterns/PingPong.h"
 
@@ -30,9 +31,12 @@ public:
     void clear();
     void setPattern(const PatternConfig& config);
     void updatePattern();
+    void savePatternConfig();
+    void loadPatternConfig();
+    PatternConfig getCurrentConfig() const;
 
 private:
-    NeoPixelBus<NeoRgbFeature, NeoEsp8266Dma800KbpsMethod>* _ledStrip;
+    NeoPixelBus<NeoRgbFeature, NeoEsp8266BitBang800KbpsMethod>* _ledStrip;
     uint8_t _dataPin;
     uint16_t _numLEDs;
     PatternConfig _currentConfig;

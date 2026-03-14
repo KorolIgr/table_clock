@@ -1,6 +1,8 @@
 #include "PingPong.h"
 
-PingPong::PingPong(NeoPixelBus<NeoRgbFeature, NeoEsp8266Dma800KbpsMethod>* ledStrip, uint16_t numLEDs)
+#include "PingPong.h"
+
+PingPong::PingPong(LedStripType* ledStrip, uint16_t numLEDs)
     : _ledStrip(ledStrip), _numLEDs(numLEDs), _currentIndex(0), _lastUpdate(0), _directionForward(true), _speed(500) {
 }
 

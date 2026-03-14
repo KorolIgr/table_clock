@@ -5,3 +5,4 @@
 * If valid STA configuration exists, the device must automatically connect to the configured WiFi network during startup.
 * The device must automatically reconnect to the STA network if the connection is lost.
 * AP mode must remain available to allow device configuration and management through the web interface.
+* If the STA does not have connection data, then there is no need to try to connect or reconnect.
