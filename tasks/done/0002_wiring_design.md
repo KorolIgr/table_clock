@@ -1,3 +1,0 @@
-- Design the electrical wiring diagram for the components
-- Define ESP8266 pins for connecting the TCA9548A
-- Define pins for controlling the APA106 LEDs
