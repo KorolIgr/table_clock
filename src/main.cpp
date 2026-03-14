@@ -13,6 +13,7 @@ void MainApplication::begin() {
 
 void MainApplication::appLoop() {
     _wifiManager->update();
+    _ledController->updatePattern();
 }
 
 void MainApplication::initHardware() {

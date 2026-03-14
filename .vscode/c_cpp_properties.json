@@ -115,7 +115,6 @@
                 "ESP8266",
                 "ARDUINO_ARCH_ESP8266",
                 "ARDUINO_ESP8266_NODEMCU_ESP12E",
-                "CORE_DEBUG_LEVEL=3",
                 "F_CPU=80000000L",
                 "__ets__",
                 "ICACHE_FLASH",
