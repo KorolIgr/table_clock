@@ -183,50 +183,12 @@ void WiFiManager::handleLED() {
     }
     
     // Serve led.html from LittleFS
-    File file = LittleFS.open("/led.html", "r");
+    File file = LittleFS.open("/led.html.gz", "r");
     if (file) {
         _server->streamFile(file, "text/html");
         file.close();
     } else {
-        // Fallback to basic HTML if file not found
-        String html = "<!DOCTYPE html>";
-        html += "<html>";
-        html += "<head><title>Table Clock - LED</title></head>";
-        html += "<body>";
-        html += "<h1>LED</h1>";
-        html += "<form action='/led' method='post'>";
-        html += "<label for='pattern'>Pattern:</label>";
-        html += "<select id='pattern' name='pattern'>";
-        html += "<option value='running_light'>Running Light</option>";
-        html += "<option value='ping_pong'>Ping Pong</option>";
-        html += "</select><br><br>";
-        
-        html += "<label for='color'>Color:</label>";
-        html += "<select id='color' name='color'>";
-        html += "<option value='white'>White</option>";
-        html += "<option value='red'>Red</option>";
-        html += "<option value='green'>Green</option>";
-        html += "<option value='blue'>Blue</option>";
-        html += "<option value='yellow'>Yellow</option>";
-        html += "<option value='purple'>Purple</option>";
-        html += "<option value='cyan'>Cyan</option>";
-        html += "</select><br><br>";
-        
-        html += "<label for='speed'>Speed:</label>";
-        html += "<input type='number' id='speed' name='speed' min='50' max='2000' value='500'> ms<br><br>";
-        
-        html += "<label for='direction'>Direction:</label>";
-        html += "<select id='direction' name='direction'>";
-        html += "<option value='forward'>Forward</option>";
-        html += "<option value='reverse'>Reverse</option>";
-        html += "</select><br><br>";
-        
-        html += "<input type='submit' value='Apply'>";
-        html += "</form>";
-        html += "</body>";
-        html += "</html>";
-        
-        _server->send(200, "text/html", html);
+        _server->send(404, "text/plain", "File not found");
     }
 }
 
@@ -307,36 +269,23 @@ void WiFiManager::setupSTA(const char* ssid, const char* password) {
 
 void WiFiManager::handleRoot() {
     // Serve index.html from LittleFS
-    File file = LittleFS.open("/index.html", "r");
+    File file = LittleFS.open("/index.html.gz", "r");
     if (file) {
         _server->streamFile(file, "text/html");
         file.close();
     } else {
-        // Fallback to basic HTML if file not found
-        String html = "<!DOCTYPE html>";
-        html += "<html>";
-        html += "<head><title>Table Clock</title></head>";
-        html += "<body>";
-        html += "<h1>Table Clock</h1>";
-        html += "<a href='/wifi_ap'>WiFi AP</a><br>";
-        html += "<a href='/wifi_sta'>WiFi STA</a><br>";
-        html += "<a href='/led'>LED</a>";
-        html += "</body>";
-        html += "</html>";
-        
-        _server->send(200, "text/html", html);
+        _server->send(404, "text/plain", "File not found");
     }
 }
 
 void WiFiManager::handleConfig() {
     // Serve wifi_config.html from LittleFS
-    File file = LittleFS.open("/wifi_config.html", "r");
+    File file = LittleFS.open("/wifi_config.html.gz", "r");
     if (file) {
         _server->streamFile(file, "text/html");
         file.close();
     } else {
-        // Fallback to basic HTML if file not found
-        _server->send(200, "text/html", "<h1>Configuration</h1><p>Config page</p>");
+        _server->send(404, "text/plain", "File not found");
     }
 }
 
@@ -617,41 +566,12 @@ void WiFiManager::handleWifiAP() {
     }
     
     // Serve wifi_ap.html from LittleFS
-    File file = LittleFS.open("/wifi_ap.html", "r");
+    File file = LittleFS.open("/wifi_ap.html.gz", "r");
     if (file) {
-        String content = file.readString();
+        _server->streamFile(file, "text/html");
         file.close();
-        
-        // Replace placeholders with actual values
-        content.replace("<input type=\"text\" id=\"ssid\" name=\"ssid\" placeholder=\"Enter SSID\">",
-                       "<input type=\"text\" id=\"ssid\" name=\"ssid\" value=\"" + currentSsid + "\">");
-        content.replace("<input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Enter Password\">",
-                       "<input type=\"password\" id=\"password\" name=\"password\" value=\"" + currentPassword + "\">");
-        
-        _server->send(200, "text/html", content);
     } else {
-        // Fallback to basic HTML if file not found
-        String html = "<!DOCTYPE html>";
-        html += "<html>";
-        html += "<head><title>Table Clock - WiFi AP</title></head>";
-        html += "<body>";
-        html += "<h1>WiFi AP</h1>";
-        html += "<form action='/wifi_ap' method='post'>";
-        html += "<label for='ssid'>SSID:</label>";
-        html += "<input type='text' id='ssid' name='ssid' value='" + currentSsid + "'><br><br>";
-        
-        html += "<label for='password'>Password:</label>";
-        html += "<input type='password' id='password' name='password' value='" + currentPassword + "'><br><br>";
-        
-        html += "<label for='ip'>IP:</label>";
-        html += "<input type='text' id='ip' name='ip' placeholder='192.168.4.1' value='192.168.4.1'><br><br>";
-        
-        html += "<input type='submit' value='Save'>";
-        html += "</form>";
-        html += "</body>";
-        html += "</html>";
-        
-        _server->send(200, "text/html", html);
+        _server->send(404, "text/plain", "File not found");
     }
 }
 
@@ -687,36 +607,11 @@ void WiFiManager::handleWifiSTA() {
     }
     
     // Serve wifi_sta.html from LittleFS
-    File file = LittleFS.open("/wifi_sta.html", "r");
+    File file = LittleFS.open("/wifi_sta.html.gz", "r");
     if (file) {
-        String content = file.readString();
+        _server->streamFile(file, "text/html");
         file.close();
-        
-        // Replace placeholders with actual values
-        content.replace("<select id=\"ssid\" name=\"ssid\">",
-                       "<select id=\"ssid\" name=\"ssid\"><option value=\"" + currentSsid + "\" selected>" + currentSsid + "</option>");
-        
-        _server->send(200, "text/html", content);
     } else {
-        // Fallback to basic HTML if file not found
-        String html = "<!DOCTYPE html>";
-        html += "<html>";
-        html += "<head><title>Table Clock - WiFi STA</title></head>";
-        html += "<body>";
-        html += "<h1>WiFi STA</h1>";
-        html += "<form action='/wifi_sta' method='post'>";
-        html += "<label for='ssid'>SSID:</label>";
-        html += "<select id='ssid' name='ssid'><option value='" + currentSsid + "' selected>" + currentSsid + "</option></select><br><br>";
-        
-        html += "<label for='password'>Password:</label>";
-        html += "<input type='password' id='password' name='password' value='" + currentPassword + "'><br><br>";
-        
-        html += "<input type='submit' value='Connect'>";
-        html += "<input type='button' value='Forget' onclick=\"location.href='/forget_wifi'\">";
-        html += "</form>";
-        html += "</body>";
-        html += "</html>";
-        
-        _server->send(200, "text/html", html);
+        _server->send(404, "text/plain", "File not found");
     }
 }
