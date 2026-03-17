@@ -1,6 +1,7 @@
 #include "WiFiManager.h"
 #include "../../app_config.h"
 #include <EEPROM.h>
+#include <LittleFS.h>
 
 WiFiManager::WiFiManager() : _server(nullptr), _credentialsLoaded(false), _hasCredentials(false) {
     // Initialize the character arrays
@@ -14,6 +15,13 @@ void WiFiManager::begin(const char* ssid, const char* password, WiFiMode_t mode)
     _mode = mode;
     _ssid = ssid;
     _password = password;
+    
+    // Initialize LittleFS
+    if (!LittleFS.begin()) {
+        // If LittleFS fails to mount, format and try again
+        LittleFS.format();
+        LittleFS.begin();
+    }
     
     // Give some time for the system to settle before WiFi initialization
     delay(100);
@@ -121,50 +129,11 @@ void WiFiManager::setLEDController(LEDController* ledController) {
 
 void WiFiManager::handleLED() {
     if (_server->method() == HTTP_POST) {
-        // Handle LED color update
-        uint8_t red = _server->arg("red").toInt();
-        uint8_t green = _server->arg("green").toInt();
-        uint8_t blue = _server->arg("blue").toInt();
-        
-        if (_ledController) {
-            _ledController->setAllLEDs(red, green, blue);
-            _ledController->show();
-        }
-    }
-    
-    // Send LED control page
-    String html = "<!DOCTYPE html>";
-    html += "<html>";
-    html += "<head><title>Table Clock - LED Control</title></head>";
-    html += "<body>";
-    html += "<h1>LED Control</h1>";
-    html += "<form action='/led' method='post'>";
-    html += "<label for='red'>Red:</label>";
-    html += "<input type='range' id='red' name='red' min='0' max='255' value='0'><br><br>";
-    
-    html += "<label for='green'>Green:</label>";
-    html += "<input type='range' id='green' name='green' min='0' max='255' value='0'><br><br>";
-    
-    html += "<label for='blue'>Blue:</label>";
-    html += "<input type='range' id='blue' name='blue' min='0' max='255' value='0'><br><br>";
-    
-    html += "<input type='submit' value='Update'>";
-    html += "</form>";
-    
-    // Add link to pattern selection page
-    html += "<br><a href='/led_pattern'>LED Pattern Selection</a>";
-    html += "</body>";
-    html += "</html>";
-    
-    _server->send(200, "text/html", html);
-}
-
-void WiFiManager::handleLEDPattern() {
-    if (_server->method() == HTTP_POST) {
         // Handle LED pattern update
         String patternStr = _server->arg("pattern");
-        String directionStr = _server->arg("direction");
+        String colorStr = _server->arg("color");
         uint16_t speed = _server->arg("speed").toInt();
+        String directionStr = _server->arg("direction");
         
         if (_ledController) {
             PatternConfig config;
@@ -178,6 +147,23 @@ void WiFiManager::handleLEDPattern() {
                 config.pattern = LEDPattern::RUNNING_LIGHT; // Default
             }
             
+            // Parse color
+            if (colorStr == "red") {
+                config.color = RgbColor(255, 0, 0);
+            } else if (colorStr == "green") {
+                config.color = RgbColor(0, 255, 0);
+            } else if (colorStr == "blue") {
+                config.color = RgbColor(0, 0, 255);
+            } else if (colorStr == "yellow") {
+                config.color = RgbColor(255, 255, 0);
+            } else if (colorStr == "purple") {
+                config.color = RgbColor(255, 0, 255);
+            } else if (colorStr == "cyan") {
+                config.color = RgbColor(0, 255, 255);
+            } else {
+                config.color = RgbColor(255, 255, 255); // White default
+            }
+            
             // Parse direction
             config.direction = (directionStr == "forward");
             
@@ -188,9 +174,6 @@ void WiFiManager::handleLEDPattern() {
                 config.speed = 500; // Default speed
             }
             
-            // Set default color
-            config.color = RgbColor(255, 255, 255);
-            
             // Apply the new pattern configuration
             _ledController->setPattern(config);
             
@@ -199,47 +182,58 @@ void WiFiManager::handleLEDPattern() {
         }
     }
     
-    // Get current configuration to show defaults
-    PatternConfig currentConfig;
-    if (_ledController) {
-        currentConfig = _ledController->getCurrentConfig();
+    // Serve led.html from LittleFS
+    File file = LittleFS.open("/led.html", "r");
+    if (file) {
+        _server->streamFile(file, "text/html");
+        file.close();
     } else {
-        currentConfig.pattern = LEDPattern::RUNNING_LIGHT;
-        currentConfig.direction = true;
-        currentConfig.speed = 500;
-        currentConfig.color = RgbColor(255, 255, 255);
+        // Fallback to basic HTML if file not found
+        String html = "<!DOCTYPE html>";
+        html += "<html>";
+        html += "<head><title>Table Clock - LED</title></head>";
+        html += "<body>";
+        html += "<h1>LED</h1>";
+        html += "<form action='/led' method='post'>";
+        html += "<label for='pattern'>Pattern:</label>";
+        html += "<select id='pattern' name='pattern'>";
+        html += "<option value='running_light'>Running Light</option>";
+        html += "<option value='ping_pong'>Ping Pong</option>";
+        html += "</select><br><br>";
+        
+        html += "<label for='color'>Color:</label>";
+        html += "<select id='color' name='color'>";
+        html += "<option value='white'>White</option>";
+        html += "<option value='red'>Red</option>";
+        html += "<option value='green'>Green</option>";
+        html += "<option value='blue'>Blue</option>";
+        html += "<option value='yellow'>Yellow</option>";
+        html += "<option value='purple'>Purple</option>";
+        html += "<option value='cyan'>Cyan</option>";
+        html += "</select><br><br>";
+        
+        html += "<label for='speed'>Speed:</label>";
+        html += "<input type='number' id='speed' name='speed' min='50' max='2000' value='500'> ms<br><br>";
+        
+        html += "<label for='direction'>Direction:</label>";
+        html += "<select id='direction' name='direction'>";
+        html += "<option value='forward'>Forward</option>";
+        html += "<option value='reverse'>Reverse</option>";
+        html += "</select><br><br>";
+        
+        html += "<input type='submit' value='Apply'>";
+        html += "</form>";
+        html += "</body>";
+        html += "</html>";
+        
+        _server->send(200, "text/html", html);
     }
-    
-    // Send LED pattern selection page
-    String html = "<!DOCTYPE html>";
-    html += "<html>";
-    html += "<head><title>Table Clock - LED Pattern Selection</title></head>";
-    html += "<body>";
-    html += "<h1>LED Pattern Selection</h1>";
-    html += "<form action='/led_pattern' method='post'>";
-    
-    html += "<label for='pattern'>Pattern:</label><br>";
-    html += "<input type='radio' id='running_light' name='pattern' value='running_light' checked>";
-    html += "<label for='running_light'>Running Light</label><br>";
-    html += "<input type='radio' id='ping_pong' name='pattern' value='ping_pong'>";
-    html += "<label for='ping_pong'>Ping Pong</label><br><br>";
-    
-    html += "<label for='direction'>Direction:</label><br>";
-    html += "<input type='radio' id='forward' name='direction' value='forward' checked>";
-    html += "<label for='forward'>Forward</label><br>";
-    html += "<input type='radio' id='reverse' name='direction' value='reverse'>";
-    html += "<label for='reverse'>Reverse</label><br><br>";
-    
-    html += "<label for='speed'>Speed (ms):</label>";
-    html += "<input type='number' id='speed' name='speed' min='50' max='2000' value='500'><br><br>";
-    
-    html += "<input type='submit' value='Apply Pattern'>";
-    html += "</form>";
-    html += "<br><a href='/led'>Back to LED Control</a>";
-    html += "</body>";
-    html += "</html>";
-    
-    _server->send(200, "text/html", html);
+}
+
+void WiFiManager::handleLEDPattern() {
+    // Redirect to the main LED page since we now have a unified LED page
+    _server->sendHeader("Location", "/led");
+    _server->send(302, "text/plain", "");
 }
 
 void WiFiManager::setupAP() {
@@ -312,22 +306,38 @@ void WiFiManager::setupSTA(const char* ssid, const char* password) {
 }
 
 void WiFiManager::handleRoot() {
-    String html = "<!DOCTYPE html>";
-    html += "<html>";
-    html += "<head><title>Table Clock</title></head>";
-    html += "<body>";
-    html += "<h1>Table Clock</h1>";
-    html += "<a href='/wifi_ap'>WiFi AP</a><br>";
-    html += "<a href='/wifi_sta'>WiFi STA</a><br>";
-    html += "<a href='/led'>LED</a>";
-    html += "</body>";
-    html += "</html>";
-    
-    _server->send(200, "text/html", html);
+    // Serve index.html from LittleFS
+    File file = LittleFS.open("/index.html", "r");
+    if (file) {
+        _server->streamFile(file, "text/html");
+        file.close();
+    } else {
+        // Fallback to basic HTML if file not found
+        String html = "<!DOCTYPE html>";
+        html += "<html>";
+        html += "<head><title>Table Clock</title></head>";
+        html += "<body>";
+        html += "<h1>Table Clock</h1>";
+        html += "<a href='/wifi_ap'>WiFi AP</a><br>";
+        html += "<a href='/wifi_sta'>WiFi STA</a><br>";
+        html += "<a href='/led'>LED</a>";
+        html += "</body>";
+        html += "</html>";
+        
+        _server->send(200, "text/html", html);
+    }
 }
 
 void WiFiManager::handleConfig() {
-    _server->send(200, "text/html", "<h1>Configuration</h1><p>Config page</p>");
+    // Serve wifi_config.html from LittleFS
+    File file = LittleFS.open("/wifi_config.html", "r");
+    if (file) {
+        _server->streamFile(file, "text/html");
+        file.close();
+    } else {
+        // Fallback to basic HTML if file not found
+        _server->send(200, "text/html", "<h1>Configuration</h1><p>Config page</p>");
+    }
 }
 
 bool WiFiManager::hasStoredCredentials() {
@@ -606,26 +616,43 @@ void WiFiManager::handleWifiAP() {
         currentPassword = DEFAULT_AP_PASSWORD;
     }
     
-    // Send WiFi AP configuration page
-    String html = "<!DOCTYPE html>";
-    html += "<html>";
-    html += "<head><title>Table Clock - WiFi AP Configuration</title></head>";
-    html += "<body>";
-    html += "<h1>WiFi AP Configuration</h1>";
-    html += "<form action='/wifi_ap' method='post'>";
-    html += "<label for='ssid'>SSID:</label>";
-    html += "<input type='text' id='ssid' name='ssid' value='" + currentSsid + "'><br><br>";
-    
-    html += "<label for='password'>Password:</label>";
-    html += "<input type='password' id='password' name='password' value='" + currentPassword + "'><br><br>";
-    
-    html += "<input type='submit' value='Save AP Settings'>";
-    html += "</form>";
-    html += "<br><a href='/'>Back to Home</a>";
-    html += "</body>";
-    html += "</html>";
-    
-    _server->send(200, "text/html", html);
+    // Serve wifi_ap.html from LittleFS
+    File file = LittleFS.open("/wifi_ap.html", "r");
+    if (file) {
+        String content = file.readString();
+        file.close();
+        
+        // Replace placeholders with actual values
+        content.replace("<input type=\"text\" id=\"ssid\" name=\"ssid\" placeholder=\"Enter SSID\">",
+                       "<input type=\"text\" id=\"ssid\" name=\"ssid\" value=\"" + currentSsid + "\">");
+        content.replace("<input type=\"password\" id=\"password\" name=\"password\" placeholder=\"Enter Password\">",
+                       "<input type=\"password\" id=\"password\" name=\"password\" value=\"" + currentPassword + "\">");
+        
+        _server->send(200, "text/html", content);
+    } else {
+        // Fallback to basic HTML if file not found
+        String html = "<!DOCTYPE html>";
+        html += "<html>";
+        html += "<head><title>Table Clock - WiFi AP</title></head>";
+        html += "<body>";
+        html += "<h1>WiFi AP</h1>";
+        html += "<form action='/wifi_ap' method='post'>";
+        html += "<label for='ssid'>SSID:</label>";
+        html += "<input type='text' id='ssid' name='ssid' value='" + currentSsid + "'><br><br>";
+        
+        html += "<label for='password'>Password:</label>";
+        html += "<input type='password' id='password' name='password' value='" + currentPassword + "'><br><br>";
+        
+        html += "<label for='ip'>IP:</label>";
+        html += "<input type='text' id='ip' name='ip' placeholder='192.168.4.1' value='192.168.4.1'><br><br>";
+        
+        html += "<input type='submit' value='Save'>";
+        html += "</form>";
+        html += "</body>";
+        html += "</html>";
+        
+        _server->send(200, "text/html", html);
+    }
 }
 
 void WiFiManager::handleWifiSTA() {
@@ -659,24 +686,37 @@ void WiFiManager::handleWifiSTA() {
         currentPassword = "";
     }
     
-    // Send WiFi STA configuration page
-    String html = "<!DOCTYPE html>";
-    html += "<html>";
-    html += "<head><title>Table Clock - WiFi STA Configuration</title></head>";
-    html += "<body>";
-    html += "<h1>WiFi STA Configuration</h1>";
-    html += "<form action='/wifi_sta' method='post'>";
-    html += "<label for='ssid'>SSID:</label>";
-    html += "<input type='text' id='ssid' name='ssid' value='" + currentSsid + "'><br><br>";
-    
-    html += "<label for='password'>Password:</label>";
-    html += "<input type='password' id='password' name='password' value='" + currentPassword + "'><br><br>";
-    
-    html += "<input type='submit' value='Connect to Network'>";
-    html += "</form>";
-    html += "<br><a href='/'>Back to Home</a>";
-    html += "</body>";
-    html += "</html>";
-    
-    _server->send(200, "text/html", html);
+    // Serve wifi_sta.html from LittleFS
+    File file = LittleFS.open("/wifi_sta.html", "r");
+    if (file) {
+        String content = file.readString();
+        file.close();
+        
+        // Replace placeholders with actual values
+        content.replace("<select id=\"ssid\" name=\"ssid\">",
+                       "<select id=\"ssid\" name=\"ssid\"><option value=\"" + currentSsid + "\" selected>" + currentSsid + "</option>");
+        
+        _server->send(200, "text/html", content);
+    } else {
+        // Fallback to basic HTML if file not found
+        String html = "<!DOCTYPE html>";
+        html += "<html>";
+        html += "<head><title>Table Clock - WiFi STA</title></head>";
+        html += "<body>";
+        html += "<h1>WiFi STA</h1>";
+        html += "<form action='/wifi_sta' method='post'>";
+        html += "<label for='ssid'>SSID:</label>";
+        html += "<select id='ssid' name='ssid'><option value='" + currentSsid + "' selected>" + currentSsid + "</option></select><br><br>";
+        
+        html += "<label for='password'>Password:</label>";
+        html += "<input type='password' id='password' name='password' value='" + currentPassword + "'><br><br>";
+        
+        html += "<input type='submit' value='Connect'>";
+        html += "<input type='button' value='Forget' onclick=\"location.href='/forget_wifi'\">";
+        html += "</form>";
+        html += "</body>";
+        html += "</html>";
+        
+        _server->send(200, "text/html", html);
+    }
 }

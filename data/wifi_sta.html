@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table Clock - WiFi STA</title>
+</head>
+<body>
+    <h1>WiFi STA</h1>
+    <form action="/wifi_sta" method="post">
+        <label for="ssid">SSID:</label>
+        <select id="ssid" name="ssid">
+            <!-- Options would be populated dynamically -->
+            <option value="">Select Network</option>
+        </select><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Enter Password"><br><br>
+        
+        <input type="submit" value="Connect">
+        <input type="button" value="Forget" onclick="location.href='/forget_wifi'">
+    </form>
+</body>
+</html>
