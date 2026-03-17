@@ -4,6 +4,7 @@ ESP8266
 ├── SDA (D2, GPIO4) → TCA9548A SDA
 ├── SCL (D1, GPIO5) → TCA9548A SCL
 ├── DIN (D8, GPIO15) → APA106 LED Strip Data Input
+├── LED (D4, GPIO2) → Built-in LED (onboard)
 └── 5V Power → APA106 VCC (отдельный источник)
 
 TCA9548A
@@ -27,3 +28,11 @@ APA106
 └── DIN → ESP8266 D8 (GPIO15)
     ├── LED 1 → LED 2 → LED 3 → LED 4 → LED 5 → LED 6 → LED 7 → LED 8
     └── DOUT of each LED connects to DIN of the next LED in sequence
+
+Built-in LED (on NodeMCU)
+├── Pin: D4 (GPIO2)
+├── Purpose: WiFi status indication
+├── States:
+│   ├── No STA credentials: Slow blink (once per 5 seconds)
+│   ├── Connecting: Fast blink (4 times per second)
+│   └── Connected: Constantly ON

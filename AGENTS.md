@@ -25,6 +25,8 @@
 - Development language: **C++ Arduino (PlatformIO)**
 - Avoid excessive use of **STL**
 - Avoid **dynamic memory allocation**
+- The code should be located in the `src` folder
+- Before you do this, read what files already contain the code.
 - Code must be **modular**
 - HTML pages must be placed in **separate `.html` files**
 - Remove dead code

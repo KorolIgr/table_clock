@@ -1,7 +1,7 @@
 Header: WiFi STA
 
 
-SSID:       [          ▼]
+SSID:       [          ▼] [ Refresh ]
 Password:   [           ]
 
 [ Connect ] [ Forget ]

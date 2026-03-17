@@ -3,7 +3,8 @@
 #include <EEPROM.h>
 #include <LittleFS.h>
 
-WiFiManager::WiFiManager() : _server(nullptr), _credentialsLoaded(false), _hasCredentials(false) {
+WiFiManager::WiFiManager() : _server(nullptr), _credentialsLoaded(false), _hasCredentials(false), 
+    _lastLEDToggle(0), _ledState(false), _ledPattern(0) {
     // Initialize the character arrays
     memset(_storedSsid, 0, sizeof(_storedSsid));
     memset(_storedPassword, 0, sizeof(_storedPassword));
@@ -68,11 +69,17 @@ void WiFiManager::begin(const char* ssid, const char* password, WiFiMode_t mode)
         _server->on("/led_pattern", std::bind(&WiFiManager::handleLEDPattern, this));
         _server->on("/wifi_ap", std::bind(&WiFiManager::handleWifiAP, this));
         _server->on("/wifi_sta", std::bind(&WiFiManager::handleWifiSTA, this));
+        _server->on("/forget_wifi", std::bind(&WiFiManager::handleForgetWifi, this));
+        _server->on("/scan_wifi", std::bind(&WiFiManager::handleScanWifi, this));
         _server->begin();
     }
     
     // Additional delay after server setup
     delay(100);
+    
+    // Initialize built-in LED pin
+    pinMode(BUILTIN_LED_PIN, OUTPUT);
+    digitalWrite(BUILTIN_LED_PIN, HIGH); // LED off initially (inverted)
 }
 
 void WiFiManager::update() {
@@ -95,7 +102,18 @@ void WiFiManager::update() {
                     WiFi.begin(storedSsid.c_str(), storedPassword.c_str());
                 }
             }
+        } else {
+            // Connected - display IP in console
+            static bool ipDisplayed = false;
+            if (!ipDisplayed) {
+                Serial.print("STA Connected! IP Address: ");
+                Serial.println(WiFi.localIP().toString());
+                ipDisplayed = true;
+            }
         }
+        
+        // Update built-in LED based on connection status
+        updateBuiltinLED();
     }
 }
 
@@ -265,6 +283,18 @@ void WiFiManager::setupSTA(const char* ssid, const char* password) {
     }
     
     delay(200); // Allow connection attempt to start
+    
+    // Wait for connection or timeout
+    int timeout = 0;
+    while (WiFi.status() != WL_CONNECTED && timeout < 30) {
+        delay(100);
+        timeout++;
+    }
+    
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.print("STA Connected! IP Address: ");
+        Serial.println(WiFi.localIP().toString());
+    }
 }
 
 void WiFiManager::handleRoot() {
@@ -614,4 +644,105 @@ void WiFiManager::handleWifiSTA() {
     } else {
         _server->send(404, "text/plain", "File not found");
     }
+}
+
+void WiFiManager::handleForgetWifi() {
+    if (_server->method() == HTTP_POST) {
+        forgetCredentials();
+        WiFi.disconnect(true); // Disconnect from network and clear stored credentials
+        _server->send(200, "text/plain", "Credentials forgotten");
+    } else {
+        _server->send(405, "text/plain", "Method Not Allowed");
+    }
+}
+
+void WiFiManager::forgetCredentials() {
+    // Initialize EEPROM
+    EEPROM.begin(512);
+    
+    // Clear STA credentials by writing 255 to the first byte
+    EEPROM.write(0, 255);
+    
+    // Also clear the stored SSID and password length bytes
+    for (int i = 1; i < 100; i++) {
+        EEPROM.write(i, 0);
+    }
+    
+    // Commit to EEPROM
+    EEPROM.commit();
+    EEPROM.end();
+    
+    // Update cached values
+    _credentialsLoaded = true;
+    _hasCredentials = false;
+    memset(_storedSsid, 0, sizeof(_storedSsid));
+    memset(_storedPassword, 0, sizeof(_storedPassword));
+}
+
+String WiFiManager::scanNetworks() {
+    String result = "";
+    
+    // Scan for available networks
+    int numNetworks = WiFi.scanNetworks();
+    
+    if (numNetworks == 0) {
+        result = "<option value=\"\">No networks found</option>";
+    } else {
+        for (int i = 0; i < numNetworks; i++) {
+            result += "<option value=\"" + WiFi.SSID(i) + "\">" + WiFi.SSID(i) + " (" + WiFi.RSSI(i) + " dBm)</option>";
+        }
+    }
+    
+    WiFi.scanDelete(); // Clean up scan results
+    return result;
+}
+
+void WiFiManager::updateBuiltinLED() {
+    // Only control LED if we're in STA mode or AP+STA mode
+    if (_mode != WIFI_STA && _mode != WIFI_AP_STA) {
+        return;
+    }
+    
+    unsigned long currentMillis = millis();
+    bool isConnected = (WiFi.status() == WL_CONNECTED);
+    
+    // Determine the LED pattern based on connection state
+    if (isConnected) {
+        // Connected - LED constantly on
+        _ledPattern = 3;
+    } else if (hasStoredCredentials()) {
+        // Has credentials but not connected - connecting (fast blink 4Hz)
+        _ledPattern = 2;
+    } else {
+        // No credentials - slow blink once every 5 seconds
+        _ledPattern = 1;
+    }
+    
+    // Handle LED blinking based on pattern
+    unsigned long interval;
+    switch (_ledPattern) {
+        case 1: // Slow blink - 5 seconds (2500ms on, 2500ms off)
+            interval = 2500;
+            break;
+        case 2: // Fast blink - 4Hz (125ms on, 125ms off)
+            interval = 125;
+            break;
+        case 3: // Constant on
+            digitalWrite(BUILTIN_LED_PIN, LOW); // LED on (inverted)
+            return;
+        default: // Off
+            digitalWrite(BUILTIN_LED_PIN, HIGH); // LED off (inverted)
+            return;
+    }
+    
+    // Toggle LED based on interval
+    if (currentMillis - _lastLEDToggle >= interval) {
+        _lastLEDToggle = currentMillis;
+        _ledState = !_ledState;
+        digitalWrite(BUILTIN_LED_PIN, _ledState ? HIGH : LOW);
+    }
+}
+
+void WiFiManager::handleScanWifi() {
+    _server->send(200, "text/html", scanNetworks());
 }

@@ -2,21 +2,54 @@
 <html>
 <head>
     <title>Table Clock - WiFi STA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <h1>WiFi STA</h1>
     <form action="/wifi_sta" method="post">
         <label for="ssid">SSID:</label>
         <select id="ssid" name="ssid">
-            <!-- Options would be populated dynamically -->
             <option value="">Select Network</option>
-        </select><br><br>
+        </select>
+         <button type="button" onclick="scanNetworks()">Refresh</button>
+        <br><br>
+
+       
         
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" placeholder="Enter Password"><br><br>
         
         <input type="submit" value="Connect">
-        <input type="button" value="Forget" onclick="location.href='/forget_wifi'">
+        <button type="button" onclick="forgetWifi()">Forget</button>
     </form>
+    <p id="status"></p>
+    <script>
+        function scanNetworks() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/scan_wifi', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var select = document.getElementById('ssid');
+                    select.innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send();
+        }
+        
+        function forgetWifi() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/forget_wifi', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    document.getElementById('status').innerText = 'Credentials forgotten. Device will disconnect.';
+                    document.getElementById('password').value = '';
+                }
+            };
+            xhr.send();
+        }
+        
+        // Auto-scan on page load
+        window.onload = scanNetworks;
+    </script>
 </body>
 </html>

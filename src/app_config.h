@@ -9,6 +9,7 @@
 #define LED_DATA_PIN 15  // D8 on NodeMCU
 #define I2C_SDA_PIN 4    // D2 on NodeMCU
 #define I2C_SCL_PIN 5    // D1 on NodeMCU
+#define BUILTIN_LED_PIN 2  // D4 (GPIO2) on NodeMCU - built-in LED
 
 // TCA9548A I2C Multiplexer Address
 #define TCA9548A_ADDRESS 0x70

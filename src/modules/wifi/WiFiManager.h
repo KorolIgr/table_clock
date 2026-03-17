@@ -22,6 +22,9 @@ public:
     bool loadStoredApCredentials(String& ssid, String& password);
     void saveCredentials(const char* ssid, const char* password);
     void saveApCredentials(const char* ssid, const char* password);
+    void forgetCredentials();
+    String scanNetworks();
+    void updateBuiltinLED();
 
 private:
     WiFiMode_t _mode;
@@ -37,6 +40,11 @@ private:
     char _storedApSsid[33];  // Max SSID length is 32 + null terminator (for AP)
     char _storedApPassword[65];  // Max password length is 64 + null terminator (for AP)
     
+    // Built-in LED state tracking
+    unsigned long _lastLEDToggle;
+    bool _ledState;
+    int _ledPattern; // 0 = off, 1 = slow blink (5s), 2 = fast blink (4Hz), 3 = on
+    
     void setupAP();
     void setupSTA(const char* ssid, const char* password);
     void handleRoot();
@@ -45,6 +53,8 @@ private:
     void handleLEDPattern();
     void handleWifiAP();
     void handleWifiSTA();
+    void handleForgetWifi();
+    void handleScanWifi();
 };
 
 #endif // WIFI_MANAGER_H

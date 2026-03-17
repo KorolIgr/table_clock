@@ -4,3 +4,6 @@
 * After initializing the AP, display information in the console to connect to the access point.
 * For STA, connection data is stored in EEPROM
 * If there is no data for STA in the EEPROM, do not connect to the access point
+* When there is no data for connection in STA mode, the built-in LED on the controller flashes once every 5 seconds
+* When connecting in STA mode, the built-in LED on the controller flashes 4 times per second
+* When the connection is established in STA mode, the built-in LED on the controller is constantly on
