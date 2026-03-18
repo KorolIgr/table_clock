@@ -11,7 +11,7 @@ void WiFiManager::handleRoot() {
         if (_server->hasArg("path")) {
             path = _server->arg("path");
         } else {
-            path = "/index.html";
+            path = PAGE_INDEX;
         }
         String gzPath = path + ".gz";
         if (LittleFS.exists(gzPath)) {
@@ -20,7 +20,7 @@ void WiFiManager::handleRoot() {
             _server->streamFile(file, "text/html");
             file.close();
         } else {
-            _server->send(200, "text/plain", "page not found.");
+            sendPageNotFound();
         }
     }
 }

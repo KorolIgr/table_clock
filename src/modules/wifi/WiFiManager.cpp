@@ -37,9 +37,7 @@ void WiFiManager::begin(const char* ssid, const char* password, WiFiMode_t mode)
     
     // Define web server routes
     _server->on("/", std::bind(&WiFiManager::handleRoot, this));
-    _server->on("/config", std::bind(&WiFiManager::handleConfig, this));
     _server->on("/led", std::bind(&WiFiManager::handleLED, this));
-    _server->on("/led_pattern", std::bind(&WiFiManager::handleLEDPattern, this));
     _server->on("/wifi_ap", std::bind(&WiFiManager::handleWifiAP, this));
     _server->on("/wifi_sta", std::bind(&WiFiManager::handleWifiSTA, this));
     _server->on("/forget_wifi", std::bind(&WiFiManager::handleForgetWifi, this));
@@ -202,13 +200,13 @@ void WiFiManager::setupSTA(const char* ssid, const char* password) {
     // Only connect if both ssid and password are provided
     if (ssid && password && strlen(ssid) > 0 && strlen(password) > 0) {
         WiFi.begin(ssid, password);
-        
+
         // Set LED to fast blink while connecting
         _ledPattern = 2; // Fast blink
-        
+
         Serial.print("Connecting to STA: ");
         Serial.println(ssid);
-        
+
         // Wait for connection with timeout
         int attempts = 0;
         const int maxAttempts = 20; // 20 * 500ms = 10 seconds timeout
@@ -216,18 +214,18 @@ void WiFiManager::setupSTA(const char* ssid, const char* password) {
             delay(500);
             attempts++;
         }
-        
+
         if (WiFi.status() == WL_CONNECTED) {
             Serial.println("");
             Serial.print("STA Connected! IP address: ");
             Serial.println(WiFi.localIP());
-            
+
             // Set LED to solid on when connected
             _ledPattern = 3; // On
         } else {
             Serial.println("");
             Serial.println("STA Connection failed!");
-            
+
             // Set LED to slow blink when connection fails
             _ledPattern = 1; // Slow blink
         }
@@ -235,5 +233,9 @@ void WiFiManager::setupSTA(const char* ssid, const char* password) {
         // No credentials provided, set LED to slow blink
         _ledPattern = 1; // Slow blink
     }
+}
+
+void WiFiManager::sendPageNotFound() {
+    _server->send(200, "text/plain", "page not found.");
 }
 

@@ -14,13 +14,13 @@ void WiFiManager::handleWifiAP() {
             _server->send(400, "text/plain", "Invalid parameters");
         }
     } else {
-        if (LittleFS.exists("/wifi_ap.html.gz")) {
+        if (LittleFS.exists(PAGE_WIFI_AP)) {
             _server->sendHeader("Content-Encoding", "gzip");
-            File file = LittleFS.open("/wifi_ap.html.gz", "r");
+            File file = LittleFS.open(PAGE_WIFI_AP, "r");
             _server->streamFile(file, "text/html");
             file.close();
         } else {
-            _server->send(200, "text/plain", "page not found.");
+            sendPageNotFound();
         }
     }
 }
