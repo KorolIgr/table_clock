@@ -4,6 +4,12 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include "../led/LEDController.h"
+#include "../config/ConfigManager.h"  // Include the new config header
+
+// Define callback function types
+typedef void (*SaveWifiStaCallback)(const char* ssid, const char* password);
+typedef void (*SaveWifiApCallback)(const char* ssid, const char* password);
+typedef void (*ForgetWifiCallback)();
 
 class WiFiManager {
 public:
@@ -16,10 +22,12 @@ public:
     const char* getLocalIP();
     ESP8266WebServer* getServer();
     void setLEDController(LEDController* ledController);
-    bool hasStoredCredentials();
-    bool hasStoredApCredentials();
-    bool loadStoredCredentials(String& ssid, String& password);
-    bool loadStoredApCredentials(String& ssid, String& password);
+    void setCallbacks(SaveWifiStaCallback saveStaCb, SaveWifiApCallback saveApCb, ForgetWifiCallback forgetCb) {
+        _saveStaCallback = saveStaCb;
+        _saveApCallback = saveApCb;
+        _forgetCallback = forgetCb;
+    }
+    // Removed the old credential functions since we're using the new config system
     void saveCredentials(const char* ssid, const char* password);
     void saveApCredentials(const char* ssid, const char* password);
     void forgetCredentials();
@@ -33,12 +41,13 @@ private:
     String _localIP;
     ESP8266WebServer* _server;
     LEDController* _ledController;
+    // Callback functions for configuration management
+    SaveWifiStaCallback _saveStaCallback = nullptr;
+    SaveWifiApCallback _saveApCallback = nullptr;
+    ForgetWifiCallback _forgetCallback = nullptr;
     bool _credentialsLoaded;
     bool _hasCredentials;
-    char _storedSsid[33];  // Max SSID length is 32 + null terminator (for STA)
-    char _storedPassword[65];  // Max password length is 64 + null terminator (for STA)
-    char _storedApSsid[33];  // Max SSID length is 32 + null terminator (for AP)
-    char _storedApPassword[65];  // Max password length is 64 + null terminator (for AP)
+    // Removed the old credential storage variables since we're using the new config system
     
     // Built-in LED state tracking
     unsigned long _lastLEDToggle;

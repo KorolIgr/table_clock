@@ -2,7 +2,6 @@
 #define LED_CONTROLLER_H
 
 #include <NeoPixelBus.h>
-#include <EEPROM.h>
 #include "patterns/RunningLight.h"
 #include "patterns/PingPong.h"
 
@@ -31,8 +30,7 @@ public:
     void clear();
     void setPattern(const PatternConfig& config);
     void updatePattern();
-    void savePatternConfig();
-    void loadPatternConfig();
+    // Removed savePatternConfig and loadPatternConfig - now handled by ConfigManager
     PatternConfig getCurrentConfig() const;
 
 private:

@@ -9,6 +9,10 @@
 - Do **not upload firmware automatically**
 - Try to keep files **no longer than 200 lines whenever possible**
 - Use the **indexed code base** to navigate and understand the project
+- NEVER read entire files unless explicitly required
+- ALWAYS start with index/search tools
+- MAX 2-3 files per step
+- MAX 200 lines of code per step
 - Development tasks are located in the `tasks/new` directory
 - After completing a task, move the task file to the `tasks/done` directory
 - Hardware configuration is located in the `hardware` directory
