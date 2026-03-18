@@ -74,14 +74,17 @@ void MainApplication::initWiFi() {
     _wifiManager = new WiFiManager();
     
     if (_wifiManager) {
-        // Use configuration from the config manager
-        if (strlen(_deviceConfig.wifi.sta_ssid) > 0 && strlen(_deviceConfig.wifi.sta_password) >= 8) {
-            // Use stored credentials for both AP and STA modes
-            _wifiManager->begin(_deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password, WIFI_AP_STA);
-        } else {
-            // Use configured AP credentials, but don't try to connect to STA without stored credentials
-            _wifiManager->begin(_deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password, WIFI_AP_STA);
-        }
+        // Always use AP credentials for AP mode (with defaults from config)
+        // Use STA credentials only if they are valid (non-empty and at least 8 chars)
+        bool hasStaCredentials = strlen(_deviceConfig.wifi.sta_ssid) > 0 && strlen(_deviceConfig.wifi.sta_password) >= 8;
+        
+        // Initialize WiFi with separate AP and STA credentials
+        _wifiManager->begin(
+            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,  // AP credentials
+            hasStaCredentials ? _deviceConfig.wifi.sta_ssid : "",       // STA SSID (empty if not available)
+            hasStaCredentials ? _deviceConfig.wifi.sta_password : "",   // STA password (empty if not available)
+            WIFI_AP_STA  // Hybrid mode: AP always on, STA conditional
+        );
         
         // Small delay after WiFi initialization
         delay(200);
@@ -148,8 +151,12 @@ void MainApplication::saveWifiStaConfig(const char* ssid, const char* password) 
         // Save to EEPROM
         _configManager->saveConfig(_deviceConfig);
         
-        // Restart WiFi with new credentials
-        _wifiManager->begin(_deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password, WIFI_AP_STA);
+        // Restart WiFi with new credentials (use AP credentials for AP, new STA credentials for STA)
+        _wifiManager->begin(
+            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,
+            _deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password,
+            WIFI_AP_STA
+        );
     }
 }
 
@@ -165,22 +172,30 @@ void MainApplication::saveWifiApConfig(const char* ssid, const char* password) {
         // Save to EEPROM
         _configManager->saveConfig(_deviceConfig);
         
-        // Restart WiFi with new credentials
-        _wifiManager->begin(_deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password, WIFI_AP_STA);
+        // Restart WiFi with new credentials (use new AP credentials for AP, keep existing STA credentials)
+        _wifiManager->begin(
+            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,
+            _deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password,
+            WIFI_AP_STA
+        );
     }
 }
 
 void MainApplication::forgetWifiConfig() {
     if (_configManager && _wifiManager) {
-        // Clear the configuration
+        // Clear the STA configuration
         strcpy(_deviceConfig.wifi.sta_ssid, "");
         strcpy(_deviceConfig.wifi.sta_password, "");
         
         // Save to EEPROM
         _configManager->saveConfig(_deviceConfig);
         
-        // Restart WiFi with default credentials
-        _wifiManager->begin(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD, WIFI_AP_STA);
+        // Restart WiFi: AP with configured/default credentials, STA with empty credentials (won't connect)
+        _wifiManager->begin(
+            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,
+            "", "",  // Empty STA credentials
+            WIFI_AP_STA
+        );
     }
 }
 

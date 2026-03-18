@@ -4,6 +4,8 @@
 // WiFi Configuration
 #define DEFAULT_AP_SSID "TableClock_AP"
 #define DEFAULT_AP_PASSWORD "12345678"
+#define DEFAULT_AP_IP "192.168.4.1"
+
 
 // Hardware Configuration
 #define LED_DATA_PIN 15  // D8 on NodeMCU

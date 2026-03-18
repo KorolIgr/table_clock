@@ -15,7 +15,13 @@ class WiFiManager {
 public:
     WiFiManager();
     
+    // Legacy begin - uses same credentials for both AP and STA
     void begin(const char* ssid, const char* password, WiFiMode_t mode = WIFI_AP_STA);
+    
+    // New begin - accepts separate AP and STA credentials for hybrid mode
+    void begin(const char* ap_ssid, const char* ap_password, 
+               const char* sta_ssid, const char* sta_password,
+               WiFiMode_t mode = WIFI_AP_STA);
     void update();
     bool isConnected();
     WiFiMode_t getMode();
@@ -36,8 +42,6 @@ public:
 
 private:
     WiFiMode_t _mode;
-    String _ssid;
-    String _password;
     String _localIP;
     ESP8266WebServer* _server;
     LEDController* _ledController;
@@ -63,7 +67,7 @@ private:
     // Helper method for page not found response
     void sendPageNotFound();
     
-    void setupAP();
+    void setupAP(const char* ssid, const char* password);
     void setupSTA(const char* ssid, const char* password);
     void handleRoot();
     void handleLED();

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include "../led/LEDController.h"
+#include "../../app_config.h"
 
 // WiFi configuration structure
 struct WiFiConfig {
@@ -17,9 +18,9 @@ struct WiFiConfig {
         // Initialize with default values
         strcpy(sta_ssid, "");
         strcpy(sta_password, "");
-        strcpy(ap_ssid, "TableClock_AP");
-        strcpy(ap_password, "12345678");
-        strcpy(ap_ip, "192.168.4.1");
+        strcpy(ap_ssid, DEFAULT_AP_SSID);
+        strcpy(ap_password, DEFAULT_AP_PASSWORD);
+        strcpy(ap_ip, DEFAULT_AP_IP);
     }
 };
 

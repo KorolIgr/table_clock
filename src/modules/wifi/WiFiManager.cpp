@@ -9,27 +9,38 @@ WiFiManager* wifiManagerInstance = nullptr;
 
 WiFiManager::WiFiManager()
     : _server(nullptr), _ledController(nullptr), _credentialsLoaded(false), _hasCredentials(false) {
-    _ssid = DEFAULT_AP_SSID;
-    _password = DEFAULT_AP_PASSWORD;
+    // Initialize AP credentials with defaults
+
+
     _localIP = "";
+    // Initialize LED state
+    _ledState = false;
+    _ledPattern = 1; // Slow blink by default (no STA connection)
+    _lastLEDToggle = 0;
     wifiManagerInstance = this; // Store instance for update handler
 }
 
-void WiFiManager::begin(const char* ssid, const char* password, WiFiMode_t mode) {
-    // Store the provided credentials
-    _ssid = String(ssid);
-    _password = String(password);
+void WiFiManager::begin(const char* ap_ssid, const char* ap_password,
+                        const char* sta_ssid, const char* sta_password,
+                        WiFiMode_t mode) {
+
+    
+    // Reset LED state before setup (will be updated by setupSTA)
+    _ledState = false;
+    _ledPattern = 1; // Default: slow blink (no STA connection)
+    _lastLEDToggle = 0;
     
     // Set WiFi mode
     WiFi.mode(mode);
     
-    // Setup AP and/or STA depending on mode
+    // Setup AP (always, if mode includes AP)
     if (mode == WIFI_AP || mode == WIFI_AP_STA) {
-        setupAP();
+        setupAP(ap_ssid, ap_password);
     }
     
+    // Setup STA (only if mode includes STA and STA credentials are provided)
     if (mode == WIFI_STA || mode == WIFI_AP_STA) {
-        setupSTA(ssid, password);
+        setupSTA(sta_ssid, sta_password);
     }
     
     // Start web server
@@ -73,12 +84,7 @@ void WiFiManager::begin(const char* ssid, const char* password, WiFiMode_t mode)
     
     _server->begin();
     
-    // Initialize LED state tracking
-    _ledState = false;
-    _ledPattern = 1; // Start with slow blink
-    _lastLEDToggle = 0;
-    
-    // Update LED to reflect current WiFi state
+    // Update LED to reflect current WiFi state (after setupSTA may have changed pattern)
     updateBuiltinLED();
 }
 
@@ -177,21 +183,21 @@ void WiFiManager::updateBuiltinLED() {
     }
 }
 
-void WiFiManager::setupAP() {
+void WiFiManager::setupAP(const char* ssid, const char* password) {
     // Configure static IP for AP mode
     IPAddress ip(192, 168, 4, 1);
     IPAddress gateway(192, 168, 4, 1);
     IPAddress subnet(255, 255, 255, 0);
     
     WiFi.softAPConfig(ip, gateway, subnet);
-    WiFi.softAP(_ssid.c_str(), _password.c_str());
+    WiFi.softAP(ssid, password);
     
     // Display AP connection information in console
     Serial.println("Access Point initialized:");
     Serial.print("SSID: ");
-    Serial.println(_ssid);
+    Serial.println(String(ssid));
     Serial.print("Password: ");
-    Serial.println(_password);
+    Serial.println(String(password));
     Serial.print("IP Address: ");
     Serial.println(WiFi.softAPIP().toString());
 }
