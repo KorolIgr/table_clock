@@ -26,19 +26,34 @@
     <script>
         function scanNetworks() {
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/scan_wifi', true);
+            xhr.open('GET', '/wifi_sta/scan', true);
+
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
+                    var networks = JSON.parse(xhr.responseText);
+
                     var select = document.getElementById('ssid');
-                    select.innerHTML = xhr.responseText;
+                    select.innerHTML = '<option value="">Select Network</option>';
+
+                    networks.forEach(function(net) {
+                        var option = document.createElement('option');
+
+                        option.value = net.ssid;
+
+                        // можно красиво подписать
+                        option.text = net.ssid + ' (' + net.rssi + ' dBm)' + (net.secure ? ' 🔒' : '');
+
+                        select.appendChild(option);
+                    });
                 }
             };
+
             xhr.send();
         }
         
         function forgetWifi() {
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/forget_wifi', true);
+            xhr.open('POST', '/wifi_sta/forget', true);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     document.getElementById('status').innerText = 'Credentials forgotten. Device will disconnect.';

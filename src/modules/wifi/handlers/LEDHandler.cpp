@@ -3,9 +3,8 @@
 #include <LittleFS.h>
 
 void WiFiManager::handleLED() {
-    if (LittleFS.exists(PAGE_LED)) {
-        _server->sendHeader("Content-Encoding", "gzip");
-        File file = LittleFS.open(PAGE_LED, "r");
+    File file = LittleFS.open(PAGE_LED, "r");
+    if (file) {
         _server->streamFile(file, "text/html");
         file.close();
     } else {

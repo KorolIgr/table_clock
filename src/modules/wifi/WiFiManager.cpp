@@ -24,6 +24,8 @@ void WiFiManager::begin(const char* ap_ssid, const char* ap_password,
                         const char* sta_ssid, const char* sta_password,
                         WiFiMode_t mode) {
 
+
+
     
     // Reset LED state before setup (will be updated by setupSTA)
     _ledState = false;
@@ -42,6 +44,16 @@ void WiFiManager::begin(const char* ap_ssid, const char* ap_password,
     if (mode == WIFI_STA || mode == WIFI_AP_STA) {
         setupSTA(sta_ssid, sta_password);
     }
+
+    // Initialize LittleFS
+    if (!LittleFS.begin()) {
+        // If LittleFS fails to mount, format and try again
+        LittleFS.format();
+        LittleFS.begin();
+    }
+    
+    // Give some time for the system to settle before WiFi initialization
+    delay(100);
     
     // Start web server
     _server = new ESP8266WebServer(80);
@@ -51,8 +63,8 @@ void WiFiManager::begin(const char* ap_ssid, const char* ap_password,
     _server->on("/led", std::bind(&WiFiManager::handleLED, this));
     _server->on("/wifi_ap", std::bind(&WiFiManager::handleWifiAP, this));
     _server->on("/wifi_sta", std::bind(&WiFiManager::handleWifiSTA, this));
-    _server->on("/forget_wifi", std::bind(&WiFiManager::handleForgetWifi, this));
-    _server->on("/scan_wifi", std::bind(&WiFiManager::handleScanWifi, this));
+    _server->on("/wifi_sta/forget", std::bind(&WiFiManager::handleForgetWifi, this));
+    _server->on("/wifi_sta/scan", std::bind(&WiFiManager::handleScanWifi, this));
     
     // Handle file system routes
     _server->on("/update", HTTP_POST, []() {
@@ -242,6 +254,6 @@ void WiFiManager::setupSTA(const char* ssid, const char* password) {
 }
 
 void WiFiManager::sendPageNotFound() {
-    _server->send(200, "text/plain", "page not found.");
+    _server->send(404, "text/plain", "Page not found");
 }
 

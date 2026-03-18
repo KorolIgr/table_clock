@@ -59,7 +59,7 @@ private:
     int _ledPattern; // 0 = off, 1 = slow blink (5s), 2 = fast blink (4Hz), 3 = on
     
     // Page path constants
-    static constexpr char PAGE_INDEX[] = "/index.html";
+    static constexpr char PAGE_INDEX[] = "/index.html.gz";
     static constexpr char PAGE_LED[] = "/led.html.gz";
     static constexpr char PAGE_WIFI_AP[] = "/wifi_ap.html.gz";
     static constexpr char PAGE_WIFI_STA[] = "/wifi_sta.html.gz";
