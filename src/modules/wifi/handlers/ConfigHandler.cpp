@@ -1,10 +1,13 @@
 #include "../WiFiManager.h"
+#include <LittleFS.h>
 
 void WiFiManager::handleConfig() {
-    String html = "<!DOCTYPE html><html><head><title>Config</title></head><body>";
-    html += "<h1>Configuration</h1>";
-    html += "<p>Configuration page placeholder</p>";
-    html += "<a href=\"/\">Back to Home</a>";
-    html += "</body></html>";
-    _server->send(200, "text/html", html);
+    if (LittleFS.exists("/config.html.gz")) {
+        _server->sendHeader("Content-Encoding", "gzip");
+        File file = LittleFS.open("/config.html.gz", "r");
+        _server->streamFile(file, "text/html");
+        file.close();
+    } else {
+        _server->send(200, "text/plain", "page not found.");
+    }
 }
