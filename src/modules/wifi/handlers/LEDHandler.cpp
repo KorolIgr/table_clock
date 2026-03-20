@@ -2,12 +2,7 @@
 #include "../WiFiManager.h"
 #include <LittleFS.h>
 
-void WiFiManager::handleLED() {
-    File file = LittleFS.open(PAGE_LED, "r");
-    if (file) {
-        _server->streamFile(file, "text/html");
-        file.close();
-    } else {
-        sendPageNotFound();
-    }
+void WiFiManager::handleLedApply() {
+    // The actual forgetting will be handled by the main application
+    _server->send(200, "text/plain", "WiFi credentials cleared");
 }

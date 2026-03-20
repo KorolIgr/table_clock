@@ -58,24 +58,18 @@ private:
     bool _ledState;
     int _ledPattern; // 0 = off, 1 = slow blink (5s), 2 = fast blink (4Hz), 3 = on
     
-    // Page path constants
-    static constexpr char PAGE_INDEX[] = "/index.html.gz";
-    static constexpr char PAGE_LED[] = "/led.html.gz";
-    static constexpr char PAGE_WIFI_AP[] = "/wifi_ap.html.gz";
-    static constexpr char PAGE_WIFI_STA[] = "/wifi_sta.html.gz";
+
     
     // Helper method for page not found response
     void sendPageNotFound();
     
     void setupAP(const char* ssid, const char* password);
     void setupSTA(const char* ssid, const char* password);
-    void handleRoot();
-    void handleNav();
-    void handleLED();
-    void handleWifiAP();
+    void handleLedApply();
+    void handleWifiApAplly();
     void handleWifiSTA();
-    void handleForgetWifi();
-    void handleScanWifi();
+    void handleWifiSTAForget();
+    void handleWifiSTAScan();
     void handleNotFound();
 };
 

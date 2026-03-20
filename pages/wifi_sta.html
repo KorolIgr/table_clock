@@ -65,7 +65,7 @@
 
     function scanNetworks() {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/wifi_sta/scan', true);
+        xhr.open('GET', '/api/wifi_sta/scan', true);
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
@@ -92,7 +92,7 @@
 
     function forgetWifi() {
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/wifi_sta/forget', true);
+        xhr.open('POST', '/api/wifi_sta/forget', true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 document.getElementById('status').innerText = 'Credentials forgotten. Device will disconnect.';
