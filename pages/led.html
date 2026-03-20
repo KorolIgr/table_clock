@@ -26,15 +26,7 @@
                             
                             <div class="six columns">
                                 <label for="color">Color:</label>
-                                <select class="u-full-width" id="color" name="color">
-                                    <option value="white">White</option>
-                                    <option value="red">Red</option>
-                                    <option value="green">Green</option>
-                                    <option value="blue">Blue</option>
-                                    <option value="yellow">Yellow</option>
-                                    <option value="purple">Purple</option>
-                                    <option value="cyan">Cyan</option>
-                                </select>
+                                <input class="u-full-width" type="color" id="color" name="color" value="#141414">
                             </div>
                         </div>
                         
@@ -69,27 +61,25 @@
 <script src="/js/nav.js"></script>
 
 <script>
-    // Color mapping for dropdown
-    const colorNames = {
-        '255,255,255': 'white',
-        '255,0,0': 'red',
-        '0,255,0': 'green',
-        '0,0,255': 'blue',
-        '255,255,0': 'yellow',
-        '255,0,255': 'purple',
-        '0,255,255': 'cyan'
-    };
+    // Convert hex color to RGB string
+    function hexToRgb(hex) {
+        // Remove # if present
+        hex = hex.replace(/^#/, '');
+        // Parse r, g, b values
+        var r = parseInt(hex.substring(0, 2), 16);
+        var g = parseInt(hex.substring(2, 4), 16);
+        var b = parseInt(hex.substring(4, 6), 16);
+        return r + ',' + g + ',' + b;
+    }
 
-    // Reverse mapping from color name to RGB
-    const colorValues = {
-        'white': '255,255,255',
-        'red': '255,0,0',
-        'green': '0,255,0',
-        'blue': '0,0,255',
-        'yellow': '255,255,0',
-        'purple': '255,0,255',
-        'cyan': '0,255,255'
-    };
+    // Convert RGB string to hex
+    function rgbToHex(r, g, b) {
+        function toHex(n) {
+            var hex = n.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        }
+        return '#' + toHex(r) + toHex(g) + toHex(b);
+    }
 
     // Load available patterns from the controller
     function loadPatterns() {
@@ -131,15 +121,12 @@
                 var patternSelect = document.getElementById('pattern');
                 patternSelect.value = data.pattern;
                 
-                // Set color - find closest match
-                var colorSelect = document.getElementById('color');
+                // Set color picker from RGB string
+                var colorPicker = document.getElementById('color');
                 var colorStr = data.color;
-                // Try exact match first
-                for (var key in colorNames) {
-                    if (colorNames[key] && key === colorStr) {
-                        colorSelect.value = colorNames[key];
-                        break;
-                    }
+                var rgb = colorStr.split(',');
+                if (rgb.length === 3) {
+                    colorPicker.value = rgbToHex(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]));
                 }
                 
                 // Set speed
@@ -153,13 +140,58 @@
         xhr.send();
     }
 
-    // Handle form submission feedback
+    // Handle form submission via AJAX
     document.querySelector('form').addEventListener('submit', function(e) {
-        // Allow form to submit normally, but show status after
+        e.preventDefault(); // Prevent normal form submission
+        
         var form = e.target;
-        var originalSubmit = form.querySelector('input[type="submit"]');
-        originalSubmit.value = 'Applying...';
-        originalSubmit.disabled = true;
+        var submitBtn = form.querySelector('input[type="submit"]');
+        var originalValue = submitBtn.value;
+        submitBtn.value = 'Applying...';
+        submitBtn.disabled = true;
+        
+        // Get form data
+        var pattern = document.getElementById('pattern').value;
+        var color = document.getElementById('color').value; // hex format
+        var speed = document.getElementById('speed').value;
+        var direction = document.getElementById('direction').value;
+        
+        // Convert color from hex to RGB string for backend
+        var colorRgb = hexToRgb(color);
+        
+        // Build POST data
+        var postData = 'pattern=' + encodeURIComponent(pattern) +
+                      '&color=' + encodeURIComponent(colorRgb) +
+                      '&speed=' + encodeURIComponent(speed) +
+                      '&direction=' + encodeURIComponent(direction);
+        
+        // Send AJAX request
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/led', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                submitBtn.value = originalValue;
+                submitBtn.disabled = false;
+                
+                var statusEl = document.getElementById('status');
+                if (xhr.status === 200) {
+                    statusEl.innerHTML = '<span style="color: green;">Settings applied successfully!</span>';
+                    // Reload current settings after a short delay to confirm
+                    setTimeout(loadCurrentSettings, 500);
+                } else {
+                    statusEl.innerHTML = '<span style="color: red;">Error: ' + xhr.responseText + '</span>';
+                }
+                
+                // Clear status after 5 seconds
+                setTimeout(function() {
+                    statusEl.innerHTML = '';
+                }, 5000);
+            }
+        };
+        
+        xhr.send(postData);
     });
 
     // If page is loaded via form submission, show status
