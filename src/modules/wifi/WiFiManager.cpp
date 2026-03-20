@@ -60,6 +60,7 @@ void WiFiManager::begin(const char* ap_ssid, const char* ap_password,
     
     // Define web server routes
     _server->on("/", std::bind(&WiFiManager::handleRoot, this));
+    _server->on("/nav", std::bind(&WiFiManager::handleNav, this));
     _server->on("/led", std::bind(&WiFiManager::handleLED, this));
     _server->on("/wifi_ap", std::bind(&WiFiManager::handleWifiAP, this));
     _server->on("/wifi_sta", std::bind(&WiFiManager::handleWifiSTA, this));

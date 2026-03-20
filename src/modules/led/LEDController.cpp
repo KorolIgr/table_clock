@@ -2,7 +2,7 @@
 #include "../config/ConfigManager.h"
 
 LEDController::LEDController(uint8_t dataPin)
-    : _dataPin(dataPin), _numLEDs(8), _lastUpdate(0), _runningLight(nullptr), _pingPong(nullptr) {
+    : _dataStorage(nullptr), _dataPin(dataPin), _numLEDs(8), _lastUpdate(0), _runningLight(nullptr), _pingPong(nullptr) {
     _ledStrip = new NeoPixelBus<NeoRgbFeature, NeoEsp8266BitBang800KbpsMethod>(_numLEDs, _dataPin);
 }
 
@@ -67,3 +67,7 @@ PatternConfig LEDController::getCurrentConfig() const {
 
 // Removed savePatternConfig and loadPatternConfig functions
 // These are now handled by the ConfigManager in the main application
+
+void LEDController::setDataStorage(DataStorage* dataStorage) {
+    _dataStorage = dataStorage;
+}

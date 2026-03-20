@@ -11,3 +11,13 @@ void WiFiManager::handleRoot() {
         sendPageNotFound();
     }
 }
+
+void WiFiManager::handleNav() {
+    File file = LittleFS.open("/nav.html.gz", "r");
+    if (file) {
+        _server->streamFile(file, "text/html");
+        file.close();
+    } else {
+        sendPageNotFound();
+    }
+}

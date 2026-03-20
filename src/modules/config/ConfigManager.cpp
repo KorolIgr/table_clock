@@ -5,7 +5,7 @@
 const int ConfigManager::EEPROM_SIZE;
 const int ConfigManager::CONFIG_VERSION;
 
-ConfigManager::ConfigManager() {
+ConfigManager::ConfigManager() : _dataStorage(nullptr) {
     // Initialize EEPROM
     EEPROM.begin(EEPROM_SIZE);
 }
@@ -139,4 +139,8 @@ bool ConfigManager::readConfigFromEEPROM(DeviceConfig& config) {
     }
     
     return true;
+}
+
+void ConfigManager::setDataStorage(DataStorage* dataStorage) {
+    _dataStorage = dataStorage;
 }

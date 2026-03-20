@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include "../led/LEDController.h"
+#include "../data_storage/DataStorage.h"
 #include "../../app_config.h"
 
 // WiFi configuration structure
@@ -36,6 +37,9 @@ class ConfigManager {
 public:
     ConfigManager();
     
+    // Dependency injection for data storage
+    void setDataStorage(DataStorage* dataStorage);
+    
     // Load configuration from EEPROM
     bool loadConfig(DeviceConfig& config);
     
@@ -49,6 +53,7 @@ public:
     bool validateConfig(const DeviceConfig& config);
 
 private:
+    DataStorage* _dataStorage;            // Pointer to shared data storage
     static const int EEPROM_SIZE = 1024;  // Reserve 1KB for configuration
     static const int CONFIG_VERSION = 1;  // Version for future compatibility
     

@@ -1,9 +1,10 @@
 #include "main.h"
 #include "modules/led/LEDController.h"
+#include "modules/data_storage/DataStorage.h"
 #include <functional>
 
 MainApplication::MainApplication()
-    : _ledController(nullptr), _displayManager(nullptr), _wifiManager(nullptr), _configManager(nullptr) {
+    : _ledController(nullptr), _displayManager(nullptr), _wifiManager(nullptr), _configManager(nullptr), _dataStorage(nullptr) {
 }
 
 void MainApplication::begin() {
@@ -28,7 +29,7 @@ void MainApplication::begin() {
     initLED();
     delay(100); // Small delay after LED init
     
-    connectLEDControllerToWiFi();
+    //connectLEDControllerToWiFi();
     
     Serial.println("Table Clock Application started successfully.");
 }
@@ -53,9 +54,13 @@ void MainApplication::appLoop() {
 }
 
 void MainApplication::initConfig() {
+    _dataStorage = new DataStorage();
     _configManager = new ConfigManager();
     
     if (_configManager) {
+        // Inject data storage into config manager
+        _configManager->setDataStorage(_dataStorage);
+        
         // Load configuration from EEPROM
         if (_configManager->loadConfig(_deviceConfig)) {
             Serial.println("Configuration loaded successfully from EEPROM");
@@ -99,6 +104,12 @@ void MainApplication::initDisplay() {
 
 void MainApplication::initLED() {
     _ledController = new LEDController(LED_DATA_PIN);
+    
+    // Inject data storage into LED controller
+    if (_dataStorage) {
+        _ledController->setDataStorage(_dataStorage);
+    }
+    
     _ledController->begin();
     
     // Load LED configuration from the device config

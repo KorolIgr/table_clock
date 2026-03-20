@@ -6,6 +6,7 @@
 #include "modules/display/DisplayManager.h"
 #include "modules/wifi/WiFiManager.h"
 #include "modules/config/ConfigManager.h"
+#include "modules/data_storage/DataStorage.h"
 
 // Forward declarations
 class MainApplication {
@@ -24,6 +25,7 @@ private:
     DisplayManager* _displayManager;
     WiFiManager* _wifiManager;
     ConfigManager* _configManager;
+    DataStorage* _dataStorage;
     DeviceConfig _deviceConfig;
     
     void initHardware();

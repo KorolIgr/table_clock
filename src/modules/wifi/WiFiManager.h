@@ -70,6 +70,7 @@ private:
     void setupAP(const char* ssid, const char* password);
     void setupSTA(const char* ssid, const char* password);
     void handleRoot();
+    void handleNav();
     void handleLED();
     void handleWifiAP();
     void handleWifiSTA();

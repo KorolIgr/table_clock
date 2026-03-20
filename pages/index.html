@@ -2,11 +2,34 @@
 <html>
 <head>
     <title>Table Clock</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/skeleton.css">
 </head>
 <body>
-    <h1>Table Clock</h1>
-    <a href="/wifi_ap">WiFi AP</a><br>
-    <a href="/wifi_sta">WiFi STA</a><br>
-    <a href="/led">LED</a>
+    <div class="container">
+        <div class="row">
+            <div class="twelve columns">
+                <h1>Table Clock</h1>
+                
+                <div id="nav"></div>
+                
+                <div class="main-content">
+                    <p>Welcome to the Table Clock web interface!</p>
+                    <p>Select an option from the navigation menu above.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+
+
+
+<script>
+  fetch('/nav')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('nav').innerHTML = html;
+    });
+</script>

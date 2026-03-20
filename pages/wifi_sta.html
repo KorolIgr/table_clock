@@ -1,28 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Table Clock - WiFi STA</title>
+    <title>Table Clock - WiFi Station</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/skeleton.css">
 </head>
 <body>
-    <h1>WiFi STA</h1>
-    <form action="/wifi_sta" method="post">
-        <label for="ssid">SSID:</label>
-        <select id="ssid" name="ssid">
-            <option value="">Select Network</option>
-        </select>
-         <button type="button" onclick="scanNetworks()">Refresh</button>
-        <br><br>
-
-       
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="Enter Password"><br><br>
-        
-        <input type="submit" value="Connect">
-        <button type="button" onclick="forgetWifi()">Forget</button>
-    </form>
-    <p id="status"></p>
+    <div class="container">
+        <div class="row">
+            <div class="twelve columns">
+                <h1>WiFi Station Settings</h1>
+                
+                <nav class="navigation">
+                    <a class="button" href="/">Main</a>
+                    <a class="button" href="/wifi_ap">WiFi AP</a>
+                    <a class="button" href="/wifi_sta">WiFi STA</a>
+                    <a class="button" href="/led">LED</a>
+                </nav>
+                
+                <div class="wifi-sta-settings">
+                    <form action="/wifi_sta" method="post">
+                        <div class="row">
+                            <div class="six columns">
+                                <label for="ssid">Network:</label>
+                                <select class="u-full-width" id="ssid" name="ssid">
+                                    <option value="">Select Network</option>
+                                </select>
+                            </div>
+                            
+                            <div class="six columns">
+                                <label>&nbsp;</label>
+                                <button class="button u-full-width" type="button" onclick="scanNetworks()">Refresh Networks</button>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="six columns">
+                                <label for="password">Password:</label>
+                                <input class="u-full-width" type="password" id="password" name="password" placeholder="Enter Password">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="six columns">
+                                <input class="button-primary u-full-width" type="submit" value="Connect">
+                            </div>
+                            
+                            <div class="six columns">
+                                <button class="button u-full-width" type="button" onclick="forgetWifi()">Forget Network</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div class="status-area">
+                        <p id="status"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script>
         function scanNetworks() {
             var xhr = new XMLHttpRequest();
@@ -40,7 +78,7 @@
 
                         option.value = net.ssid;
 
-                        // можно красиво подписать
+                        // Display network name with signal strength and security indicator
                         option.text = net.ssid + ' (' + net.rssi + ' dBm)' + (net.secure ? ' 🔒' : '');
 
                         select.appendChild(option);

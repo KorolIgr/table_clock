@@ -4,6 +4,7 @@
 #include <NeoPixelBus.h>
 #include "patterns/RunningLight.h"
 #include "patterns/PingPong.h"
+#include "../data_storage/DataStorage.h"
 
 // Enum for LED patterns
 enum class LEDPattern {
@@ -16,12 +17,15 @@ struct PatternConfig {
     LEDPattern pattern = LEDPattern::RUNNING_LIGHT;
     bool direction = true;  // true = forward, false = reverse
     uint16_t speed = 500;   // in milliseconds
-    RgbColor color = RgbColor(255, 255, 255);  // white by default
+    RgbColor color = RgbColor(20, 20, 20);  // white by default
 };
 
 class LEDController {
 public:
     LEDController(uint8_t dataPin);
+    
+    // Dependency injection for data storage
+    void setDataStorage(DataStorage* dataStorage);
     
     void begin();
     void setAllLEDs(uint8_t red, uint8_t green, uint8_t blue);
@@ -34,6 +38,7 @@ public:
     PatternConfig getCurrentConfig() const;
 
 private:
+    DataStorage* _dataStorage;            // Pointer to shared data storage
     NeoPixelBus<NeoRgbFeature, NeoEsp8266BitBang800KbpsMethod>* _ledStrip;
     uint8_t _dataPin;
     uint16_t _numLEDs;

@@ -2,20 +2,49 @@
 <html>
 <head>
     <title>Table Clock - WiFi AP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/skeleton.css">
 </head>
 <body>
-    <h1>WiFi AP</h1>
-    <form action="/wifi_ap" method="post">
-        <label for="ssid">SSID:</label>
-        <input type="text" id="ssid" name="ssid" placeholder="Enter SSID"><br><br>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="Enter Password"><br><br>
-        
-        <label for="ip">IP:</label>
-        <input type="text" id="ip" name="ip" placeholder="192.168.4.1" value="192.168.4.1"><br><br>
-        
-        <input type="submit" value="Save">
-    </form>
+    <div class="container">
+        <div class="row">
+            <div class="twelve columns">
+                <h1>WiFi Access Point Settings</h1>
+                
+                <nav class="navigation">
+                    <a class="button" href="/">Main</a>
+                    <a class="button" href="/wifi_ap">WiFi AP</a>
+                    <a class="button" href="/wifi_sta">WiFi STA</a>
+                    <a class="button" href="/led">LED</a>
+                </nav>
+                
+                <div class="wifi-ap-settings">
+                    <form action="/wifi_ap" method="post">
+                        <div class="row">
+                            <div class="six columns">
+                                <label for="ssid">SSID:</label>
+                                <input class="u-full-width" type="text" id="ssid" name="ssid" placeholder="Enter SSID">
+                            </div>
+                            
+                            <div class="six columns">
+                                <label for="password">Password:</label>
+                                <input class="u-full-width" type="password" id="password" name="password" placeholder="Enter Password">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="six columns">
+                                <label for="ip">IP Address:</label>
+                                <input class="u-full-width" type="text" id="ip" name="ip" placeholder="192.168.4.1" value="192.168.4.1">
+                            </div>
+                        </div>
+                        
+                        <input class="button-primary" type="submit" value="Save Settings">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
