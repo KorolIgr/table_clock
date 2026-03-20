@@ -59,11 +59,15 @@ void WiFiManager::begin(const char* ap_ssid, const char* ap_password,
     _server = new ESP8266WebServer(80);
     
     // Define web server routes
+    /*
     _server->on("/", std::bind(&WiFiManager::handleRoot, this));
     _server->on("/nav", std::bind(&WiFiManager::handleNav, this));
     _server->on("/led", std::bind(&WiFiManager::handleLED, this));
     _server->on("/wifi_ap", std::bind(&WiFiManager::handleWifiAP, this));
     _server->on("/wifi_sta", std::bind(&WiFiManager::handleWifiSTA, this));
+    */
+
+    
     _server->on("/wifi_sta/forget", std::bind(&WiFiManager::handleForgetWifi, this));
     _server->on("/wifi_sta/scan", std::bind(&WiFiManager::handleScanWifi, this));
     
@@ -95,10 +99,43 @@ void WiFiManager::begin(const char* ap_ssid, const char* ap_password,
         }
     });
     
+    _server->serveStatic("/", LittleFS, "/");
+
+    _server->onNotFound(std::bind(&WiFiManager::handleNotFound, this));
+
     _server->begin();
     
     // Update LED to reflect current WiFi state (after setupSTA may have changed pattern)
     updateBuiltinLED();
+}
+
+void WiFiManager::handleNotFound() {
+    String path = _server->uri();
+
+    if (path.endsWith("/")) {
+        path += "index.html";
+    } else if (!path.endsWith(".html")) {
+        path += ".html";
+    }
+
+    // 🔥 1. Сначала проверяем gzip
+    if (LittleFS.exists(path + ".gz")) {
+        File file = LittleFS.open(path + ".gz", "r");
+        _server->streamFile(file, "text/html");
+        file.close();
+        return;
+    }
+
+    // 2. Потом обычный файл
+    if (LittleFS.exists(path)) {
+        File file = LittleFS.open(path, "r");
+        _server->streamFile(file, "text/html");
+        file.close();
+        return;
+    }
+
+    // 3. Если ничего не нашли
+    _server->send(404, "text/plain", "Not found");
 }
 
 void WiFiManager::update() {

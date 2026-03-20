@@ -76,6 +76,7 @@ private:
     void handleWifiSTA();
     void handleForgetWifi();
     void handleScanWifi();
+    void handleNotFound();
 };
 
 #endif // WIFI_MANAGER_H
