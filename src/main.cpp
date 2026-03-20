@@ -11,9 +11,12 @@
 // LED pattern names for web interface
 static const char* LED_PATTERN_NAMES[] = {
     "running_light",
-    "ping_pong"
+    "ping_pong",
+    "rainbow_wave",
+    "chase",
+    "blink"
 };
-static const int LED_PATTERN_COUNT = 2;
+static const int LED_PATTERN_COUNT = 5;
 
 MainApplication::MainApplication()
     : _ledController(nullptr), _displayManager(nullptr),
@@ -390,6 +393,9 @@ String MainApplication::getLEDCurrentJson() {
     switch (config.pattern) {
         case LEDPattern::RUNNING_LIGHT: patternStr = "running_light"; break;
         case LEDPattern::PING_PONG: patternStr = "ping_pong"; break;
+        case LEDPattern::RAINBOW_WAVE: patternStr = "rainbow_wave"; break;
+        case LEDPattern::CHASE: patternStr = "chase"; break;
+        case LEDPattern::BLINK: patternStr = "blink"; break;
         default: patternStr = "running_light"; break;
     }
     
@@ -422,6 +428,12 @@ void MainApplication::applyLEDSettings(const char* pattern, const char* color, u
         config.pattern = LEDPattern::RUNNING_LIGHT;
     } else if (patternStr == "ping_pong") {
         config.pattern = LEDPattern::PING_PONG;
+    } else if (patternStr == "rainbow_wave") {
+        config.pattern = LEDPattern::RAINBOW_WAVE;
+    } else if (patternStr == "chase") {
+        config.pattern = LEDPattern::CHASE;
+    } else if (patternStr == "blink") {
+        config.pattern = LEDPattern::BLINK;
     } else {
         config.pattern = LEDPattern::RUNNING_LIGHT; // default
     }

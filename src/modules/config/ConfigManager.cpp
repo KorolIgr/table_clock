@@ -61,9 +61,9 @@ bool ConfigManager::validateConfig(const DeviceConfig& config) {
         return false;
     }
     
-    // Validate LED pattern is within valid range
+    // Validate LED pattern is within valid range (0-4 for RUNNING_LIGHT, PING_PONG, RAINBOW_WAVE, CHASE, BLINK)
     if (static_cast<int>(config.led.pattern) < 0 ||
-        static_cast<int>(config.led.pattern) > 1) {  // Assuming 0-1 are valid patterns
+        static_cast<int>(config.led.pattern) > 4) {
         return false;
     }
     

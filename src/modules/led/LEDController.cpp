@@ -2,7 +2,9 @@
 #include "../config/ConfigManager.h"
 
 LEDController::LEDController(uint8_t dataPin)
-    : _dataStorage(nullptr), _dataPin(dataPin), _numLEDs(8), _lastUpdate(0), _runningLight(nullptr), _pingPong(nullptr) {
+    : _dataStorage(nullptr), _dataPin(dataPin), _numLEDs(8), _lastUpdate(0),
+      _runningLight(nullptr), _pingPong(nullptr),
+      _rainbowWave(nullptr), _chase(nullptr), _blink(nullptr) {
     _ledStrip = new NeoPixelBus<NeoRgbFeature, NeoEsp8266BitBang800KbpsMethod>(_numLEDs, _dataPin);
 }
 
@@ -12,6 +14,9 @@ void LEDController::begin() {
     // Initialize pattern objects
     _runningLight = new RunningLight(_ledStrip, _numLEDs);
     _pingPong = new PingPong(_ledStrip, _numLEDs);
+    _rainbowWave = new RainbowWave(_ledStrip, _numLEDs);
+    _chase = new Chase(_ledStrip, _numLEDs);
+    _blink = new Blink(_ledStrip, _numLEDs);
     
     // The pattern configuration will be loaded by the main application
     // using the ConfigManager, so we don't need to load it here anymore
@@ -20,6 +25,7 @@ void LEDController::begin() {
     _currentConfig.direction = true;
     _currentConfig.speed = 500;
     _currentConfig.color = RgbColor(255, 255, 255);
+    _currentConfig.trailLength = 2;
 }
 
 void LEDController::setAllLEDs(uint8_t red, uint8_t green, uint8_t blue) {
@@ -57,6 +63,15 @@ void LEDController::updatePattern() {
             break;
         case LEDPattern::PING_PONG:
             _pingPong->update(_currentConfig.speed, _currentConfig.color);
+            break;
+        case LEDPattern::RAINBOW_WAVE:
+            _rainbowWave->update(_currentConfig.speed, _currentConfig.color);
+            break;
+        case LEDPattern::CHASE:
+            _chase->update(_currentConfig.direction, _currentConfig.speed, _currentConfig.color, _currentConfig.trailLength);
+            break;
+        case LEDPattern::BLINK:
+            _blink->update(_currentConfig.speed, _currentConfig.color);
             break;
     }
 }
