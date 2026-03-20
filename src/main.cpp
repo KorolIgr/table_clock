@@ -217,7 +217,7 @@ void loop() {
 
 // Implementation of configuration management methods
 void MainApplication::saveWifiStaConfig(const char* ssid, const char* password) {
-    if (_configManager) {
+    if (_configManager && _dataStorage) {
         // Update the configuration
         strncpy(_deviceConfig.wifi.sta_ssid, ssid, sizeof(_deviceConfig.wifi.sta_ssid) - 1);
         _deviceConfig.wifi.sta_ssid[sizeof(_deviceConfig.wifi.sta_ssid) - 1] = '\0';
@@ -226,13 +226,13 @@ void MainApplication::saveWifiStaConfig(const char* ssid, const char* password) 
         _deviceConfig.wifi.sta_password[sizeof(_deviceConfig.wifi.sta_password) - 1] = '\0';
         
         // Save to EEPROM
-        _configManager->saveConfig(_deviceConfig);
+        //_configManager->saveConfig(_deviceConfig);
         
-        // Reinitialize STA with new credentials
-        if (_wifiSTA) {
-            _wifiSTA->disconnect();
-            _wifiSTA->begin(_deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password);
-        }
+        // Store credentials in DataStorage and request connection
+        _dataStorage->setStaCredentials(ssid, password);
+        _dataStorage->requestStaConnection();
+        
+        Serial.println("MainApplication: WiFi STA credentials stored and connection requested");
     }
 }
 
@@ -252,7 +252,7 @@ void MainApplication::saveWifiApConfig(const char* ssid, const char* password, c
         }
         
         // Save to EEPROM
-        _configManager->saveConfig(_deviceConfig);
+        //_configManager->saveConfig(_deviceConfig);
         
         // Reinitialize AP with new settings
         if (_wifiAP) {
@@ -262,18 +262,20 @@ void MainApplication::saveWifiApConfig(const char* ssid, const char* password, c
 }
 
 void MainApplication::forgetWifiConfig() {
-    if (_configManager) {
+    if (_configManager && _dataStorage) {
         // Clear the STA configuration
         strcpy(_deviceConfig.wifi.sta_ssid, "");
         strcpy(_deviceConfig.wifi.sta_password, "");
         
         // Save to EEPROM
-        _configManager->saveConfig(_deviceConfig);
+        //_configManager->saveConfig(_deviceConfig);
         
-        // Reinitialize STA with empty credentials (won't connect)
+        // Clear credentials from DataStorage
+        _dataStorage->setStaCredentials("", "");
+        
+        // Disconnect STA
         if (_wifiSTA) {
             _wifiSTA->disconnect();
-            _wifiSTA->begin("", "");
         }
     }
 }
@@ -303,7 +305,7 @@ void MainApplication::saveLedConfig(const PatternConfig& config) {
         _deviceConfig.led = config;
         
         // Save to EEPROM
-        _configManager->saveConfig(_deviceConfig);
+        //_configManager->saveConfig(_deviceConfig);
         
         // Update the LED controller
         if (_ledController) {

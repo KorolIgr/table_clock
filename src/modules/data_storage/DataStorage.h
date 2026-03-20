@@ -13,6 +13,11 @@ struct SharedData {
     String wifi_status = "";
     String ip_address = "";
     
+    // WiFi STA configuration (for dynamic connection requests)
+    String sta_ssid = "";
+    String sta_password = "";
+    bool sta_connect_requested = false;
+    
     // LED status information
     bool led_enabled = true;
     uint8_t led_brightness = 100;  // 0-100 percentage
@@ -43,6 +48,11 @@ public:
     void updateLedStatus(bool enabled, uint8_t brightness);
     void updateBuiltinLEDPattern(int pattern);
     void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
+    
+    // WiFi STA configuration methods
+    void setStaCredentials(const String& ssid, const String& password);
+    void requestStaConnection();
+    void clearStaConnectionRequest();
     
 private:
     SharedData _sharedData;

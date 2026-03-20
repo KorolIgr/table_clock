@@ -20,7 +20,7 @@ public:
     
     void begin(const char* ssid, const char* password);
     void disconnect();
-    void update(); // Check connection status and update DataStorage
+    void update(); // Check connection status and update DataStorage, also process requests
     bool isConnected() const;
     String getIP() const;
     std::vector<NetworkInfo> scanNetworks();
@@ -30,6 +30,7 @@ private:
     bool _lastConnectedStatus;
     
     void updateDataStorage();
+    void processConnectionRequest();
 };
 
 #endif // WIFI_STA_H

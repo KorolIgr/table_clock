@@ -51,6 +51,10 @@ void WiFiSTA::disconnect() {
 }
 
 void WiFiSTA::update() {
+    // Process any pending connection requests from DataStorage
+    processConnectionRequest();
+    
+    // Update connection status
     bool currentlyConnected = WiFi.status() == WL_CONNECTED;
     if (currentlyConnected != _lastConnectedStatus) {
         _lastConnectedStatus = currentlyConnected;
@@ -88,5 +92,58 @@ void WiFiSTA::updateDataStorage() {
         } else {
             _dataStorage->updateWifiStatus(false, "STA not connected", "");
         }
+    }
+}
+
+void WiFiSTA::processConnectionRequest() {
+    if (!_dataStorage) return;
+    
+    // Check if a connection has been requested
+    auto& data = _dataStorage->getData();
+    if (data.sta_connect_requested) {
+        // Get credentials
+        String ssid = data.sta_ssid;
+        String password = data.sta_password;
+        
+        // Clear the request flag immediately to avoid repeated attempts
+        _dataStorage->clearStaConnectionRequest();
+        
+        // Disconnect first if currently connected
+        if (_lastConnectedStatus) {
+            WiFi.disconnect();
+            delay(100);
+        }
+        
+        // Attempt connection with credentials
+        if (ssid.length() > 0 && password.length() >= 8) {
+            Serial.print("WiFiSTA: Connecting to requested network: ");
+            Serial.println(ssid);
+            WiFi.begin(ssid.c_str(), password.c_str());
+            
+            // Wait for connection with timeout
+            int attempts = 0;
+            const int maxAttempts = 20; // 20 * 500ms = 10 seconds timeout
+            while (WiFi.status() != WL_CONNECTED && attempts < maxAttempts) {
+                delay(500);
+                attempts++;
+            }
+            
+            if (WiFi.status() == WL_CONNECTED) {
+                Serial.println("");
+                Serial.print("WiFiSTA: Connected! IP address: ");
+                Serial.println(WiFi.localIP());
+                _lastConnectedStatus = true;
+            } else {
+                Serial.println("");
+                Serial.println("WiFiSTA: Connection failed!");
+                _lastConnectedStatus = false;
+            }
+        } else {
+            Serial.println("WiFiSTA: Invalid credentials (SSID empty or password < 8 chars)");
+            _lastConnectedStatus = false;
+        }
+        
+        // Update DataStorage with new status
+        updateDataStorage();
     }
 }

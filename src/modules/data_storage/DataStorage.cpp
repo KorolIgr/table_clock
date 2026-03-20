@@ -55,3 +55,22 @@ void DataStorage::updateSystemStatus(float temp, uint32_t uptime, bool error, co
         _sharedData.last_error = lastError;
     }
 }
+
+void DataStorage::setStaCredentials(const String& ssid, const String& password) {
+    if (!_locked) {
+        _sharedData.sta_ssid = ssid;
+        _sharedData.sta_password = password;
+    }
+}
+
+void DataStorage::requestStaConnection() {
+    if (!_locked) {
+        _sharedData.sta_connect_requested = true;
+    }
+}
+
+void DataStorage::clearStaConnectionRequest() {
+    if (!_locked) {
+        _sharedData.sta_connect_requested = false;
+    }
+}
