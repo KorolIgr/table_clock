@@ -1,10 +1,17 @@
 #include "main.h"
 #include "modules/led/LEDController.h"
+#include "modules/builtin_led/BuiltInLED.h"
+#include "modules/wifi/WiFiAP.h"
+#include "modules/wifi/WiFiSTA.h"
+#include "modules/webserver/WebServer.h"
 #include "modules/data_storage/DataStorage.h"
+#include "modules/config/ConfigManager.h"
 #include <functional>
 
 MainApplication::MainApplication()
-    : _ledController(nullptr), _displayManager(nullptr), _wifiManager(nullptr), _configManager(nullptr), _dataStorage(nullptr) {
+    : _ledController(nullptr), _displayManager(nullptr),
+      _configManager(nullptr), _dataStorage(nullptr),
+      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr) {
 }
 
 void MainApplication::begin() {
@@ -15,19 +22,23 @@ void MainApplication::begin() {
     Serial.println("Initializing Table Clock Application...");
     
     initConfig();
-    delay(100); // Small delay after config init
+    delay(50); // Small delay after config init
     
     initHardware();
-    delay(100); // Small delay after hardware init
-    
-    initWiFi();
-    delay(100); // Small delay after WiFi init
-    
+    delay(20); // Small delay after hardware init
+
     //initDisplay();
-    delay(100); // Small delay after display init
+    delay(20); // Small delay after display init
     
     initLED();
-    delay(100); // Small delay after LED init
+    delay(20); // Small delay after LED init
+
+    initWiFiAP();
+    initWiFiSTA();
+    initWebServer();
+    delay(20); // Combined delay was 200ms at end of old initWiFi()
+    
+
     
     //connectLEDControllerToWiFi();
     
@@ -35,11 +46,31 @@ void MainApplication::begin() {
 }
 
 void MainApplication::appLoop() {
-    // Add null pointer checks before calling update methods
-    if (_wifiManager) {
-        _wifiManager->update();
+    // Update WiFi STA (monitor connection status)
+    if (_wifiSTA) {
+        _wifiSTA->update();
     }
     
+    // Update web server
+    if (_wifiWebServer) {
+        _wifiWebServer->update();
+    }
+    
+    // Update built-in LED based on WiFi STA connection status
+    if (_builtInLED && _wifiSTA) {
+        bool connected = _wifiSTA->isConnected();
+        static bool lastConnected = !connected; // Opposite to trigger initial set
+        if (connected != lastConnected) {
+            lastConnected = connected;
+            if (connected) {
+                _builtInLED->setPattern(3); // On
+            } else {
+                _builtInLED->setPattern(1); // Slow blink
+            }
+        }
+    }
+    
+    // Update external LED controller
     if (_ledController) {
         _ledController->updatePattern();
     }
@@ -48,7 +79,7 @@ void MainApplication::appLoop() {
     static unsigned long lastHeartbeat = 0;
     if (millis() - lastHeartbeat > 5000) { // Every 5 seconds
         Serial.print("Device running... Heartbeat: ");
-        Serial.println(millis());  // Using separate print calls to reduce potential memory issues
+        Serial.println(millis());
         lastHeartbeat = millis();
     }
 }
@@ -72,27 +103,71 @@ void MainApplication::initConfig() {
 }
 
 void MainApplication::initHardware() {
-    // Hardware initialization
+    // Hardware initialization (if needed)
 }
 
-void MainApplication::initWiFi() {
-    _wifiManager = new WiFiManager();
+void MainApplication::initWiFiAP() {
+    // Create and initialize WiFi AP
+    _wifiAP = new WiFiAP();
     
-    if (_wifiManager) {
-        // Always use AP credentials for AP mode (with defaults from config)
-        // Use STA credentials only if they are valid (non-empty and at least 8 chars)
-        bool hasStaCredentials = strlen(_deviceConfig.wifi.sta_ssid) > 0 && strlen(_deviceConfig.wifi.sta_password) >= 8;
-        
-        // Initialize WiFi with separate AP and STA credentials
-        _wifiManager->begin(
-            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,  // AP credentials
-            hasStaCredentials ? _deviceConfig.wifi.sta_ssid : "",       // STA SSID (empty if not available)
-            hasStaCredentials ? _deviceConfig.wifi.sta_password : "",   // STA password (empty if not available)
-            WIFI_AP_STA  // Hybrid mode: AP always on, STA conditional
+    // Inject DataStorage
+    if (_dataStorage) {
+        _wifiAP->setDataStorage(_dataStorage);
+    }
+    
+    // Initialize AP
+    if (_wifiAP) {
+        _wifiAP->begin(_deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password, _deviceConfig.wifi.ap_ip);
+    }
+}
+
+void MainApplication::initWiFiSTA() {
+    // Create and initialize WiFi STA
+    _wifiSTA = new WiFiSTA();
+    
+    // Inject DataStorage
+    if (_dataStorage) {
+        _wifiSTA->setDataStorage(_dataStorage);
+    }
+    
+    // Initialize STA (if credentials available)
+    bool hasStaCredentials = strlen(_deviceConfig.wifi.sta_ssid) > 0 && strlen(_deviceConfig.wifi.sta_password) >= 8;
+    if (_wifiSTA) {
+        if (hasStaCredentials) {
+            _wifiSTA->begin(_deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password);
+        } else {
+            _wifiSTA->begin("", ""); // Won't connect
+        }
+    }
+}
+
+void MainApplication::initWebServer() {
+    // Create web server
+    _wifiWebServer = new WebServer();
+    
+    // Inject DataStorage
+    if (_dataStorage) {
+        _wifiWebServer->setDataStorage(_dataStorage);
+    }
+    
+    // Inject ConfigManager
+    if (_configManager) {
+        _wifiWebServer->setConfigManager(_configManager);
+    }
+    
+    // Set up callbacks
+    if (_wifiWebServer) {
+        _wifiWebServer->setCallbacks(
+            &MainApplication::onSaveWifiSta,
+            &MainApplication::onSaveWifiAp,
+            &MainApplication::onForgetWifi
         );
-        
-        // Small delay after WiFi initialization
-        delay(200);
+        _wifiWebServer->setScanCallback(&MainApplication::scanNetworksCallback);
+    }
+    
+    // Start web server
+    if (_wifiWebServer) {
+        _wifiWebServer->begin();
     }
 }
 
@@ -103,36 +178,25 @@ void MainApplication::initDisplay() {
 }
 
 void MainApplication::initLED() {
+    // Initialize external LED controller
     _ledController = new LEDController(LED_DATA_PIN);
-    
-    // Inject data storage into LED controller
     if (_dataStorage) {
         _ledController->setDataStorage(_dataStorage);
     }
-    
     _ledController->begin();
-    
-    // Load LED configuration from the device config
     _ledController->setPattern(_deviceConfig.led);
+    
+    // Initialize built-in LED
+    _builtInLED = new BuiltInLED();
+    if (_dataStorage) {
+        _builtInLED->setDataStorage(_dataStorage);
+    }
+    _builtInLED->begin();
+    // Initial pattern will be set in appLoop based on WiFi status
 }
 
 void MainApplication::connectLEDControllerToWiFi() {
-    if (_wifiManager && _ledController) {
-        _wifiManager->setLEDController(_ledController);
-        // Set up callbacks for configuration management
-        // Set up static callback functions that will call the instance methods
-        _wifiManager->setCallbacks(
-            [](const char* ssid, const char* password) {
-                if (appInstance) appInstance->saveWifiStaConfig(ssid, password);
-            },
-            [](const char* ssid, const char* password) {
-                if (appInstance) appInstance->saveWifiApConfig(ssid, password);
-            },
-            []() {
-                if (appInstance) appInstance->forgetWifiConfig();
-            }
-        );
-    }
+    // No longer needed - dependencies are injected directly
 }
 
 // Global application instance
@@ -151,7 +215,7 @@ void loop() {
 
 // Implementation of configuration management methods
 void MainApplication::saveWifiStaConfig(const char* ssid, const char* password) {
-    if (_configManager && _wifiManager) {
+    if (_configManager) {
         // Update the configuration
         strncpy(_deviceConfig.wifi.sta_ssid, ssid, sizeof(_deviceConfig.wifi.sta_ssid) - 1);
         _deviceConfig.wifi.sta_ssid[sizeof(_deviceConfig.wifi.sta_ssid) - 1] = '\0';
@@ -162,17 +226,16 @@ void MainApplication::saveWifiStaConfig(const char* ssid, const char* password) 
         // Save to EEPROM
         _configManager->saveConfig(_deviceConfig);
         
-        // Restart WiFi with new credentials (use AP credentials for AP, new STA credentials for STA)
-        _wifiManager->begin(
-            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,
-            _deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password,
-            WIFI_AP_STA
-        );
+        // Reinitialize STA with new credentials
+        if (_wifiSTA) {
+            _wifiSTA->disconnect();
+            _wifiSTA->begin(_deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password);
+        }
     }
 }
 
-void MainApplication::saveWifiApConfig(const char* ssid, const char* password) {
-    if (_configManager && _wifiManager) {
+void MainApplication::saveWifiApConfig(const char* ssid, const char* password, const char* ip) {
+    if (_configManager) {
         // Update the configuration
         strncpy(_deviceConfig.wifi.ap_ssid, ssid, sizeof(_deviceConfig.wifi.ap_ssid) - 1);
         _deviceConfig.wifi.ap_ssid[sizeof(_deviceConfig.wifi.ap_ssid) - 1] = '\0';
@@ -180,20 +243,24 @@ void MainApplication::saveWifiApConfig(const char* ssid, const char* password) {
         strncpy(_deviceConfig.wifi.ap_password, password, sizeof(_deviceConfig.wifi.ap_password) - 1);
         _deviceConfig.wifi.ap_password[sizeof(_deviceConfig.wifi.ap_password) - 1] = '\0';
         
+        // Update IP if provided
+        if (ip && strlen(ip) > 0) {
+            strncpy(_deviceConfig.wifi.ap_ip, ip, sizeof(_deviceConfig.wifi.ap_ip) - 1);
+            _deviceConfig.wifi.ap_ip[sizeof(_deviceConfig.wifi.ap_ip) - 1] = '\0';
+        }
+        
         // Save to EEPROM
         _configManager->saveConfig(_deviceConfig);
         
-        // Restart WiFi with new credentials (use new AP credentials for AP, keep existing STA credentials)
-        _wifiManager->begin(
-            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,
-            _deviceConfig.wifi.sta_ssid, _deviceConfig.wifi.sta_password,
-            WIFI_AP_STA
-        );
+        // Reinitialize AP with new settings
+        if (_wifiAP) {
+            _wifiAP->begin(_deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password, _deviceConfig.wifi.ap_ip);
+        }
     }
 }
 
 void MainApplication::forgetWifiConfig() {
-    if (_configManager && _wifiManager) {
+    if (_configManager) {
         // Clear the STA configuration
         strcpy(_deviceConfig.wifi.sta_ssid, "");
         strcpy(_deviceConfig.wifi.sta_password, "");
@@ -201,12 +268,30 @@ void MainApplication::forgetWifiConfig() {
         // Save to EEPROM
         _configManager->saveConfig(_deviceConfig);
         
-        // Restart WiFi: AP with configured/default credentials, STA with empty credentials (won't connect)
-        _wifiManager->begin(
-            _deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password,
-            "", "",  // Empty STA credentials
-            WIFI_AP_STA
-        );
+        // Reinitialize STA with empty credentials (won't connect)
+        if (_wifiSTA) {
+            _wifiSTA->disconnect();
+            _wifiSTA->begin("", "");
+        }
+    }
+}
+
+// Static callback implementations
+void MainApplication::onSaveWifiSta(const char* ssid, const char* password) {
+    if (appInstance) {
+        appInstance->saveWifiStaConfig(ssid, password);
+    }
+}
+
+void MainApplication::onSaveWifiAp(const char* ssid, const char* password, const char* ip) {
+    if (appInstance) {
+        appInstance->saveWifiApConfig(ssid, password, ip);
+    }
+}
+
+void MainApplication::onForgetWifi() {
+    if (appInstance) {
+        appInstance->forgetWifiConfig();
     }
 }
 
@@ -223,4 +308,28 @@ void MainApplication::saveLedConfig(const PatternConfig& config) {
             _ledController->setPattern(_deviceConfig.led);
         }
     }
+}
+
+String MainApplication::getWifiScanJson() {
+    if (!_wifiSTA) {
+        return "[]";
+    }
+    auto networks = _wifiSTA->scanNetworks();
+    String response = "[";
+    for (size_t i = 0; i < networks.size(); ++i) {
+        if (i > 0) {
+            response += ",";
+        }
+        const auto& net = networks[i];
+        response += "{\"ssid\":\"" + net.ssid + "\",\"rssi\":" + String(net.rssi) + ",\"secure\":" + (net.secure ? "true" : "false") + "}";
+    }
+    response += "]";
+    return response;
+}
+
+String MainApplication::scanNetworksCallback() {
+    if (appInstance) {
+        return appInstance->getWifiScanJson();
+    }
+    return "[]";
 }

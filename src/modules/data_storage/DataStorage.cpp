@@ -7,6 +7,7 @@ DataStorage::DataStorage() : _locked(false) {
     _sharedData.ip_address = "0.0.0.0";
     _sharedData.led_enabled = true;
     _sharedData.led_brightness = 100;
+    _sharedData.builtin_led_pattern = 1;
     _sharedData.temperature = 0.0f;
     _sharedData.uptime = 0;
     _sharedData.system_error = false;
@@ -37,6 +38,12 @@ void DataStorage::updateLedStatus(bool enabled, uint8_t brightness) {
     if (!_locked) {
         _sharedData.led_enabled = enabled;
         _sharedData.led_brightness = brightness;
+    }
+}
+
+void DataStorage::updateBuiltinLEDPattern(int pattern) {
+    if (!_locked) {
+        _sharedData.builtin_led_pattern = pattern;
     }
 }
 

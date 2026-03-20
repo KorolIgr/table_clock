@@ -29,8 +29,9 @@ struct WiFiConfig {
 struct DeviceConfig {
     WiFiConfig wifi;
     PatternConfig led;      // From LEDController.h
+    int builtin_led_pattern; // 0=off, 1=slow blink, 2=fast blink, 3=on
     
-    DeviceConfig() : led() {}  // Initialize LED config with defaults
+    DeviceConfig() : led(), builtin_led_pattern(1) {}  // Initialize LED config with defaults, pattern=1 (slow blink)
 };
 
 class ConfigManager {

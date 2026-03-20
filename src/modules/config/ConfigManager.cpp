@@ -62,13 +62,18 @@ bool ConfigManager::validateConfig(const DeviceConfig& config) {
     }
     
     // Validate LED pattern is within valid range
-    if (static_cast<int>(config.led.pattern) < 0 || 
+    if (static_cast<int>(config.led.pattern) < 0 ||
         static_cast<int>(config.led.pattern) > 1) {  // Assuming 0-1 are valid patterns
         return false;
     }
     
     // Validate speed is within reasonable range
     if (config.led.speed < 50 || config.led.speed > 5000) {
+        return false;
+    }
+    
+    // Validate built-in LED pattern (0-3)
+    if (config.builtin_led_pattern < 0 || config.builtin_led_pattern > 3) {
         return false;
     }
     

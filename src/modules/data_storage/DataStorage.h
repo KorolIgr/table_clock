@@ -16,6 +16,7 @@ struct SharedData {
     // LED status information
     bool led_enabled = true;
     uint8_t led_brightness = 100;  // 0-100 percentage
+    int builtin_led_pattern = 1;   // 0=off, 1=slow blink, 2=fast blink, 3=on
     
     // System status information
     float temperature = 0.0f;
@@ -40,6 +41,7 @@ public:
     // Update specific data fields
     void updateWifiStatus(bool connected, const String& status, const String& ip);
     void updateLedStatus(bool enabled, uint8_t brightness);
+    void updateBuiltinLEDPattern(int pattern);
     void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
     
 private:
