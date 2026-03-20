@@ -8,6 +8,13 @@
 #include "modules/config/ConfigManager.h"
 #include <functional>
 
+// LED pattern names for web interface
+static const char* LED_PATTERN_NAMES[] = {
+    "running_light",
+    "ping_pong"
+};
+static const int LED_PATTERN_COUNT = 2;
+
 MainApplication::MainApplication()
     : _ledController(nullptr), _displayManager(nullptr),
       _configManager(nullptr), _dataStorage(nullptr),
@@ -157,6 +164,11 @@ void MainApplication::initWebServer() {
         _wifiWebServer->setConfigManager(_configManager);
     }
     
+    // Inject LEDController
+    if (_ledController) {
+        _wifiWebServer->setLEDController(_ledController);
+    }
+    
     // Set up callbacks
     if (_wifiWebServer) {
         _wifiWebServer->setCallbacks(
@@ -166,6 +178,9 @@ void MainApplication::initWebServer() {
         );
         _wifiWebServer->setSaveConfigCallback(&MainApplication::onSaveConfig);
         _wifiWebServer->setScanCallback(&MainApplication::scanNetworksCallback);
+        _wifiWebServer->setGetLEDPatternsCallback(&MainApplication::onGetLEDPatterns);
+        _wifiWebServer->setGetLEDCurrentCallback(&MainApplication::onGetLEDCurrent);
+        _wifiWebServer->setApplyLEDSettingsCallback(&MainApplication::onApplyLEDSettings);
     }
     
     // Start web server
@@ -350,4 +365,108 @@ String MainApplication::scanNetworksCallback() {
         return appInstance->getWifiScanJson();
     }
     return "[]";
+}
+
+String MainApplication::getLEDPatternsJson() {
+    String response = "[";
+    for (int i = 0; i < LED_PATTERN_COUNT; i++) {
+        if (i > 0) {
+            response += ",";
+        }
+        response += "\"" + String(LED_PATTERN_NAMES[i]) + "\"";
+    }
+    response += "]";
+    return response;
+}
+
+String MainApplication::getLEDCurrentJson() {
+    if (!_ledController) {
+        return "{}";
+    }
+    PatternConfig config = _ledController->getCurrentConfig();
+    
+    // Convert pattern enum to string
+    String patternStr;
+    switch (config.pattern) {
+        case LEDPattern::RUNNING_LIGHT: patternStr = "running_light"; break;
+        case LEDPattern::PING_PONG: patternStr = "ping_pong"; break;
+        default: patternStr = "running_light"; break;
+    }
+    
+    // Convert color to string (simple approach - use hex)
+    String colorStr = String(config.color.R) + "," + String(config.color.G) + "," + String(config.color.B);
+    
+    // Convert direction to string
+    String dirStr = config.direction ? "forward" : "reverse";
+    
+    String response = "{";
+    response += "\"pattern\":\"" + patternStr + "\",";
+    response += "\"color\":\"" + colorStr + "\",";
+    response += "\"speed\":" + String(config.speed) + ",";
+    response += "\"direction\":\"" + dirStr + "\"";
+    response += "}";
+    
+    return response;
+}
+
+void MainApplication::applyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction) {
+    if (!_ledController || !_configManager) {
+        return;
+    }
+    
+    PatternConfig config;
+    
+    // Parse pattern
+    String patternStr = String(pattern);
+    if (patternStr == "running_light") {
+        config.pattern = LEDPattern::RUNNING_LIGHT;
+    } else if (patternStr == "ping_pong") {
+        config.pattern = LEDPattern::PING_PONG;
+    } else {
+        config.pattern = LEDPattern::RUNNING_LIGHT; // default
+    }
+    
+    // Parse color
+    int r = 20, g = 20, b = 20; // default white
+    String colorStr = String(color);
+    int firstComma = colorStr.indexOf(',');
+    int secondComma = colorStr.indexOf(',', firstComma + 1);
+    if (firstComma > 0 && secondComma > firstComma) {
+        r = colorStr.substring(0, firstComma).toInt();
+        g = colorStr.substring(firstComma + 1, secondComma).toInt();
+        b = colorStr.substring(secondComma + 1).toInt();
+    }
+    config.color = RgbColor(r, g, b);
+    
+    config.speed = speed;
+    config.direction = direction;
+    
+    // Update LED controller
+    _ledController->setPattern(config);
+    
+    // Update device configuration
+    _deviceConfig.led = config;
+    
+    // Save to EEPROM (optional, can be done separately)
+    // _configManager->saveConfig(_deviceConfig);
+}
+
+String MainApplication::onGetLEDPatterns() {
+    if (appInstance) {
+        return appInstance->getLEDPatternsJson();
+    }
+    return "[]";
+}
+
+String MainApplication::onGetLEDCurrent() {
+    if (appInstance) {
+        return appInstance->getLEDCurrentJson();
+    }
+    return "{}";
+}
+
+void MainApplication::onApplyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction) {
+    if (appInstance) {
+        appInstance->applyLEDSettings(pattern, color, speed, direction);
+    }
 }

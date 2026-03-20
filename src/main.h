@@ -28,12 +28,20 @@ public:
     // Method to provide WiFi scan results as JSON (for web server callback)
     String getWifiScanJson();
     
+    // LED-related methods for web interface
+    String getLEDPatternsJson();
+    String getLEDCurrentJson();
+    void applyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction);
+    
     // Static callback wrappers
     static void onSaveWifiSta(const char* ssid, const char* password);
     static void onSaveWifiAp(const char* ssid, const char* password, const char* ip);
     static void onForgetWifi();
     static void onSaveConfig();
     static String scanNetworksCallback();
+    static String onGetLEDPatterns();
+    static String onGetLEDCurrent();
+    static void onApplyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction);
 
 private:
     LEDController* _ledController;

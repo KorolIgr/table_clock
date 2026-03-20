@@ -20,8 +20,7 @@
                             <div class="six columns">
                                 <label for="pattern">Pattern:</label>
                                 <select class="u-full-width" id="pattern" name="pattern">
-                                    <option value="running_light">Running Light</option>
-                                    <option value="ping_pong">Ping Pong</option>
+                                    <option value="">Loading patterns...</option>
                                 </select>
                             </div>
                             
@@ -56,6 +55,10 @@
                         
                         <input class="button-primary" type="submit" value="Apply Settings">
                     </form>
+                    
+                    <div class="status-area">
+                        <p id="status"></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,3 +67,103 @@
 </html>
 
 <script src="/js/nav.js"></script>
+
+<script>
+    // Color mapping for dropdown
+    const colorNames = {
+        '255,255,255': 'white',
+        '255,0,0': 'red',
+        '0,255,0': 'green',
+        '0,0,255': 'blue',
+        '255,255,0': 'yellow',
+        '255,0,255': 'purple',
+        '0,255,255': 'cyan'
+    };
+
+    // Reverse mapping from color name to RGB
+    const colorValues = {
+        'white': '255,255,255',
+        'red': '255,0,0',
+        'green': '0,255,0',
+        'blue': '0,0,255',
+        'yellow': '255,255,0',
+        'purple': '255,0,255',
+        'cyan': '0,255,255'
+    };
+
+    // Load available patterns from the controller
+    function loadPatterns() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/led/patterns', true);
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var patterns = JSON.parse(xhr.responseText);
+                var select = document.getElementById('pattern');
+                
+                select.innerHTML = '';
+                patterns.forEach(function(pattern) {
+                    var option = document.createElement('option');
+                    option.value = pattern;
+                    // Convert pattern name to display format
+                    option.text = pattern.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                    select.appendChild(option);
+                });
+                
+                // After loading patterns, load current settings
+                loadCurrentSettings();
+            }
+        };
+        
+        xhr.send();
+    }
+
+    // Load current LED settings
+    function loadCurrentSettings() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/led/current', true);
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                
+                // Set pattern
+                var patternSelect = document.getElementById('pattern');
+                patternSelect.value = data.pattern;
+                
+                // Set color - find closest match
+                var colorSelect = document.getElementById('color');
+                var colorStr = data.color;
+                // Try exact match first
+                for (var key in colorNames) {
+                    if (colorNames[key] && key === colorStr) {
+                        colorSelect.value = colorNames[key];
+                        break;
+                    }
+                }
+                
+                // Set speed
+                document.getElementById('speed').value = data.speed;
+                
+                // Set direction
+                document.getElementById('direction').value = data.direction;
+            }
+        };
+        
+        xhr.send();
+    }
+
+    // Handle form submission feedback
+    document.querySelector('form').addEventListener('submit', function(e) {
+        // Allow form to submit normally, but show status after
+        var form = e.target;
+        var originalSubmit = form.querySelector('input[type="submit"]');
+        originalSubmit.value = 'Applying...';
+        originalSubmit.disabled = true;
+    });
+
+    // If page is loaded via form submission, show status
+    window.onload = function() {
+        loadPatterns();
+    };
+</script>
