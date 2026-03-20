@@ -14,10 +14,15 @@
                 
                 <div id="nav"></div>
                 
-                <div class="main-content">
-                    <p>Welcome to the Table Clock web interface!</p>
-                    <p>Select an option from the navigation menu above.</p>
-                </div>
+                 <div class="main-content">
+                     <h2>System Status</h2>
+                     <div id="data-display">
+                         <p>Loading data...</p>
+                     </div>
+                     
+                     <h2>Welcome</h2>
+                     <p>Select an option from the navigation menu above.</p>
+                 </div>
             </div>
         </div>
     </div>
@@ -27,3 +32,27 @@
 
 
 <script src="/js/nav.js"></script>
+    
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/status')
+        .then(response => response.json())
+        .then(data => {
+            const display = document.getElementById('data-display');
+            let html = '<table class="u-full-width">';
+            html += '<tr><th>Property</th><th>Value</th></tr>';
+            html += '<tr><td>WiFi Connected</td><td>' + (data.wifi_connected ? 'Yes' : 'No') + '</td></tr>';
+            html += '<tr><td>WiFi Status</td><td>' + data.wifi_status + '</td></tr>';
+            html += '<tr><td>IP Address</td><td>' + data.ip_address + '</td></tr>';
+            html += '<tr><td>LED Enabled</td><td>' + (data.led_enabled ? 'Yes' : 'No') + '</td></tr>';
+            html += '<tr><td>LED Brightness</td><td>' + data.led_brightness + '%</td></tr>';
+            html += '<tr><td>Built-in LED Pattern</td><td>' + data.builtin_led_pattern + '</td></tr>';
+            html += '</table>';
+            display.innerHTML = html;
+        })
+        .catch(error => {
+            document.getElementById('data-display').innerHTML = '<p>Error loading data</p>';
+            console.error('Error fetching status:', error);
+        });
+});
+</script>
