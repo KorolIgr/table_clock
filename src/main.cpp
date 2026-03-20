@@ -68,6 +68,8 @@ void MainApplication::appLoop() {
                 _builtInLED->setPattern(1); // Slow blink
             }
         }
+        // Actually update the LED state
+        _builtInLED->update();
     }
     
     // Update external LED controller
