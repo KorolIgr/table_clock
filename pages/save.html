@@ -15,7 +15,7 @@
                 <div id="nav"></div>
                 
                 
-                <button class="button u-full-width" type="button" onclick="confirmSave(event)">Save</button>
+                <button class="button u-full-width" type="button" onclick="confirmSave(event)">Confirm</button>
                 
             </div>
         </div>
@@ -26,10 +26,21 @@
 <script>
         
     function confirmSave(event) {
-        event.preventDefault(); // чтобы кнопка не отправляла форму или не перезагружала страницу
-        if (confirm("Вы уверены, что хотите сохранить изменения?")) {
-            // здесь выполняем действие сохранения
-            alert("Сохранено!"); // временно, замените на реальный код сохранения
+        event.preventDefault();
+        if (confirm("Are you sure you want to save the changes?")) {
+            fetch('/api/save_config', {
+                method: 'POST'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Configuration saved successfully');
+                } else {
+                    alert('Error saving configuration');
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+            });
         }
     }
 </script>

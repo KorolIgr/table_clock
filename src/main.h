@@ -32,6 +32,7 @@ public:
     static void onSaveWifiSta(const char* ssid, const char* password);
     static void onSaveWifiAp(const char* ssid, const char* password, const char* ip);
     static void onForgetWifi();
+    static void onSaveConfig();
     static String scanNetworksCallback();
 
 private:
@@ -53,6 +54,7 @@ private:
     void initDisplay();
     void initLED();
     void connectLEDControllerToWiFi();
+    void saveConfig();
 };
 
 // Global application instance declaration

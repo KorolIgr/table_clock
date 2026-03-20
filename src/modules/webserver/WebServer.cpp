@@ -4,7 +4,7 @@
 WebServer::WebServer()
     : _dataStorage(nullptr), _configManager(nullptr), _server(nullptr),
       _saveStaCallback(nullptr), _saveApCallback(nullptr), _forgetCallback(nullptr),
-      _scanCallback(nullptr) {
+      _saveConfigCallback(nullptr), _scanCallback(nullptr) {
 }
 
 void WebServer::setDataStorage(DataStorage* dataStorage) {
@@ -21,6 +21,10 @@ void WebServer::setCallbacks(SaveWifiStaCallback saveStaCb, SaveWifiApCallback s
     _forgetCallback = forgetCb;
 }
 
+void WebServer::setSaveConfigCallback(SaveConfigCallback saveConfigCb) {
+    _saveConfigCallback = saveConfigCb;
+}
+
 void WebServer::setScanCallback(ScanNetworksCallback scanCb) {
     _scanCallback = scanCb;
 }
@@ -34,6 +38,7 @@ void WebServer::begin() {
     // API routes
     _server->on("/api/wifi_sta/scan", std::bind(&WebServer::handleWifiSTAScan, this));
     _server->on("/api/wifi_sta/forget", std::bind(&WebServer::handleWifiSTAForget, this));
+    _server->on("/api/save_config", HTTP_POST, std::bind(&WebServer::handleSaveConfig, this));
     _server->on("/api/status", std::bind(&WebServer::handleStatus, this));
     
     // Form routes (used by HTML pages)
@@ -143,6 +148,15 @@ void WebServer::handleWifiApApply() {
     // For API consistency, use same handler but without IP? Actually API might also want IP.
     // We'll just call handleWifiApForm to keep logic centralized.
     handleWifiApForm();
+}
+
+void WebServer::handleSaveConfig() {
+    if (_saveConfigCallback) {
+        _saveConfigCallback();
+        _server->send(200, "text/plain", "Configuration saved");
+    } else {
+        _server->send(500, "text/plain", "Save callback not set");
+    }
 }
 
 void WebServer::handleStatus() {

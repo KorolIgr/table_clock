@@ -164,6 +164,7 @@ void MainApplication::initWebServer() {
             &MainApplication::onSaveWifiAp,
             &MainApplication::onForgetWifi
         );
+        _wifiWebServer->setSaveConfigCallback(&MainApplication::onSaveConfig);
         _wifiWebServer->setScanCallback(&MainApplication::scanNetworksCallback);
     }
     
@@ -296,6 +297,19 @@ void MainApplication::onSaveWifiAp(const char* ssid, const char* password, const
 void MainApplication::onForgetWifi() {
     if (appInstance) {
         appInstance->forgetWifiConfig();
+    }
+}
+
+void MainApplication::onSaveConfig() {
+    if (appInstance) {
+        appInstance->saveConfig();
+    }
+}
+
+void MainApplication::saveConfig() {
+    if (_configManager) {
+        _configManager->saveConfig(_deviceConfig);
+        Serial.println("Configuration saved to EEPROM");
     }
 }
 
