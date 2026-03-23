@@ -42,10 +42,14 @@ public:
     static String onGetLEDPatterns();
     static String onGetLEDCurrent();
     static void onApplyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction);
+    
+    // Private helper methods
+    void updateAllDisplays();
 
 private:
     LEDController* _ledController;
-    DisplayManager* _displayManager;
+    DisplayManager* _displayManager;  // First display (channel 0) - keeping for backward compatibility
+    DisplayManager* _allDisplays[8];  // Array to hold all 8 displays
     ConfigManager* _configManager;
     DataStorage* _dataStorage;
     BuiltInLED* _builtInLED;
@@ -53,6 +57,9 @@ private:
     WiFiSTA* _wifiSTA;
     WebServer* _wifiWebServer;
     DeviceConfig _deviceConfig;
+    
+    unsigned long _lastCounterUpdate;
+    int _counterValue;
     
     void initHardware();
     void initConfig();

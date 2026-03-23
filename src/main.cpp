@@ -35,10 +35,9 @@ void MainApplication::begin() {
     delay(50); // Small delay after config init
     
     initHardware();
-    delay(20); // Small delay after hardware init
+    delay(500); // Small delay after hardware init
 
-    //initDisplay();
-    delay(20); // Small delay after display init
+
     
     initLED();
     delay(20); // Small delay after LED init
@@ -48,6 +47,8 @@ void MainApplication::begin() {
     initWebServer();
     delay(20); // Combined delay was 200ms at end of old initWiFi()
     
+    initDisplay();
+    delay(20); // Small delay after display init
 
     
     //connectLEDControllerToWiFi();
@@ -85,6 +86,13 @@ void MainApplication::appLoop() {
     // Update external LED controller
     if (_ledController) {
         _ledController->updatePattern();
+    }
+    
+    // Update counter on displays every second
+    if (millis() - _lastCounterUpdate >= 1000) {
+        _counterValue++;
+        updateAllDisplays();
+        _lastCounterUpdate = millis();
     }
     
     // Periodic heartbeat to indicate the device is running
@@ -193,9 +201,32 @@ void MainApplication::initWebServer() {
 }
 
 void MainApplication::initDisplay() {
-    // Initialize display manager with TCA9548A channel 0
-    _displayManager = new DisplayManager(0x3C, I2C_SDA_PIN, I2C_SCL_PIN);
-    _displayManager->begin();
+    // Initialize all 8 displays connected to TCA9548A channels 0-7
+    for (int i = 0; i < 8; i++) {
+        _allDisplays[i] = new DisplayManager(0x70, i, I2C_SDA_PIN, I2C_SCL_PIN);
+        delay(50);
+        _allDisplays[i]->begin();
+        delay(50);
+    }
+    
+    // Also keep the first display in the original variable for backward compatibility
+    _displayManager = _allDisplays[0];
+    
+    // Initialize counter
+    _lastCounterUpdate = millis();
+    _counterValue = 0;
+    
+    // Display initial counter value on all displays
+    updateAllDisplays();
+}
+
+void MainApplication::updateAllDisplays() {
+    char buffer[16];
+    sprintf(buffer, "%d", _counterValue);
+    
+    for (int i = 0; i < 8; i++) {
+        _allDisplays[i]->setText(buffer);
+    }
 }
 
 void MainApplication::initLED() {

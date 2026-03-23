@@ -7,7 +7,7 @@
 
 class DisplayManager {
 public:
-    DisplayManager(uint8_t address, uint8_t sdaPin, uint8_t sclPin);
+    DisplayManager(uint8_t multiplexerAddress, uint8_t channel, uint8_t sdaPin, uint8_t sclPin);
     
     void begin();
     void clear();
@@ -17,10 +17,13 @@ public:
     void setCursor(uint8_t col, uint8_t row);
 
 private:
-    uint8_t _address;
+    uint8_t _multiplexerAddress;
+    uint8_t _channel;
     uint8_t _sdaPin;
     uint8_t _sclPin;
     Adafruit_SSD1306* _display;
+    
+    void selectChannel();
 };
 
 #endif // DISPLAY_MANAGER_H
