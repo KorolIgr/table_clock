@@ -1,20 +1,23 @@
 #include "DisplayManager.h"
+#include <U8g2lib.h>
 
 DisplayManager::DisplayManager(uint8_t multiplexerAddress, uint8_t channel, uint8_t sdaPin, uint8_t sclPin)
     : _multiplexerAddress(multiplexerAddress), _channel(channel), _sdaPin(sdaPin), _sclPin(sclPin) {
-    _display = new Adafruit_SSD1306(SSD1306_LCDWIDTH, SSD1306_LCDHEIGHT, &Wire, -1);
+    _display = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R0, U8X8_PIN_NONE);
+    _cursorX = 0;
+    _cursorY = 0;
 }
 
 void DisplayManager::begin() {
     Wire.begin(_sdaPin, _sclPin);
     Wire.setClock(10000);
-    // Initialize the display with the default I2C address (0x3C for SSD1306)
-    if (!_display->begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-        // Display allocation failed
-        return;
-    }
-    _display->clearDisplay();
-    _display->display();
+    
+    // Configure U8g2 for the specific display
+    selectChannel();  // Select the correct channel before initializing
+    _display->setI2CAddress(0x3C << 1); // U8g2 uses shifted address
+    _display->begin();
+    _display->clearBuffer();
+    _display->sendBuffer();
 }
 
 void DisplayManager::selectChannel() {
@@ -26,32 +29,32 @@ void DisplayManager::selectChannel() {
 
 void DisplayManager::clear() {
     selectChannel();  // Select the correct channel before sending commands
-    _display->clearDisplay();
+    _display->clearBuffer();
 }
 
 void DisplayManager::display() {
     selectChannel();  // Select the correct channel before sending commands
-    _display->display();
+    _display->sendBuffer();
 }
 
 void DisplayManager::setText(const char* text) {
     selectChannel();  // Select the correct channel before sending commands
-    delay(10);
-    _display->clearDisplay();
-    _display->setTextSize(1);
-    _display->setTextColor(SSD1306_WHITE);
-    _display->setCursor(0, 0);
-    _display->print(text);
+    _display->clearBuffer();
+    _display->setFont(u8g2_font_6x10_tf);  // Use a basic font
+    _display->drawStr(0, 12, text);  // Draw text at x=0, y=12 (y position is font-dependent)
     display();
 }
 
 void DisplayManager::print(const char* text) {
     selectChannel();  // Select the correct channel before sending commands
-    _display->print(text);
+    // For U8g2, we'll draw the text at the current cursor position
+    // Since U8g2 doesn't have a print function like Adafruit, we'll use drawStr
+    _display->drawStr(_cursorX, _cursorY, text);
     display();
 }
 
 void DisplayManager::setCursor(uint8_t col, uint8_t row) {
     selectChannel();  // Select the correct channel before sending commands
-    _display->setCursor(col, row);
+    _cursorX = col;
+    _cursorY = row;
 }
