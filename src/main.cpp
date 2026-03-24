@@ -88,6 +88,11 @@ void MainApplication::appLoop() {
         _ledController->updatePattern();
     }
     
+    // Update display with IP information
+    if (_displayManager) {
+        _displayManager->updateDisplay();
+    }
+    
     // Update counter on displays every second
     if (millis() - _lastCounterUpdate >= 1000) {
         _counterValue++;
@@ -204,6 +209,10 @@ void MainApplication::initDisplay() {
     // Initialize all 8 displays connected to TCA9548A channels 0-7
     for (int i = 0; i < 8; i++) {
         _allDisplays[i] = new DisplayManager(0x70, i, I2C_SDA_PIN, I2C_SCL_PIN);
+        // Inject DataStorage dependency
+        if (_dataStorage) {
+            _allDisplays[i]->setDataStorage(_dataStorage);
+        }
         delay(50);
         _allDisplays[i]->begin();
         delay(50);
@@ -224,7 +233,7 @@ void MainApplication::updateAllDisplays() {
     char buffer[16];
     sprintf(buffer, "%d", _counterValue);
     
-    for (int i = 0; i < 8; i++) {
+    for (int i = 1; i < 8; i++) {
         _allDisplays[i]->setText(buffer);
     }
 }

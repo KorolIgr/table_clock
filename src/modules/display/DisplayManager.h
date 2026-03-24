@@ -3,6 +3,7 @@
 
 #include <Wire.h>
 #include <U8g2lib.h>
+#include "../data_storage/DataStorage.h"
 
 class DisplayManager {
 public:
@@ -14,6 +15,8 @@ public:
     void setText(const char* text);
     void print(const char* text);
     void setCursor(uint8_t col, uint8_t row);
+    void setDataStorage(DataStorage* dataStorage);
+    void updateDisplay();
 
 private:
     uint8_t _multiplexerAddress;
@@ -23,6 +26,7 @@ private:
     U8G2_SSD1306_128X64_NONAME_F_HW_I2C* _display;
     uint8_t _cursorX;
     uint8_t _cursorY;
+    DataStorage* _dataStorage;
     
     void selectChannel();
 };
