@@ -55,9 +55,15 @@ WeatherDay Weather::getForecast(int day) const {
 }
 
 bool Weather::shouldAttemptUpdate() const {
-    if (isUpdateNeeded()) {
+    // Only attempt if hourly update is needed
+    if (!isUpdateNeeded()) {
+        return false;
+    }
+    // If never attempted yet, allow immediate attempt
+    if (_lastUpdateAttempt == 0) {
         return true;
     }
+    // Otherwise ensure minimum interval between attempts to avoid rapid retries
     return (millis() - _lastUpdateAttempt) >= MIN_UPDATE_INTERVAL;
 }
 
@@ -92,15 +98,19 @@ bool Weather::fetchWeather() {
     
     HTTPClient http;
     WiFiClient client;
+    client.setTimeout(2000); // 2-second timeout to avoid WDT
     
-    String url = "https://api.open-meteo.com/v1/forecast";
+    String url = "http://api.open-meteo.com/v1/forecast";
     url += "?latitude=" + String(lat, 6);
     url += "&longitude=" + String(lon, 6);
     url += "&daily=temperature_2m_max,temperature_2m_min,weather_code";
     url += "&timezone=auto";
     
+    // Feed watchdog before blocking network operation
+    yield();
+    
     http.begin(client, url);
-    http.addHeader("Content-Type", "application/json");
+    // No need for Content-Type header on GET
     
     int httpCode = http.GET();
     

@@ -11,17 +11,16 @@ void WeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t d
     
     if (!data.weather_valid) {
         // Show error or "no data" message
-        display->setFont(u8g2_font_6x10_tf);
+        display->setFont(u8g2_font_10x20_tf);
         if (displayIndex == 0) {
-            display->drawStr(0, 20, "WTH");
+            display->drawStr(0, 20, "Weather");
         } else if (displayIndex == 1) {
-            display->drawStr(0, 20, "No weather");
-            display->drawStr(0, 35, "data");
+            display->drawStr(0, 20, "No data");
         }
         return;
     }
     
-    // Display 0 shows "WTH" label
+    // Display 0 shows "Weather" label
     if (displayIndex == 0) {
         display->setFont(u8g2_font_fub30_tf);
         display->drawStr(0, 40, "WTH");
@@ -35,21 +34,24 @@ void WeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t d
         
         // Format date to MM-DD
         String dateStr = formatDate(day.date);
-        String tempStr = formatTemp(day.temp_max) + "/" + formatTemp(day.temp_min);
-        char weatherCodeStr[8];
-        snprintf(weatherCodeStr, sizeof(weatherCodeStr), "%d", day.weather_code);
+        String tempMaxStr = formatTemp(day.temp_max);
+        String tempMinStr = formatTemp(day.temp_min);
+        char dayLabel[8];
+        snprintf(dayLabel, sizeof(dayLabel), "D%d", dayIndex + 1);
         
-        // Use smaller font for multi-line info
-        display->setFont(u8g2_font_6x10_tf);
+        // Use larger fonts for better visibility
+        display->setFont(u8g2_font_fub14_tf);
+        // Center the date horizontally
+        display->drawStr(0, 20, dateStr.c_str());
         
-        // Line 1: date
-        display->drawStr(0, 15, dateStr.c_str());
+        display->setFont(u8g2_font_fub20_tf);
+        // Center temperatures
+        display->drawStr(0, 45, tempMaxStr.c_str());
+        display->drawStr(0, 70, tempMinStr.c_str());
         
-        // Line 2: temperatures
-        display->drawStr(0, 30, tempStr.c_str());
-        
-        // Line 3: weather code (or symbol)
-        display->drawStr(0, 45, weatherCodeStr);
+        // Show day label in small font at bottom
+        display->setFont(u8g2_font_fub14_tf);
+        display->drawStr(0, 100, dayLabel);
     }
 }
 

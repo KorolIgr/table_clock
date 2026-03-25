@@ -31,7 +31,7 @@ private:
     static const unsigned long MIN_UPDATE_INTERVAL = 300000; // 5 min minimum between retries
     
     bool fetchGeolocation();
-    void updateDataStorage(const String& continent, const String& country, const String& city);
+    void updateDataStorage(const String& continent, const String& country, const String& city, float latitude, float longitude);
     bool shouldAttemptUpdate() const;
 };
 

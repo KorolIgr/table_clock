@@ -152,27 +152,33 @@ bool Geolocation::fetchGeolocation() {
     const char* continent = doc["continent"]; // ip-api doesn't provide continent directly
     const char* country = doc["country"];
     const char* city = doc["city"];
+    float lat = doc["lat"].as<float>();
+    float lon = doc["lon"].as<float>();
     
     // If continent is not provided, try to derive from country code or leave empty
     String continentStr = continent ? String(continent) : "";
     String countryStr = country ? String(country) : "";
     String cityStr = city ? String(city) : "";
     
-    // Update DataStorage
-    updateDataStorage(continentStr, countryStr, cityStr);
+    // Update DataStorage with coordinates
+    updateDataStorage(continentStr, countryStr, cityStr, lat, lon);
     
     Serial.print("Geolocation: Updated - Continent: ");
     Serial.print(continentStr);
     Serial.print(", Country: ");
     Serial.print(countryStr);
     Serial.print(", City: ");
-    Serial.println(cityStr);
+    Serial.print(cityStr);
+    Serial.print(", Lat: ");
+    Serial.print(lat);
+    Serial.print(", Lon: ");
+    Serial.println(lon);
     
     return true;
 }
 
-void Geolocation::updateDataStorage(const String& continent, const String& country, const String& city) {
+void Geolocation::updateDataStorage(const String& continent, const String& country, const String& city, float latitude, float longitude) {
     if (_dataStorage) {
-        _dataStorage->updateGeolocation(continent, country, city);
+        _dataStorage->updateGeolocation(continent, country, city, latitude, longitude);
     }
 }
