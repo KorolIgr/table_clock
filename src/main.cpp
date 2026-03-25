@@ -88,9 +88,9 @@ void MainApplication::appLoop() {
         _ledController->updatePattern();
     }
     
-    // Update display with page information
-    if (_displayManager) {
-        _displayManager->updatePageDisplay();
+    // Update all 8 displays with distributed page information
+    if (_allDisplays[0]) {
+        _allDisplays[0]->updateAllDisplays(_allDisplays, 8);
     }
     
     // Removed counter functionality - now handled by page system

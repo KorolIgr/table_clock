@@ -80,3 +80,9 @@ void DisplayManager::updatePageDisplay() {
         _pageManager->updatePageDisplay(_display);
     }
 }
+
+void DisplayManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
+    if (_pageManager) {
+        _pageManager->updateAllDisplays(displays, count);
+    }
+}

@@ -1,4 +1,5 @@
 #include "PageManager.h"
+#include "DisplayManager.h"
 #include <ESP8266WiFi.h>
 #include <U8g2lib.h>
 #include "pages/WiFiStaPage.h"
@@ -20,11 +21,8 @@ PageManager::~PageManager() {
     }
 }
 
-void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
-    if (!_dataStorage || !display) return;
-    
-    display->clearBuffer();
-    display->setFont(u8g2_font_6x10_tf); // Smaller font to fit more text
+void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
+    if (!_dataStorage || count == 0) return;
     
     // Handle automatic page switching
     unsigned long currentTime = millis();
@@ -33,16 +31,81 @@ void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
         _lastPageChange = currentTime;
     }
     
-    // Display content based on current page using separate page modules
+    // Update each display with distributed content
+    for (uint8_t i = 0; i < count; i++) {
+        if (displays[i]) {
+            displays[i]->clear();
+            
+            // Get the U8G2 display object
+            U8G2_SSD1306_128X64_NONAME_F_HW_I2C* u8g2 = displays[i]->getU8g2();
+            if (u8g2) {
+                // Render content based on current page for this display index
+                switch (_currentPage) {
+                    case DisplayPage::WIFI_STA:
+                        if (_wifiStaPage) {
+                            _wifiStaPage->render(u8g2, i);
+                        }
+                        break;
+                    case DisplayPage::WIFI_AP:
+                        if (_wifiApPage) {
+                            _wifiApPage->render(u8g2, i);
+                        }
+                        break;
+                }
+            }
+            
+            displays[i]->display();
+        }
+    }
+}
+
+void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    if (!_dataStorage || !display) return;
+    
+    display->clearBuffer();
+    // Use larger font for single display mode as well
+    display->setFont(u8g2_font_fub30_tf);
+    
+    // Handle automatic page switching
+    unsigned long currentTime = millis();
+    if (currentTime - _lastPageChange >= _pageInterval) {
+        nextPage();
+        _lastPageChange = currentTime;
+    }
+    
+    // Display full content on a single display (for backward compatibility)
     switch (_currentPage) {
         case DisplayPage::WIFI_STA:
             if (_wifiStaPage) {
-                _wifiStaPage->render(display);
+                // Render full content on single display
+                SharedData& data = _dataStorage->getData();
+                display->drawStr(0, 20, "WiFi STA");
+                if (data.wifi_connected) {
+                    display->drawStr(0, 40, "IP:");
+                    display->setFont(u8g2_font_fub20_tf);
+                    display->drawStr(15, 55, data.ip_address.c_str());
+                } else {
+                    display->drawStr(0, 40, "SSID:");
+                    display->setFont(u8g2_font_fub20_tf);
+                    display->drawStr(25, 55, data.sta_ssid.c_str());
+                }
             }
             break;
         case DisplayPage::WIFI_AP:
             if (_wifiApPage) {
-                _wifiApPage->render(display);
+                display->drawStr(0, 20, "WiFi AP");
+                if (WiFi.getMode() == WIFI_AP || WiFi.getMode() == WIFI_AP_STA) {
+                    String apIp = WiFi.softAPIP().toString();
+                    if (apIp != "0.0.0.0") {
+                        display->drawStr(0, 40, "IP:");
+                        display->setFont(u8g2_font_fub20_tf);
+                        display->drawStr(15, 55, apIp.c_str());
+                    } else {
+                        display->drawStr(0, 40, "No IP");
+                    }
+                } else {
+                    display->drawStr(0, 40, "Inactive");
+                }
             }
             break;
     }

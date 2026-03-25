@@ -19,6 +19,9 @@ public:
     void setDataStorage(DataStorage* dataStorage);
     void updateDisplay();
     void updatePageDisplay();
+    void updateAllDisplays(DisplayManager** displays, uint8_t count);
+    U8G2_SSD1306_128X64_NONAME_F_HW_I2C* getU8g2() const { return _display; }
+    uint8_t getChannel() const { return _channel; }
 
 private:
     uint8_t _multiplexerAddress;
