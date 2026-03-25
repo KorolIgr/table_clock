@@ -11,6 +11,10 @@ DataStorage::DataStorage() : _locked(false) {
     _sharedData.temperature = 0.0f;
     _sharedData.uptime = 0;
     _sharedData.system_error = false;
+    _sharedData.continent = "";
+    _sharedData.country = "";
+    _sharedData.city = "";
+    _sharedData.geo_last_update = 0;
     _sharedData.last_error = "";
 }
 
@@ -72,5 +76,14 @@ void DataStorage::requestStaConnection() {
 void DataStorage::clearStaConnectionRequest() {
     if (!_locked) {
         _sharedData.sta_connect_requested = false;
+    }
+}
+
+void DataStorage::updateGeolocation(const String& continent, const String& country, const String& city) {
+    if (!_locked) {
+        _sharedData.continent = continent;
+        _sharedData.country = country;
+        _sharedData.city = city;
+        _sharedData.geo_last_update = millis();
     }
 }

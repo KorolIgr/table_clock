@@ -28,6 +28,12 @@ struct SharedData {
     uint32_t uptime = 0;  // in seconds
     bool system_error = false;
     
+    // Geolocation information
+    String continent = "";
+    String country = "";
+    String city = "";
+    unsigned long geo_last_update = 0;  // timestamp of last update
+    
     // Additional fields can be added as needed
     String last_error = "";
 };
@@ -48,6 +54,7 @@ public:
     void updateLedStatus(bool enabled, uint8_t brightness);
     void updateBuiltinLEDPattern(int pattern);
     void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
+    void updateGeolocation(const String& continent, const String& country, const String& city);
     
     // WiFi STA configuration methods
     void setStaCredentials(const String& ssid, const String& password);

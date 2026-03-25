@@ -4,11 +4,13 @@
 #include <U8g2lib.h>
 #include "pages/WiFiStaPage.h"
 #include "pages/WiFiApPage.h"
+#include "pages/GeoPage.h"
 
-PageManager::PageManager(DataStorage* dataStorage) : _dataStorage(dataStorage), _wifiStaPage(nullptr), _wifiApPage(nullptr) {
+PageManager::PageManager(DataStorage* dataStorage) : _dataStorage(dataStorage), _wifiStaPage(nullptr), _wifiApPage(nullptr), _geoPage(nullptr) {
     if (_dataStorage) {
         _wifiStaPage = new WiFiStaPage(_dataStorage);
         _wifiApPage = new WiFiApPage();
+        _geoPage = new GeoPage(_dataStorage);
     }
 }
 
@@ -18,6 +20,9 @@ PageManager::~PageManager() {
     }
     if (_wifiApPage) {
         delete _wifiApPage;
+    }
+    if (_geoPage) {
+        delete _geoPage;
     }
 }
 
@@ -49,6 +54,11 @@ void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
                     case DisplayPage::WIFI_AP:
                         if (_wifiApPage) {
                             _wifiApPage->render(u8g2, i);
+                        }
+                        break;
+                    case DisplayPage::GEO_PAGE:
+                        if (_geoPage) {
+                            _geoPage->render(u8g2, i);
                         }
                         break;
                 }
@@ -108,6 +118,25 @@ void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
                 }
             }
             break;
+        case DisplayPage::GEO_PAGE:
+            if (_geoPage) {
+                // For single display, show all geolocation info
+                SharedData& data = _dataStorage->getData();
+                display->setFont(u8g2_font_fub20_tf);
+                display->drawStr(0, 20, "Location");
+                display->setFont(u8g2_font_fub14_tf);
+                String loc = data.city + ", " + data.country;
+                if (loc.length() > 0) {
+                    display->drawStr(0, 40, loc.c_str());
+                } else {
+                    display->drawStr(0, 40, "Fetching...");
+                }
+                // Show continent on third line if available
+                if (data.continent.length() > 0) {
+                    display->drawStr(0, 55, data.continent.c_str());
+                }
+            }
+            break;
     }
     
     display->sendBuffer();
@@ -124,6 +153,9 @@ void PageManager::nextPage() {
             _currentPage = DisplayPage::WIFI_AP;
             break;
         case DisplayPage::WIFI_AP:
+            _currentPage = DisplayPage::GEO_PAGE;
+            break;
+        case DisplayPage::GEO_PAGE:
             _currentPage = DisplayPage::WIFI_STA;
             break;
     }

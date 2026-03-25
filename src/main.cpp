@@ -21,7 +21,7 @@ static const int LED_PATTERN_COUNT = 5;
 MainApplication::MainApplication()
     : _ledController(nullptr), _displayManager(nullptr),
       _configManager(nullptr), _dataStorage(nullptr),
-      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr) {
+      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr) {
 }
 
 void MainApplication::begin() {
@@ -44,6 +44,7 @@ void MainApplication::begin() {
 
     initWiFiAP();
     initWiFiSTA();
+    initGeolocation();
     initWebServer();
     delay(20); // Combined delay was 200ms at end of old initWiFi()
     
@@ -60,6 +61,22 @@ void MainApplication::appLoop() {
     // Update WiFi STA (monitor connection status)
     if (_wifiSTA) {
         _wifiSTA->update();
+    }
+    
+    // Check for WiFi connection to trigger geolocation update
+    static bool lastWifiConnected = false;
+    bool wifiConnected = _wifiSTA ? _wifiSTA->isConnected() : false;
+    if (wifiConnected && !lastWifiConnected) {
+        // WiFi just connected, trigger geolocation update
+        if (_geolocation) {
+            _geolocation->forceUpdate();
+        }
+    }
+    lastWifiConnected = wifiConnected;
+    
+    // Update geolocation (periodic fetch)
+    if (_geolocation) {
+        _geolocation->update();
     }
     
     // Update web server
@@ -237,6 +254,16 @@ void MainApplication::initLED() {
     }
     _builtInLED->begin();
     // Initial pattern will be set in appLoop based on WiFi status
+}
+
+void MainApplication::initGeolocation() {
+    // Create and initialize Geolocation module
+    _geolocation = new Geolocation(_dataStorage);
+    
+    if (_geolocation) {
+        _geolocation->begin();
+        Serial.println("Geolocation module initialized");
+    }
 }
 
 void MainApplication::connectLEDControllerToWiFi() {
