@@ -44,7 +44,7 @@ public:
     static void onApplyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction);
     
     // Private helper methods
-    void updateAllDisplays();
+    // Removed updateAllDisplays method - counter functionality removed
 
 private:
     LEDController* _ledController;
@@ -58,8 +58,7 @@ private:
     WebServer* _wifiWebServer;
     DeviceConfig _deviceConfig;
     
-    unsigned long _lastCounterUpdate;
-    int _counterValue;
+    // Removed counter-related variables - using page system instead
     
     void initHardware();
     void initConfig();

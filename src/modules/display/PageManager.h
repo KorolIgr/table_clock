@@ -1,0 +1,36 @@
+#ifndef PAGE_MANAGER_H
+#define PAGE_MANAGER_H
+
+#include <Arduino.h>
+#include "../data_storage/DataStorage.h"
+#include "pages/WiFiStaPage.h"
+#include "pages/WiFiApPage.h"
+
+// Enum for different display pages
+enum class DisplayPage {
+    WIFI_STA,
+    WIFI_AP
+};
+
+class PageManager {
+public:
+    PageManager(DataStorage* dataStorage);
+    ~PageManager();
+    
+    void updatePageDisplay(class U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display);
+    void setCurrentPage(DisplayPage page);
+    void nextPage();
+    void setPageInterval(unsigned long intervalMs);
+    DisplayPage getCurrentPage() const { return _currentPage; }
+
+private:
+    DataStorage* _dataStorage;
+    DisplayPage _currentPage = DisplayPage::WIFI_STA;
+    unsigned long _pageInterval = 10000; // Default 10 seconds
+    unsigned long _lastPageChange = 0;
+    
+    WiFiStaPage* _wifiStaPage;
+    WiFiApPage* _wifiApPage;
+};
+
+#endif // PAGE_MANAGER_H

@@ -88,17 +88,12 @@ void MainApplication::appLoop() {
         _ledController->updatePattern();
     }
     
-    // Update display with IP information
+    // Update display with page information
     if (_displayManager) {
-        _displayManager->updateDisplay();
+        _displayManager->updatePageDisplay();
     }
     
-    // Update counter on displays every second
-    if (millis() - _lastCounterUpdate >= 1000) {
-        _counterValue++;
-        updateAllDisplays();
-        _lastCounterUpdate = millis();
-    }
+    // Removed counter functionality - now handled by page system
     
     // Periodic heartbeat to indicate the device is running
     static unsigned long lastHeartbeat = 0;
@@ -216,26 +211,14 @@ void MainApplication::initDisplay() {
         delay(50);
         _allDisplays[i]->begin();
         delay(50);
+        
+        // Note: setPageInterval is now handled by PageManager internally
     }
     
     // Also keep the first display in the original variable for backward compatibility
     _displayManager = _allDisplays[0];
     
-    // Initialize counter
-    _lastCounterUpdate = millis();
-    _counterValue = 0;
-    
-    // Display initial counter value on all displays
-    updateAllDisplays();
-}
-
-void MainApplication::updateAllDisplays() {
-    char buffer[16];
-    sprintf(buffer, "%d", _counterValue);
-    
-    for (int i = 1; i < 8; i++) {
-        _allDisplays[i]->setText(buffer);
-    }
+    // Counter functionality removed - now using page system
 }
 
 void MainApplication::initLED() {

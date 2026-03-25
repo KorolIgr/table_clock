@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include <U8g2lib.h>
 #include "../data_storage/DataStorage.h"
+#include "PageManager.h"
 
 class DisplayManager {
 public:
@@ -17,6 +18,7 @@ public:
     void setCursor(uint8_t col, uint8_t row);
     void setDataStorage(DataStorage* dataStorage);
     void updateDisplay();
+    void updatePageDisplay();
 
 private:
     uint8_t _multiplexerAddress;
@@ -27,6 +29,7 @@ private:
     uint8_t _cursorX;
     uint8_t _cursorY;
     DataStorage* _dataStorage;
+    PageManager* _pageManager;
     
     void selectChannel();
 };

@@ -1,8 +1,9 @@
 #include "DisplayManager.h"
 #include <U8g2lib.h>
+#include "PageManager.h"
 
 DisplayManager::DisplayManager(uint8_t multiplexerAddress, uint8_t channel, uint8_t sdaPin, uint8_t sclPin)
-    : _multiplexerAddress(multiplexerAddress), _channel(channel), _sdaPin(sdaPin), _sclPin(sclPin), _dataStorage(nullptr) {
+    : _multiplexerAddress(multiplexerAddress), _channel(channel), _sdaPin(sdaPin), _sclPin(sclPin), _dataStorage(nullptr), _pageManager(nullptr) {
     _display = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R1, U8X8_PIN_NONE);
     _cursorX = 0;
     _cursorY = 0;
@@ -61,34 +62,21 @@ void DisplayManager::setCursor(uint8_t col, uint8_t row) {
 
 void DisplayManager::setDataStorage(DataStorage* dataStorage) {
     _dataStorage = dataStorage;
+    // Create PageManager when DataStorage is set
+    if (_dataStorage && !_pageManager) {
+        _pageManager = new PageManager(_dataStorage);
+    }
 }
 
 void DisplayManager::updateDisplay() {
     if (_dataStorage) {
+        updatePageDisplay();
+    }
+}
+
+void DisplayManager::updatePageDisplay() {
+    if (_pageManager && _display) {
         selectChannel();
-        _display->clearBuffer();
-        _display->setFont(u8g2_font_10x20_tf);
-        
-        // Get the shared data
-        SharedData& data = _dataStorage->getData();
-        
-        // Display IP address if in STA mode and connected
-        if (data.wifi_connected && !data.ip_address.isEmpty()) {
-
-            char o1[4], o2[4], o3[4], o4[4];  // максимум "255" + '\0'
-            sscanf(data.ip_address.c_str(), "%3[^.].%3[^.].%3[^.].%3s", o1, o2, o3, o4);
-
-            _display->drawStr(0, 25, o1);
-            _display->drawStr(0, 50, o2);
-            _display->drawStr(0, 75, o3);
-            _display->drawStr(0, 100, o4);
-
-            //_display->drawStr(0, 10, "IP:");
-            //_display->drawStr(20, 10, data.ip_address.c_str());
-        } else {
-            _display->drawStr(0, 40, "No WiFi");
-        }
-        
-        _display->sendBuffer();
+        _pageManager->updatePageDisplay(_display);
     }
 }
