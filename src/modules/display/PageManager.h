@@ -6,6 +6,7 @@
 #include "pages/WiFiStaPage.h"
 #include "pages/WiFiApPage.h"
 #include "pages/GeoPage.h"
+#include "pages/WeatherPage.h"
 
 // Forward declaration to avoid circular dependency
 class DisplayManager;
@@ -14,7 +15,8 @@ class DisplayManager;
 enum class DisplayPage {
     WIFI_STA,
     WIFI_AP,
-    GEO_PAGE
+    GEO_PAGE,
+    WEATHER_PAGE
 };
 
 class PageManager {
@@ -38,6 +40,7 @@ private:
     WiFiStaPage* _wifiStaPage;
     WiFiApPage* _wifiApPage;
     GeoPage* _geoPage;
+    WeatherPage* _weatherPage;
 };
 
 #endif // PAGE_MANAGER_H

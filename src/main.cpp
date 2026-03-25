@@ -21,7 +21,7 @@ static const int LED_PATTERN_COUNT = 5;
 MainApplication::MainApplication()
     : _ledController(nullptr), _displayManager(nullptr),
       _configManager(nullptr), _dataStorage(nullptr),
-      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr) {
+      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr) {
 }
 
 void MainApplication::begin() {
@@ -45,6 +45,7 @@ void MainApplication::begin() {
     initWiFiAP();
     initWiFiSTA();
     initGeolocation();
+    initWeather();
     initWebServer();
     delay(20); // Combined delay was 200ms at end of old initWiFi()
     
@@ -77,6 +78,26 @@ void MainApplication::appLoop() {
     // Update geolocation (periodic fetch)
     if (_geolocation) {
         _geolocation->update();
+    }
+    
+    // Check for new geolocation to trigger weather update
+    static float lastLat = 0.0f;
+    static float lastLon = 0.0f;
+    if (_dataStorage) {
+        auto& data = _dataStorage->getData();
+        if (data.geo_last_update > 0 && (data.latitude != lastLat || data.longitude != lastLon)) {
+            // New coordinates obtained, trigger weather update
+            lastLat = data.latitude;
+            lastLon = data.longitude;
+            if (_weather) {
+                _weather->forceUpdate();
+            }
+        }
+    }
+    
+    // Update weather (periodic fetch)
+    if (_weather) {
+        _weather->update();
     }
     
     // Update web server
@@ -263,6 +284,16 @@ void MainApplication::initGeolocation() {
     if (_geolocation) {
         _geolocation->begin();
         Serial.println("Geolocation module initialized");
+    }
+}
+
+void MainApplication::initWeather() {
+    // Create and initialize Weather module
+    _weather = new Weather(_dataStorage);
+    
+    if (_weather) {
+        _weather->begin();
+        Serial.println("Weather module initialized");
     }
 }
 

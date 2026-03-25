@@ -5,12 +5,14 @@
 #include "pages/WiFiStaPage.h"
 #include "pages/WiFiApPage.h"
 #include "pages/GeoPage.h"
+#include "pages/WeatherPage.h"
 
-PageManager::PageManager(DataStorage* dataStorage) : _dataStorage(dataStorage), _wifiStaPage(nullptr), _wifiApPage(nullptr), _geoPage(nullptr) {
+PageManager::PageManager(DataStorage* dataStorage) : _dataStorage(dataStorage), _wifiStaPage(nullptr), _wifiApPage(nullptr), _geoPage(nullptr), _weatherPage(nullptr) {
     if (_dataStorage) {
         _wifiStaPage = new WiFiStaPage(_dataStorage);
         _wifiApPage = new WiFiApPage();
         _geoPage = new GeoPage(_dataStorage);
+        _weatherPage = new WeatherPage(_dataStorage);
     }
 }
 
@@ -23,6 +25,9 @@ PageManager::~PageManager() {
     }
     if (_geoPage) {
         delete _geoPage;
+    }
+    if (_weatherPage) {
+        delete _weatherPage;
     }
 }
 
@@ -59,6 +64,11 @@ void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
                     case DisplayPage::GEO_PAGE:
                         if (_geoPage) {
                             _geoPage->render(u8g2, i);
+                        }
+                        break;
+                    case DisplayPage::WEATHER_PAGE:
+                        if (_weatherPage) {
+                            _weatherPage->render(u8g2, i);
                         }
                         break;
                 }
@@ -137,6 +147,30 @@ void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
                 }
             }
             break;
+        case DisplayPage::WEATHER_PAGE:
+            if (_weatherPage) {
+                // For single display, show weather summary
+                SharedData& data = _dataStorage->getData();
+                display->setFont(u8g2_font_fub20_tf);
+                display->drawStr(0, 20, "Weather");
+                if (data.weather_valid) {
+                    display->setFont(u8g2_font_fub14_tf);
+                    // Show today's forecast
+                    if (data.weather_forecast[0].date.length() > 0) {
+                        String dateStr = data.weather_forecast[0].date.substring(5); // MM-DD
+                        display->drawStr(0, 40, dateStr.c_str());
+                        String tempStr = String((int)round(data.weather_forecast[0].temp_max)) + "/" + String((int)round(data.weather_forecast[0].temp_min)) + "C";
+                        display->drawStr(0, 55, tempStr.c_str());
+                    }
+                } else {
+                    display->setFont(u8g2_font_fub14_tf);
+                    display->drawStr(0, 40, "No data");
+                    if (data.weather_error.length() > 0) {
+                        display->drawStr(0, 55, "Err");
+                    }
+                }
+            }
+            break;
     }
     
     display->sendBuffer();
@@ -156,6 +190,9 @@ void PageManager::nextPage() {
             _currentPage = DisplayPage::GEO_PAGE;
             break;
         case DisplayPage::GEO_PAGE:
+            _currentPage = DisplayPage::WEATHER_PAGE;
+            break;
+        case DisplayPage::WEATHER_PAGE:
             _currentPage = DisplayPage::WIFI_STA;
             break;
     }

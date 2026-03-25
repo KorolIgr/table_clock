@@ -11,6 +11,7 @@
 #include "modules/config/ConfigManager.h"
 #include "modules/data_storage/DataStorage.h"
 #include "modules/geolocation/Geolocation.h"
+#include "modules/weather/Weather.h"
 
 // Forward declarations
 class MainApplication {
@@ -58,6 +59,7 @@ private:
     WiFiSTA* _wifiSTA;
     WebServer* _wifiWebServer;
     Geolocation* _geolocation;
+    Weather* _weather;
     DeviceConfig _deviceConfig;
     
     // Removed counter-related variables - using page system instead
@@ -70,6 +72,7 @@ private:
     void initDisplay();
     void initLED();
     void initGeolocation();
+    void initWeather();
     void connectLEDControllerToWiFi();
     void saveConfig();
 };

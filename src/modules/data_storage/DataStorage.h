@@ -6,6 +6,14 @@
 // Forward declarations
 class ConfigManager;
 
+// Weather forecast data for a single day
+struct WeatherDay {
+    String date;
+    float temp_max = 0.0f;
+    float temp_min = 0.0f;
+    int weather_code = 0;  // WMO weather code
+};
+
 // Shared data structure for exchanging data between modules
 struct SharedData {
     // WiFi status information
@@ -32,7 +40,15 @@ struct SharedData {
     String continent = "";
     String country = "";
     String city = "";
+    float latitude = 0.0f;
+    float longitude = 0.0f;
     unsigned long geo_last_update = 0;  // timestamp of last update
+    
+    // Weather information
+    WeatherDay weather_forecast[7];  // 7-day forecast
+    unsigned long weather_last_update = 0;  // timestamp of last update
+    bool weather_valid = false;
+    String weather_error = "";
     
     // Additional fields can be added as needed
     String last_error = "";
@@ -54,7 +70,8 @@ public:
     void updateLedStatus(bool enabled, uint8_t brightness);
     void updateBuiltinLEDPattern(int pattern);
     void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
-    void updateGeolocation(const String& continent, const String& country, const String& city);
+    void updateGeolocation(const String& continent, const String& country, const String& city, float latitude = 0.0f, float longitude = 0.0f);
+    void updateWeather(const WeatherDay* forecast, int days, bool valid = true, const String& error = "");
     
     // WiFi STA configuration methods
     void setStaCredentials(const String& ssid, const String& password);
