@@ -36,22 +36,22 @@ void WeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t d
         String dateStr = formatDate(day.date);
         String tempMaxStr = formatTemp(day.temp_max);
         String tempMinStr = formatTemp(day.temp_min);
-        char dayLabel[8];
-        snprintf(dayLabel, sizeof(dayLabel), "D%d", dayIndex + 1);
+        char symbol = getWeatherSymbol(day.weather_code);
         
-        // Use larger fonts for better visibility
+        // Layout with proper vertical spacing for 128x64 display
+        // Line 1: date (y=20)
         display->setFont(u8g2_font_fub14_tf);
-        // Center the date horizontally
         display->drawStr(0, 20, dateStr.c_str());
         
+        // Line 2: temperatures (y=45)
         display->setFont(u8g2_font_fub20_tf);
-        // Center temperatures
         display->drawStr(0, 45, tempMaxStr.c_str());
         display->drawStr(0, 70, tempMinStr.c_str());
         
-        // Show day label in small font at bottom
+        // Line 3: weather symbol (y=60) in medium font
         display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 100, dayLabel);
+        char symStr[2] = { symbol, '\0' };
+        display->drawStr(0, 100, symStr);
     }
 }
 
