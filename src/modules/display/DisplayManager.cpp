@@ -68,6 +68,7 @@ void DisplayManager::setDataStorage(DataStorage* dataStorage) {
     }
 }
 
+/*
 void DisplayManager::updateDisplay() {
     if (_dataStorage) {
         updatePageDisplay();
@@ -81,6 +82,7 @@ void DisplayManager::updatePageDisplay() {
     }
 }
 
+*/
 void DisplayManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
     if (_pageManager) {
         _pageManager->updateAllDisplays(displays, count);

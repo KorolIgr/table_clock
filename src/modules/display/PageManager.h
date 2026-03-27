@@ -25,7 +25,7 @@ public:
     ~PageManager();
     
     void updateAllDisplays(DisplayManager** displays, uint8_t count);
-    void updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display);
+    //void updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display);
     void setCurrentPage(DisplayPage page);
     void nextPage();
     void setPageInterval(unsigned long intervalMs);

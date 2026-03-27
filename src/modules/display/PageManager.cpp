@@ -79,6 +79,7 @@ void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
     }
 }
 
+/*
 void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     if (!_dataStorage || !display) return;
     
@@ -175,7 +176,7 @@ void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
     
     display->sendBuffer();
 }
-
+*/
 void PageManager::setCurrentPage(DisplayPage page) {
     _currentPage = page;
     _lastPageChange = millis(); // Reset timer when manually changing page
