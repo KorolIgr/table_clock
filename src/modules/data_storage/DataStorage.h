@@ -26,6 +26,17 @@ struct SharedData {
     String sta_password = "";
     bool sta_connect_requested = false;
     
+    // WiFi AP information
+    bool ap_active = false;
+    String ap_ssid = "";
+    String ap_password = "";
+    String ap_ip = "";
+    String ap_mask = "";
+    String ap_mac = "";
+    uint8_t ap_channel = 0;
+    uint8_t ap_max_clients = 0;
+    uint8_t ap_connected_clients = 0;
+    
     // LED status information
     bool led_enabled = true;
     uint8_t led_brightness = 100;  // 0-100 percentage
@@ -78,6 +89,9 @@ public:
     void setStaCredentials(const String& ssid, const String& password);
     void requestStaConnection();
     void clearStaConnectionRequest();
+    
+    // WiFi AP information update
+    void updateAPInfo(bool active, const String& ssid, const String& password, const String& ip, const String& mask, const String& mac, uint8_t channel, uint8_t maxClients, uint8_t connectedClients);
     
 private:
     SharedData _sharedData;

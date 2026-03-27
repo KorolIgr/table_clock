@@ -10,7 +10,7 @@
 PageManager::PageManager(DataStorage* dataStorage) : _dataStorage(dataStorage), _wifiStaPage(nullptr), _wifiApPage(nullptr), _geoPage(nullptr), _weatherPage(nullptr) {
     if (_dataStorage) {
         _wifiStaPage = new WiFiStaPage(_dataStorage);
-        _wifiApPage = new WiFiApPage();
+        _wifiApPage = new WiFiApPage(_dataStorage);
         _geoPage = new GeoPage(_dataStorage);
         _weatherPage = new WeatherPage(_dataStorage);
     }

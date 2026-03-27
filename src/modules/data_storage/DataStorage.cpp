@@ -26,6 +26,16 @@ DataStorage::DataStorage() : _locked(false) {
     _sharedData.weather_valid = false;
     _sharedData.weather_error = "";
     _sharedData.last_error = "";
+    // Initialize AP info
+    _sharedData.ap_active = false;
+    _sharedData.ap_ssid = "";
+    _sharedData.ap_password = "";
+    _sharedData.ap_ip = "";
+    _sharedData.ap_mask = "";
+    _sharedData.ap_mac = "";
+    _sharedData.ap_channel = 0;
+    _sharedData.ap_max_clients = 0;
+    _sharedData.ap_connected_clients = 0;
 }
 
 SharedData& DataStorage::getData() {
@@ -114,5 +124,19 @@ void DataStorage::updateWeather(const WeatherDay* forecast, int days, bool valid
             _sharedData.weather_valid = false;
             _sharedData.weather_error = error;
         }
+    }
+}
+
+void DataStorage::updateAPInfo(bool active, const String& ssid, const String& password, const String& ip, const String& mask, const String& mac, uint8_t channel, uint8_t maxClients, uint8_t connectedClients) {
+    if (!_locked) {
+        _sharedData.ap_active = active;
+        _sharedData.ap_ssid = ssid;
+        _sharedData.ap_password = password;
+        _sharedData.ap_ip = ip;
+        _sharedData.ap_mask = mask;
+        _sharedData.ap_mac = mac;
+        _sharedData.ap_channel = channel;
+        _sharedData.ap_max_clients = maxClients;
+        _sharedData.ap_connected_clients = connectedClients;
     }
 }

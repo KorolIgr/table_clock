@@ -3,7 +3,7 @@
 #include <cstdio>
 
 WiFiAP::WiFiAP()
-    : _dataStorage(nullptr), _ip(0, 0, 0, 0) {
+    : _dataStorage(nullptr), _ip(0, 0, 0, 0), _channel(0), _maxClients(0) {
 }
 
 void WiFiAP::setDataStorage(DataStorage* dataStorage) {
@@ -31,6 +31,10 @@ void WiFiAP::begin(const char* ssid, const char* password, const char* ip_str) {
     WiFi.softAP(_ssid.c_str(), _password.c_str());
     
     _ip = WiFi.softAPIP();
+    _mask = subnet.toString();  // Store the subnet mask we configured
+    _mac = WiFi.softAPmacAddress();
+    _channel = WiFi.channel();
+    _maxClients = 4;  // Default maximum clients for ESP8266 AP mode
     
     Serial.println("Access Point initialized:");
     Serial.print("SSID: ");
@@ -39,8 +43,25 @@ void WiFiAP::begin(const char* ssid, const char* password, const char* ip_str) {
     Serial.println(_password);
     Serial.print("IP Address: ");
     Serial.println(_ip.toString());
+    Serial.print("MAC Address: ");
+    Serial.println(_mac);
+    Serial.print("Channel: ");
+    Serial.println(_channel);
+    
+    // Push AP info to DataStorage
+    updateDataStorage();
 }
 
-IPAddress WiFiAP::getIP() const {
-    return _ip;
+void WiFiAP::update() {
+    if (_dataStorage) {
+        updateDataStorage();
+    }
 }
+
+void WiFiAP::updateDataStorage() {
+    if (_dataStorage) {
+        uint8_t connected = WiFi.softAPgetStationNum();
+        _dataStorage->updateAPInfo(true, _ssid, _password, _ip.toString(), _mask, _mac, _channel, _maxClients, connected);
+    }
+}
+

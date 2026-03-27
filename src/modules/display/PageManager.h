@@ -34,7 +34,7 @@ public:
 private:
     DataStorage* _dataStorage;
     DisplayPage _currentPage = DisplayPage::WIFI_STA;
-    unsigned long _pageInterval = 3000; // Default 2 seconds
+    unsigned long _pageInterval = 5000; // Default 2 seconds
     unsigned long _lastPageChange = 0;
     
     WiFiStaPage* _wifiStaPage;

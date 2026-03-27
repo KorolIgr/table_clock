@@ -64,6 +64,11 @@ void MainApplication::appLoop() {
         _wifiSTA->update();
     }
     
+    // Update WiFi AP (refresh AP info in DataStorage)
+    if (_wifiAP) {
+        _wifiAP->update();
+    }
+    
     // Check for WiFi connection to trigger geolocation update
     static bool lastWifiConnected = false;
     bool wifiConnected = _wifiSTA ? _wifiSTA->isConnected() : false;
