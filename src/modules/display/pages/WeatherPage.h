@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "../../data_storage/DataStorage.h"
 #include <U8g2lib.h>
+#include <avr/pgmspace.h>
 
 class WeatherPage {
 public:
@@ -21,6 +22,8 @@ private:
     String formatDate(const String& fullDate) const;
     // Helper to get weather symbol (simple character representation)
     char getWeatherSymbol(int code) const;
+
+    static const unsigned char sun_icon[] PROGMEM;
 };
 
 #endif // WEATHER_PAGE_H
