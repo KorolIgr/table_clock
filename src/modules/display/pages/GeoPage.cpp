@@ -34,8 +34,8 @@ void GeoPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displ
         String text;
         
         switch (displayIndex) {
-            case 1: // Continent
-                text = data.continent;
+            case 1: // IP Address
+                text = data.geo_ip_address;
                 // Truncate to fit (approx 12 chars for fub14)
                 if (text.length() > 12) {
                     text = text.substring(0, 12);

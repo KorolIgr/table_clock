@@ -17,6 +17,7 @@ DataStorage::DataStorage() : _locked(false) {
     _sharedData.latitude = 0.0f;
     _sharedData.longitude = 0.0f;
     _sharedData.geo_last_update = 0;
+    _sharedData.geo_ip_address = "";
     // Initialize weather forecast
     for (int i = 0; i < 7; i++) {
         _sharedData.weather_forecast[i] = WeatherDay();
@@ -88,13 +89,14 @@ void DataStorage::clearStaConnectionRequest() {
     }
 }
 
-void DataStorage::updateGeolocation(const String& continent, const String& country, const String& city, float latitude, float longitude) {
+void DataStorage::updateGeolocation(const String& continent, const String& country, const String& city, float latitude, float longitude, const String& ip_address) {
     if (!_locked) {
         _sharedData.continent = continent;
         _sharedData.country = country;
         _sharedData.city = city;
         _sharedData.latitude = latitude;
         _sharedData.longitude = longitude;
+        _sharedData.geo_ip_address = ip_address;
         _sharedData.geo_last_update = millis();
     }
 }

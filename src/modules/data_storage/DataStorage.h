@@ -43,6 +43,7 @@ struct SharedData {
     float latitude = 0.0f;
     float longitude = 0.0f;
     unsigned long geo_last_update = 0;  // timestamp of last update
+    String geo_ip_address = "";         // IP address from geolocation service
     
     // Weather information
     WeatherDay weather_forecast[7];  // 7-day forecast
@@ -70,7 +71,7 @@ public:
     void updateLedStatus(bool enabled, uint8_t brightness);
     void updateBuiltinLEDPattern(int pattern);
     void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
-    void updateGeolocation(const String& continent, const String& country, const String& city, float latitude = 0.0f, float longitude = 0.0f);
+    void updateGeolocation(const String& continent, const String& country, const String& city, float latitude = 0.0f, float longitude = 0.0f, const String& ip_address = "");
     void updateWeather(const WeatherDay* forecast, int days, bool valid = true, const String& error = "");
     
     // WiFi STA configuration methods
