@@ -17,9 +17,9 @@ LEDData& DataStorage::led() {
     return _ledData;
 }
 
-SystemData& DataStorage::system() {
-    return _systemData;
-}
+//SystemData& DataStorage::system() {
+//    return _systemData;
+//}
 
 GeoData& DataStorage::geo() {
     return _geoData;
@@ -58,6 +58,7 @@ void DataStorage::updateBuiltinLEDPattern(int pattern) {
     }
 }
 
+/*
 void DataStorage::updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError) {
     if (!_locked) {
         _systemData.temperature = temp;
@@ -67,6 +68,7 @@ void DataStorage::updateSystemStatus(float temp, uint32_t uptime, bool error, co
     }
 }
 
+*/
 void DataStorage::setStaCredentials(const String& ssid, const String& password) {
     if (!_locked) {
         _wifiData.sta.sta_ssid = ssid;

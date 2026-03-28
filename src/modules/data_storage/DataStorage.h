@@ -4,12 +4,12 @@
 #include <Arduino.h>
 #include "WiFiData.h"
 #include "LEDData.h"
-#include "SystemData.h"
+//#include "SystemData.h"
 #include "GeoData.h"
 #include "WeatherData.h"
 
 // Forward declarations
-class ConfigManager;
+//class ConfigManager;
 
 class DataStorage {
 public:
@@ -18,7 +18,7 @@ public:
     // Get references to individual data structures
     WiFiData& wifi();
     LEDData& led();
-    SystemData& system();
+    //SystemData& system();
     GeoData& geo();
     WeatherData& weather();
     
@@ -30,7 +30,7 @@ public:
     void updateWifiStatus(bool connected, const String& status, const String& ip);
     void updateLedStatus(bool enabled, uint8_t brightness);
     void updateBuiltinLEDPattern(int pattern);
-    void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
+    //void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
     void setStaCredentials(const String& ssid, const String& password);
     void requestStaConnection();
     void clearStaConnectionRequest();
@@ -42,7 +42,7 @@ public:
 private:
     WiFiData _wifiData;
     LEDData _ledData;
-    SystemData _systemData;
+    //SystemData _systemData;
     GeoData _geoData;
     WeatherData _weatherData;
     
