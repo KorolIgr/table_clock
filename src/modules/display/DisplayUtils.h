@@ -17,4 +17,6 @@ void displayMultilineText(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const St
 
 void displayTitle(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& text, uint8_t startY = 20, const uint8_t* font = u8g2_font_10x20_tf, uint8_t lineHeight = 20);
 
+void displayValue(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& text, uint8_t startY, const uint8_t* font = u8g2_font_10x20_tf, uint8_t lineHeight = 20);
+
 #endif // DISPLAY_UTILS_H

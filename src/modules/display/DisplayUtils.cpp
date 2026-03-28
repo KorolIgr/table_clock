@@ -5,11 +5,11 @@ void displayIPAddress(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String
     int o1, o2, o3, o4;
     if (sscanf(ip.c_str(), "%d.%d.%d.%d", &o1, &o2, &o3, &o4) == 4) {
         char buf[16];
-        sprintf(buf, "%d", o1);
+        sprintf(buf, "%d.", o1);
         display->drawStr(0, startY, buf);
-        sprintf(buf, "%d", o2);
+        sprintf(buf, "%d.", o2);
         display->drawStr(0, startY + lineHeight, buf);
-        sprintf(buf, "%d", o3);
+        sprintf(buf, "%d.", o3);
         display->drawStr(0, startY + 2 * lineHeight, buf);
         sprintf(buf, "%d", o4);
         display->drawStr(0, startY + 3 * lineHeight, buf);
@@ -33,7 +33,18 @@ void displayTitle(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& te
     if (text.length() > 6) {
         displayText = text.substring(0, 5) + "*";
     }
+    display->setFont(font);
+    display->drawStr(0, startY, displayText.c_str());
 
+}
+
+void displayValue(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& text, uint8_t startY, const uint8_t* font, uint8_t lineHeight) {
+
+    String displayText = text;
+    if (text.length() > 6) {
+        displayText = text.substring(0, 5) + "*";
+    }
+    display->setFont(font);
     display->drawStr(0, startY, displayText.c_str());
 
 }

@@ -20,83 +20,58 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
         }
         return;
     }
-    
-    // Display 0 shows "CURRENT" label
-    if (displayIndex == 0) {
-        display->drawXBMP(0,0,L_ICON_WIDTH,L_ICON_HEIGHT,weather_icon);
-        displayTitle(display, "NOW", 50);
 
-        return;
-    }
-    
-    // Display 1: Temperature (current and apparent)
-    if (displayIndex == 1) {
-        String tempStr = formatTemp(data.current_temperature);
-        String feelsStr = formatTemp(data.current_apparent_temperature);
-        char symbol = getWeatherSymbol(data.current_weather_code);
-        
-        displayTitle(display, "TEMP");
-        
-        display->setFont(u8g2_font_fub20_tf);
-        display->drawStr(0, 45, tempStr.c_str());
-        
-        display->setFont(u8g2_font_fub14_tf);
-        char symStr[2] = { symbol, '\0' };
-        display->drawStr(110, 45, symStr);
-        
-        display->setFont(u8g2_font_10x20_tf);
-        display->drawStr(0, 60, ("Feels: " + feelsStr).c_str());
-        return;
-    }
-    
-    // Display 2: Wind speed and direction
-    if (displayIndex == 2) {
-        String windStr = String(data.current_wind_speed, 1) + " m/s";
-        String dirStr = formatWindDirection(data.current_wind_direction);
-        
-        displayTitle(display, "WIND");
-        
-        display->setFont(u8g2_font_fub20_tf);
-        display->drawStr(0, 45, windStr.c_str());
-        
-        display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 65, dirStr.c_str());
-        return;
-    }
-    
-    // Display 3: Humidity
-    if (displayIndex == 3) {
-        String humStr = String(data.current_humidity) + "%";
+     switch (displayIndex) {
+        case 0: {
+            display->drawXBMP(0,0,L_ICON_WIDTH,L_ICON_HEIGHT,weather_icon);
+            displayTitle(display, "NOW", 50);
+            break;
+        }
+        case 1: {
+            displayTitle(display, "TEMPERATURE");
+            String value = formatTemp(data.current_temperature);
+            displayValue(display, value, 45);
+            break;
+        }
+        case 2: {
+            displayTitle(display, "FEELS LIKE");
+            String value = formatTemp(data.current_apparent_temperature);
+            displayValue(display, value, 45);
+            break;
+        }
+        case 3: {
+            displayTitle(display, "HUMIDITY");
+            String value = String(data.current_humidity) + "%";
+            displayValue(display, value, 45);
+            break;
+        }
+        case 4: {
+            displayTitle(display, "WIND");
+            String speed = String(data.current_wind_speed, 1) + " m/s";
+            String direction = formatWindDirection(data.current_wind_direction);
+            displayValue(display, speed, 45);
+            displayValue(display, direction, 65);
+            break;
+        }
+        case 5: {
+            displayTitle(display, "CLOUDS");
+            String value = String(data.current_cloud_cover) + "%";
+            displayValue(display, value, 45);
+            break;
+        }
+        case 6: {
+            displayTitle(display, "ICON");
+            char symbol = getWeatherSymbol(data.current_weather_code);
+            char symStr[2] = { symbol, '\0' };
+            displayValue(display, symStr, 45);
+            break;
+        }
+        case 7: {
+            display->clear();
+            break;
+        }
+     }
 
-        displayTitle(display, "HUMIDITY");
-        
-        display->setFont(u8g2_font_fub30_tf);
-        display->drawStr(0, 55, humStr.c_str());
-        return;
-    }
-    
-    // Display 4: Cloud cover
-    if (displayIndex == 4) {
-        String cloudStr = String(data.current_cloud_cover) + "%";
-
-        displayTitle(display, "CLOUDS");
-        
-        display->setFont(u8g2_font_fub30_tf);
-        display->drawStr(0, 55, cloudStr.c_str());
-        return;
-    }
-    
-    // Display 5: Weather code / symbol
-    if (displayIndex == 5) {
-        char symbol = getWeatherSymbol(data.current_weather_code);
-
-        displayTitle(display, "COND");
-        
-        display->setFont(u8g2_font_fub30_tf);
-        char symStr[2] = { symbol, '\0' };
-        display->drawStr(0, 55, symStr);
-        return;
-    }
 }
 
 String CurrentWeatherPage::formatTemp(float temp) const {
