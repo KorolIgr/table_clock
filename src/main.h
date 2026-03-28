@@ -4,6 +4,7 @@
 #include "app_config.h"
 #include "modules/led/LEDController.h"
 #include "modules/display/DisplayManager.h"
+#include "modules/display/PageManager.h"
 #include "modules/builtin_led/BuiltInLED.h"
 #include "modules/wifi/WiFiAP.h"
 #include "modules/wifi/WiFiSTA.h"
@@ -52,6 +53,7 @@ private:
     LEDController* _ledController;
     DisplayManager* _displayManager;  // First display (channel 0) - keeping for backward compatibility
     DisplayManager* _allDisplays[8];  // Array to hold all 8 displays
+    PageManager* _pageManager;        // Central page manager for all displays
     ConfigManager* _configManager;
     DataStorage* _dataStorage;
     BuiltInLED* _builtInLED;

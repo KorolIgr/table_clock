@@ -79,6 +79,51 @@ void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
     }
 }
 
+void PageManager::updateSingleDisplay(DisplayManager* display, uint8_t displayIndex) {
+    if (!_dataStorage || !display) return;
+    
+    // Handle automatic page switching (only for the first display in the cycle to avoid multiple switches)
+    if (displayIndex == 0) {
+        unsigned long currentTime = millis();
+        if (currentTime - _lastPageChange >= _pageInterval) {
+            nextPage();
+            _lastPageChange = currentTime;
+        }
+    }
+    
+    display->clear();
+    
+    // Get the U8G2 display object
+    U8G2_SSD1306_128X64_NONAME_F_HW_I2C* u8g2 = display->getU8g2();
+    if (u8g2) {
+        // Render content based on current page for this display index
+        switch (_currentPage) {
+            case DisplayPage::WIFI_STA:
+                if (_wifiStaPage) {
+                    _wifiStaPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::WIFI_AP:
+                if (_wifiApPage) {
+                    _wifiApPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::GEO_PAGE:
+                if (_geoPage) {
+                    _geoPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::WEATHER_PAGE:
+                if (_weatherPage) {
+                    _weatherPage->render(u8g2, displayIndex);
+                }
+                break;
+        }
+    }
+    
+    display->display();
+}
+
 /*
 void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     if (!_dataStorage || !display) return;

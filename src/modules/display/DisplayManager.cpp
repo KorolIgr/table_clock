@@ -1,9 +1,8 @@
 #include "DisplayManager.h"
 #include <U8g2lib.h>
-#include "PageManager.h"
 
 DisplayManager::DisplayManager(uint8_t multiplexerAddress, uint8_t channel, uint8_t sdaPin, uint8_t sclPin)
-    : _multiplexerAddress(multiplexerAddress), _channel(channel), _sdaPin(sdaPin), _sclPin(sclPin), _dataStorage(nullptr), _pageManager(nullptr) {
+    : _multiplexerAddress(multiplexerAddress), _channel(channel), _sdaPin(sdaPin), _sclPin(sclPin), _dataStorage(nullptr) {
     _display = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R1, U8X8_PIN_NONE);
     _cursorX = 0;
     _cursorY = 0;
@@ -62,29 +61,4 @@ void DisplayManager::setCursor(uint8_t col, uint8_t row) {
 
 void DisplayManager::setDataStorage(DataStorage* dataStorage) {
     _dataStorage = dataStorage;
-    // Create PageManager when DataStorage is set
-    if (_dataStorage && !_pageManager) {
-        _pageManager = new PageManager(_dataStorage);
-    }
-}
-
-/*
-void DisplayManager::updateDisplay() {
-    if (_dataStorage) {
-        updatePageDisplay();
-    }
-}
-
-void DisplayManager::updatePageDisplay() {
-    if (_pageManager && _display) {
-        selectChannel();
-        _pageManager->updatePageDisplay(_display);
-    }
-}
-
-*/
-void DisplayManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
-    if (_pageManager) {
-        _pageManager->updateAllDisplays(displays, count);
-    }
 }

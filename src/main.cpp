@@ -131,10 +131,15 @@ void MainApplication::appLoop() {
         _ledController->updatePattern();
     }
     
-    // Update all 8 displays with distributed page information
-    if (_allDisplays[0]) {
-        _allDisplays[0]->updateAllDisplays(_allDisplays, 8);
+    // Update one display at a time for better performance (round-robin)
+    static uint8_t currentDisplayIndex = 0;
+    
+    if (_pageManager && _allDisplays[currentDisplayIndex]) {
+        _pageManager->updateSingleDisplay(_allDisplays[currentDisplayIndex], currentDisplayIndex);
     }
+    
+    // Move to next display in the next cycle
+    currentDisplayIndex = (currentDisplayIndex + 1) % 8;
     
     // Removed counter functionality - now handled by page system
     
@@ -254,12 +259,15 @@ void MainApplication::initDisplay() {
         delay(50);
         _allDisplays[i]->begin();
         delay(50);
-        
-        // Note: setPageInterval is now handled by PageManager internally
     }
     
     // Also keep the first display in the original variable for backward compatibility
     _displayManager = _allDisplays[0];
+    
+    // Create a single PageManager to control all displays
+    if (_dataStorage) {
+        _pageManager = new PageManager(_dataStorage);
+    }
     
     // Counter functionality removed - now using page system
 }
