@@ -34,6 +34,7 @@ void WeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t d
         //display->setFont(u8g2_font_fub30_tf);
         //display->drawStr(0, 40, "WTH");
         display->drawXBMP(0,0,24,24,sun_icon);
+        display->drawStr(0, 50, "WEEK"); // 8px line spacing
 
         return;
     }

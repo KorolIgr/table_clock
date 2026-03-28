@@ -19,62 +19,79 @@ void GeoPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displ
     if (!_dataStorage) return;
     
     SharedData& data = _dataStorage->getData();
-    
-    // Display 0: show XBMP icon
-    if (displayIndex == 0) {
-        // Center the 24x24 icon on the 128x64 display
-        display->drawXBMP(0, 0, 32, 32, geo_icon_xbm);
-        return;
-    }
-    
-    // Displays 1-5: show geolocation data
-    if (displayIndex >= 1 && displayIndex <= 5) {
-        // Use a readable font for text
-        display->setFont(u8g2_font_fub14_tf);
-        String text;
-        
-        switch (displayIndex) {
-            case 1: // IP Address
-                text = data.geo_ip_address;
-                // Truncate to fit (approx 12 chars for fub14)
-                if (text.length() > 12) {
-                    text = text.substring(0, 12);
-                }
-                break;
-            case 2: // Country
-                text = data.country;
-                if (text.length() > 12) {
-                    text = text.substring(0, 12);
-                }
-                break;
-            case 3: // City
-                text = data.city;
-                if (text.length() > 12) {
-                    text = text.substring(0, 12);
-                }
-                break;
-            case 4: // Latitude (world data)
-                // Format latitude with 4 decimal places
-                text = "Lat: " + String(data.latitude, 4);
-                // Might be long, truncate if needed
-                if (text.length() > 12) {
-                    text = text.substring(0, 12);
-                }
-                break;
-            case 5: // Longitude
-                text = "Lon: " + String(data.longitude, 4);
-                if (text.length() > 12) {
-                    text = text.substring(0, 12);
-                }
-                break;
+
+    display->setFont(u8g2_font_10x20_tf);
+
+    switch (displayIndex) {
+        case 0: {
+            // Display 0: WiFi icon (XBMP)
+            display->drawXBMP(0, 0, 32, 32, geo_icon_xbm);
+            display->drawStr(0, 50, "GEO"); // 8px line spacing
+
+            //display->drawFrame(5, 80, 32, 26); // вместо 32x32
+            break;
         }
-        
-        // Center text horizontally
-        int textWidth = display->getStrWidth(text.c_str());
-        int x = (128 - textWidth) / 2;
-        display->drawStr(x, 40, text.c_str());
-        return;
+        case 1: {
+            display->drawStr(0, 20, "IP");
+            String ip = data.geo_ip_address;
+            int o1, o2, o3, o4;
+            if (sscanf(ip.c_str(), "%d.%d.%d.%d", &o1, &o2, &o3, &o4) == 4) {
+                char buf[16];
+                sprintf(buf, "%d", o1);
+                display->drawStr(0, 2 * 20, buf);
+                sprintf(buf, "%d", o2);
+                display->drawStr(0, 3 * 20, buf);
+                sprintf(buf, "%d", o3);
+                display->drawStr(0, 4 * 20, buf);
+                sprintf(buf, "%d", o4);
+                display->drawStr(0, 5 * 20, buf);
+            } else {
+                display->drawStr(0, 0, "Invalid IP");
+            }
+            break;
+        }
+        case 2: {
+            display->drawStr(0, 20, "COUNTRY");
+            String msg = data.country;
+            int y = 40;
+            for (size_t i = 0; i < msg.length(); i += 6) {
+                String line = msg.substring(i, i + 6);
+                display->drawStr(0, y, line.c_str());
+                y += 20;
+            }
+            break;
+        }
+        case 3: {
+            display->drawStr(0, 20, "CITY");
+            String msg = data.city;
+            int y = 40;
+            for (size_t i = 0; i < msg.length(); i += 6) {
+                String line = msg.substring(i, i + 6);
+                display->drawStr(0, y, line.c_str());
+                y += 20;
+            }
+            break;
+        }
+        case 4: {
+            display->drawStr(0, 20, "LAT");
+            String str = String(data.latitude, 4);
+            display->drawStr(0, 40, str.c_str());
+            break;
+        }
+        case 5: {
+            display->drawStr(0, 20, "LON");
+            String str = String(data.longitude, 4);
+            display->drawStr(0, 40, str.c_str());
+            break;
+        }
+        case 6: {
+            display->clear();
+            break;
+        }
+        case 7: {
+            display->clear();
+            break;
+        }
     }
     
-    // For other displays (6,7, etc.), leave blank
 }
