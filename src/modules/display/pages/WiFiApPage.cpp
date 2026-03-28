@@ -22,13 +22,15 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
     if (!_dataStorage) return;
     
     SharedData& data = _dataStorage->getData();
+
+    // Use larger fonts for better visibility
+    display->setFont(u8g2_font_10x20_tf); // Large font for main info
     
     // Distribute content across 8 displays according to requirements
     switch (displayIndex) {
         case 0: {
             // Display 0: WiFi icon (XBMP)
             display->drawXBMP(0, 0, 32, 32, wifi_icon_bits);
-            display->setFont(u8g2_font_fub14_tf);
             display->drawStr(0, 50, "AP"); // 8px line spacing
 
             //display->drawFrame(5, 80, 32, 26); // вместо 32x32
@@ -36,7 +38,6 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
         }
         case 1: {
             // Display 1: Network name (SSID) - each letter on a new line
-            display->setFont(u8g2_font_10x20_tf);
             display->drawStr(0, 20, "SSID");
             String ssid = data.ap_ssid;
             int y = 40;
@@ -50,7 +51,6 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
         }
         case 2: {
             // Display 2: Network password - each letter on a new line
-            display->setFont(u8g2_font_10x20_tf);
             display->drawStr(0, 20, "PWD");
             String pwd = data.ap_password;
             int y = 40;
@@ -63,7 +63,6 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
         }
         case 3: {
             // Display 3: Network IP - each octet on a new line
-            display->setFont(u8g2_font_10x20_tf);
             display->drawStr(0, 20, "IP");
             String ip = data.ap_ip;
             int o1, o2, o3, o4;
@@ -84,7 +83,6 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
         }
         case 4: {
             // Display 4: Network mask - each octet on a new line
-            display->setFont(u8g2_font_10x20_tf);
             display->drawStr(0, 20, "MASK");
             String mask = data.ap_mask;
             int o1, o2, o3, o4;
@@ -105,7 +103,6 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
         }
         case 5: {
             // Display 5: MAC address
-            display->setFont(u8g2_font_10x20_tf);
             display->drawStr(0, 20, "MAC");
 
             String mac = data.ap_mac;
@@ -119,15 +116,17 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
         }
         case 6: {
             // Display 6: Max clients / connected clients (e.g., "4/2")
-            display->setFont(u8g2_font_fub20_tf);
+            display->drawStr(0, 20, "CLIENT");
             char buf[16];
-            sprintf(buf, "%d/%d", data.ap_max_clients, data.ap_connected_clients);
+            sprintf(buf, "max:%d", data.ap_max_clients);
             display->drawStr(0, 40, buf);
+            sprintf(buf, "now:%d", data.ap_connected_clients);
+            display->drawStr(0, 60, buf);
             break;
         }
         case 7: {
             // Display 7: Channel
-            display->setFont(u8g2_font_fub14_tf);
+            display->drawStr(0, 20, "CH");
             char buf[8];
             sprintf(buf, "%d", data.ap_channel);
             display->drawStr(0, 40, buf);
