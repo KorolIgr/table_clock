@@ -8,7 +8,7 @@ GeoPage::GeoPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 void GeoPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displayIndex) {
     if (!_dataStorage) return;
     
-    SharedData& data = _dataStorage->getData();
+    GeoData& data = _dataStorage->geo();
 
     display->setFont(u8g2_font_10x20_tf);
 
@@ -23,7 +23,7 @@ void GeoPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displ
         }
         case 1: {
             displayTitle(display, "IP");
-            String ip = data.geo_ip_address;
+            String ip = data.ip_address;
             displayIPAddress(display, ip, 40, 20);
             break;
         }

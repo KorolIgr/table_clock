@@ -159,16 +159,16 @@ void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
         case DisplayPage::WIFI_STA:
             if (_wifiStaPage) {
                 // Render full content on single display
-                SharedData& data = _dataStorage->getData();
+                WiFiData& data = _dataStorage->wifi();
                 display->drawStr(0, 20, "WiFi STA");
-                if (data.wifi_connected) {
+                if (data.sta.connected) {
                     display->drawStr(0, 40, "IP:");
                     display->setFont(u8g2_font_fub20_tf);
-                    display->drawStr(15, 55, data.ip_address.c_str());
+                    display->drawStr(15, 55, data.sta.ip_address.c_str());
                 } else {
                     display->drawStr(0, 40, "SSID:");
                     display->setFont(u8g2_font_fub20_tf);
-                    display->drawStr(25, 55, data.sta_ssid.c_str());
+                    display->drawStr(25, 55, data.sta.sta_ssid.c_str());
                 }
             }
             break;
@@ -192,7 +192,7 @@ void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
         case DisplayPage::GEO_PAGE:
             if (_geoPage) {
                 // For single display, show all geolocation info
-                SharedData& data = _dataStorage->getData();
+                GeoData& data = _dataStorage->geo();
                 display->setFont(u8g2_font_fub20_tf);
                 display->drawStr(0, 20, "Location");
                 display->setFont(u8g2_font_fub14_tf);
@@ -211,22 +211,22 @@ void PageManager::updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
         case DisplayPage::WEATHER_PAGE:
             if (_weatherPage) {
                 // For single display, show weather summary
-                SharedData& data = _dataStorage->getData();
+                WeatherData& data = _dataStorage->weather();
                 display->setFont(u8g2_font_fub20_tf);
                 display->drawStr(0, 20, "Weather");
-                if (data.weather_valid) {
+                if (data.forecast.valid) {
                     display->setFont(u8g2_font_fub14_tf);
                     // Show today's forecast
-                    if (data.weather_forecast[0].date.length() > 0) {
-                        String dateStr = data.weather_forecast[0].date.substring(5); // MM-DD
+                    if (data.forecast.forecast[0].date.length() > 0) {
+                        String dateStr = data.forecast.forecast[0].date.substring(5); // MM-DD
                         display->drawStr(0, 40, dateStr.c_str());
-                        String tempStr = String((int)round(data.weather_forecast[0].temp_max)) + "/" + String((int)round(data.weather_forecast[0].temp_min)) + "C";
+                        String tempStr = String((int)round(data.forecast.forecast[0].temp_max)) + "/" + String((int)round(data.forecast.forecast[0].temp_min)) + "C";
                         display->drawStr(0, 55, tempStr.c_str());
                     }
                 } else {
                     display->setFont(u8g2_font_fub14_tf);
                     display->drawStr(0, 40, "No data");
-                    if (data.weather_error.length() > 0) {
+                    if (data.forecast.error.length() > 0) {
                         display->drawStr(0, 55, "Err");
                     }
                 }

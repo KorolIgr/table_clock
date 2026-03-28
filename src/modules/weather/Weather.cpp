@@ -22,8 +22,8 @@ void Weather::update() {
 bool Weather::isUpdateNeeded() const {
     if (!_dataStorage) return false;
     
-    auto& data = _dataStorage->getData();
-    unsigned long lastUpdate = data.weather_last_update;
+    WeatherData& data = _dataStorage->weather();
+    unsigned long lastUpdate = data.forecast.last_update;
     
     if (lastUpdate == 0) return true;
     
@@ -36,23 +36,23 @@ void Weather::forceUpdate() {
 
 bool Weather::isValid() const {
     if (!_dataStorage) return false;
-    return _dataStorage->getData().weather_valid;
+    return _dataStorage->weather().forecast.valid;
 }
 
 unsigned long Weather::getLastUpdate() const {
     if (!_dataStorage) return 0;
-    return _dataStorage->getData().weather_last_update;
+    return _dataStorage->weather().forecast.last_update;
 }
 
 String Weather::getError() const {
     if (!_dataStorage) return "";
-    return _dataStorage->getData().weather_error;
+    return _dataStorage->weather().forecast.error;
 }
 
 WeatherDay Weather::getForecast(int day) const {
     WeatherDay empty;
     if (!_dataStorage || day < 0 || day >= 7) return empty;
-    return _dataStorage->getData().weather_forecast[day];
+    return _dataStorage->weather().forecast.forecast[day];
 }
 
 bool Weather::shouldAttemptUpdate() const {
@@ -70,16 +70,17 @@ bool Weather::shouldAttemptUpdate() const {
 
 bool Weather::hasValidCoordinates() const {
     if (!_dataStorage) return false;
-    auto& data = _dataStorage->getData();
-    return data.latitude != 0.0f || data.longitude != 0.0f;
+    GeoData& geo = _dataStorage->geo();
+    return geo.latitude != 0.0f || geo.longitude != 0.0f;
 }
 
 bool Weather::fetchWeather() {
     if (!_dataStorage) return false;
     
-    auto& data = _dataStorage->getData();
+    WiFiData& wifi = _dataStorage->wifi();
+    GeoData& geo = _dataStorage->geo();
     
-    if (!data.wifi_connected) {
+    if (!wifi.sta.connected) {
         Serial.println("Weather: WiFi not connected, skipping update");
         return false;
     }
@@ -89,8 +90,8 @@ bool Weather::fetchWeather() {
         return false;
     }
     
-    float lat = data.latitude;
-    float lon = data.longitude;
+    float lat = geo.latitude;
+    float lon = geo.longitude;
     
     Serial.print("Weather: Fetching forecast for lat=");
     Serial.print(lat);
@@ -120,7 +121,7 @@ bool Weather::fetchWeather() {
         Serial.println(httpCode);
         http.end();
         String error = "HTTP error " + String(httpCode);
-        _dataStorage->updateWeather(nullptr, 0, false, error);
+        _dataStorage->updateWeatherForecast(nullptr, 0, false, error);
         return false;
     }
     
@@ -136,14 +137,14 @@ bool Weather::fetchWeather() {
     if (error) {
         Serial.print("Weather: JSON parse failed: ");
         Serial.println(error.c_str());
-        _dataStorage->updateWeather(nullptr, 0, false, "JSON parse error");
+        _dataStorage->updateWeatherForecast(nullptr, 0, false, "JSON parse error");
         return false;
     }
     
     JsonObject daily = doc["daily"].as<JsonObject>();
     if (!daily) {
         Serial.println("Weather: Invalid response - missing daily object");
-        _dataStorage->updateWeather(nullptr, 0, false, "Invalid response format");
+        _dataStorage->updateWeatherForecast(nullptr, 0, false, "Invalid response format");
         return false;
     }
     
@@ -155,7 +156,7 @@ bool Weather::fetchWeather() {
     if (!timeArray || !tempMaxArray || !tempMinArray || !weatherCodeArray ||
         timeArray.size() < 7 || tempMaxArray.size() < 7 || tempMinArray.size() < 7 || weatherCodeArray.size() < 7) {
         Serial.println("Weather: Invalid response - incomplete arrays");
-        _dataStorage->updateWeather(nullptr, 0, false, "Invalid response format");
+        _dataStorage->updateWeatherForecast(nullptr, 0, false, "Invalid response format");
         return false;
     }
     
@@ -189,7 +190,7 @@ bool Weather::fetchWeather() {
 
 void Weather::updateDataStorage(const WeatherDay* forecast, int days) {
     if (_dataStorage && forecast && days == 7) {
-        _dataStorage->updateWeather(forecast, days, true, "");
+        _dataStorage->updateWeatherForecast(forecast, days, true, "");
     }
 }
 
@@ -202,9 +203,10 @@ void Weather::updateCurrentDataStorage(float temperature, float apparent_tempera
 bool Weather::fetchCurrentWeather() {
     if (!_dataStorage) return false;
     
-    auto& data = _dataStorage->getData();
+    WiFiData& wifi = _dataStorage->wifi();
+    GeoData& geo = _dataStorage->geo();
     
-    if (!data.wifi_connected) {
+    if (!wifi.sta.connected) {
         Serial.println("CurrentWeather: WiFi not connected, skipping update");
         return false;
     }
@@ -214,8 +216,8 @@ bool Weather::fetchCurrentWeather() {
         return false;
     }
     
-    float lat = data.latitude;
-    float lon = data.longitude;
+    float lat = geo.latitude;
+    float lon = geo.longitude;
     
     Serial.print("CurrentWeather: Fetching current weather for lat=");
     Serial.print(lat);

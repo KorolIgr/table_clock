@@ -99,11 +99,11 @@ void WiFiSTA::processConnectionRequest() {
     if (!_dataStorage) return;
     
     // Check if a connection has been requested
-    auto& data = _dataStorage->getData();
-    if (data.sta_connect_requested) {
+    WiFiData& wifi = _dataStorage->wifi();
+    if (wifi.sta.sta_connect_requested) {
         // Get credentials
-        String ssid = data.sta_ssid;
-        String password = data.sta_password;
+        String ssid = wifi.sta.sta_ssid;
+        String password = wifi.sta.sta_password;
         
         // Clear the request flag immediately to avoid repeated attempts
         _dataStorage->clearStaConnectionRequest();

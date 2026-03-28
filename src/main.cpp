@@ -89,11 +89,11 @@ void MainApplication::appLoop() {
     static float lastLat = 0.0f;
     static float lastLon = 0.0f;
     if (_dataStorage) {
-        auto& data = _dataStorage->getData();
-        if (data.geo_last_update > 0 && (data.latitude != lastLat || data.longitude != lastLon)) {
+        GeoData& geo = _dataStorage->geo();
+        if (geo.last_update > 0 && (geo.latitude != lastLat || geo.longitude != lastLon)) {
             // New coordinates obtained, trigger weather update
-            lastLat = data.latitude;
-            lastLon = data.longitude;
+            lastLat = geo.latitude;
+            lastLon = geo.longitude;
             if (_weather) {
                 _weather->forceUpdate();
             }

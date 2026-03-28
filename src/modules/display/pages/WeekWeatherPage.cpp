@@ -9,9 +9,9 @@ WeekWeatherPage::WeekWeatherPage(DataStorage* dataStorage) : _dataStorage(dataSt
 void WeekWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displayIndex) {
     if (!_dataStorage) return;
     
-    SharedData& data = _dataStorage->getData();
+    WeatherData& data = _dataStorage->weather();
     
-    if (!data.weather_valid) {
+    if (!data.forecast.valid) {
         // Show error or "no data" message
         display->setFont(u8g2_font_10x20_tf);
         if (displayIndex == 0) {
@@ -35,7 +35,7 @@ void WeekWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8
     // Displays 1-7 show each day's forecast (displayIndex 1 = day 0, displayIndex 7 = day 6)
     int dayIndex = displayIndex - 1;
     if (dayIndex >= 0 && dayIndex < 7) {
-        WeatherDay day = data.weather_forecast[dayIndex];
+        WeatherDay day = data.forecast.forecast[dayIndex];
         
         // Format date to MM-DD
         String dateStr = formatDate(day.date);

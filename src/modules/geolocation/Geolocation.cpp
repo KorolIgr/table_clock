@@ -23,8 +23,8 @@ void Geolocation::update() {
 bool Geolocation::isUpdateNeeded() const {
     if (!_dataStorage) return false;
     
-    auto& data = _dataStorage->getData();
-    unsigned long lastUpdate = data.geo_last_update;
+    GeoData& data = _dataStorage->geo();
+    unsigned long lastUpdate = data.last_update;
     
     // If never updated, we need an update
     if (lastUpdate == 0) return true;
@@ -39,28 +39,28 @@ void Geolocation::forceUpdate() {
 
 String Geolocation::getContinent() const {
     if (!_dataStorage) return "";
-    return _dataStorage->getData().continent;
+    return _dataStorage->geo().continent;
 }
 
 String Geolocation::getCountry() const {
     if (!_dataStorage) return "";
-    return _dataStorage->getData().country;
+    return _dataStorage->geo().country;
 }
 
 String Geolocation::getCity() const {
     if (!_dataStorage) return "";
-    return _dataStorage->getData().city;
+    return _dataStorage->geo().city;
 }
 
 unsigned long Geolocation::getLastUpdate() const {
     if (!_dataStorage) return 0;
-    return _dataStorage->getData().geo_last_update;
+    return _dataStorage->geo().last_update;
 }
 
 bool Geolocation::hasValidData() const {
     if (!_dataStorage) return false;
     
-    auto& data = _dataStorage->getData();
+    GeoData& data = _dataStorage->geo();
     return data.city.length() > 0 && data.country.length() > 0;
 }
 
@@ -78,8 +78,8 @@ bool Geolocation::fetchGeolocation() {
     if (!_dataStorage) return false;
     
     // Check if WiFi is connected first
-    auto& data = _dataStorage->getData();
-    if (!data.wifi_connected) {
+    WiFiData& wifi = _dataStorage->wifi();
+    if (!wifi.sta.connected) {
         Serial.println("Geolocation: WiFi not connected, skipping update");
         return false;
     }

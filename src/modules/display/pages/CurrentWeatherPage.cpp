@@ -8,9 +8,9 @@ CurrentWeatherPage::CurrentWeatherPage(DataStorage* dataStorage) : _dataStorage(
 void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displayIndex) {
     if (!_dataStorage) return;
     
-    SharedData& data = _dataStorage->getData();
+    WeatherData& data = _dataStorage->weather();
     
-    if (!data.current_weather_valid) {
+    if (!data.current.valid) {
         // Show error or "no data" message
         display->setFont(u8g2_font_10x20_tf);
         if (displayIndex == 0) {
@@ -22,55 +22,55 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
     }
 
      switch (displayIndex) {
-        case 0: {
-            display->drawXBMP(0,0,L_ICON_WIDTH,L_ICON_HEIGHT,weather_icon);
-            displayTitle(display, "NOW", 50);
-            break;
-        }
-        case 1: {
-            displayTitle(display, "TEMPERATURE");
-            String value = formatTemp(data.current_temperature);
-            displayValue(display, value, 45);
-            break;
-        }
-        case 2: {
-            displayTitle(display, "FEELS LIKE");
-            String value = formatTemp(data.current_apparent_temperature);
-            displayValue(display, value, 45);
-            break;
-        }
-        case 3: {
-            displayTitle(display, "HUMIDITY");
-            String value = String(data.current_humidity) + "%";
-            displayValue(display, value, 45);
-            break;
-        }
-        case 4: {
-            displayTitle(display, "WIND");
-            String speed = String(data.current_wind_speed, 1) + " m/s";
-            String direction = formatWindDirection(data.current_wind_direction);
-            displayValue(display, speed, 45);
-            displayValue(display, direction, 65);
-            break;
-        }
-        case 5: {
-            displayTitle(display, "CLOUDS");
-            String value = String(data.current_cloud_cover) + "%";
-            displayValue(display, value, 45);
-            break;
-        }
-        case 6: {
-            displayTitle(display, "ICON");
-            char symbol = getWeatherSymbol(data.current_weather_code);
-            char symStr[2] = { symbol, '\0' };
-            displayValue(display, symStr, 45);
-            break;
-        }
-        case 7: {
-            display->clear();
-            break;
-        }
-     }
+       case 0: {
+           display->drawXBMP(0,0,L_ICON_WIDTH,L_ICON_HEIGHT,weather_icon);
+           displayTitle(display, "NOW", 50);
+           break;
+       }
+       case 1: {
+           displayTitle(display, "TEMPERATURE");
+           String value = formatTemp(data.current.temperature);
+           displayValue(display, value, 45);
+           break;
+       }
+       case 2: {
+           displayTitle(display, "FEELS LIKE");
+           String value = formatTemp(data.current.apparent_temperature);
+           displayValue(display, value, 45);
+           break;
+       }
+       case 3: {
+           displayTitle(display, "HUMIDITY");
+           String value = String(data.current.humidity) + "%";
+           displayValue(display, value, 45);
+           break;
+       }
+       case 4: {
+           displayTitle(display, "WIND");
+           String speed = String(data.current.wind_speed, 1) + " m/s";
+           String direction = formatWindDirection(data.current.wind_direction);
+           displayValue(display, speed, 45);
+           displayValue(display, direction, 65);
+           break;
+       }
+       case 5: {
+           displayTitle(display, "CLOUDS");
+           String value = String(data.current.cloud_cover) + "%";
+           displayValue(display, value, 45);
+           break;
+       }
+       case 6: {
+           displayTitle(display, "ICON");
+           char symbol = getWeatherSymbol(data.current.weather_code);
+           char symStr[2] = { symbol, '\0' };
+           displayValue(display, symStr, 45);
+           break;
+       }
+       case 7: {
+           display->clear();
+           break;
+       }
+    }
 
 }
 

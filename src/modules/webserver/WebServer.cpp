@@ -183,13 +183,14 @@ void WebServer::handleSaveConfig() {
 void WebServer::handleStatus() {
     String response = "{";
     if (_dataStorage) {
-        auto& data = _dataStorage->getData();
-        response += "\"wifi_connected\":" + String(data.wifi_connected ? "true" : "false") + ",";
-        response += "\"wifi_status\":\"" + data.wifi_status + "\",";
-        response += "\"ip_address\":\"" + data.ip_address + "\",";
-        response += "\"led_enabled\":" + String(data.led_enabled ? "true" : "false") + ",";
-        response += "\"led_brightness\":" + String(data.led_brightness);
-        response += ",\"builtin_led_pattern\":" + String(data.builtin_led_pattern);
+        WiFiData& wifi = _dataStorage->wifi();
+        LEDData& led = _dataStorage->led();
+        response += "\"wifi_connected\":" + String(wifi.sta.connected ? "true" : "false") + ",";
+        response += "\"wifi_status\":\"" + wifi.sta.status + "\",";
+        response += "\"ip_address\":\"" + wifi.sta.ip_address + "\",";
+        response += "\"led_enabled\":" + String(led.enabled ? "true" : "false") + ",";
+        response += "\"led_brightness\":" + String(led.brightness);
+        response += ",\"builtin_led_pattern\":" + String(led.builtin_led_pattern);
     }
     response += "}";
     
@@ -222,20 +223,20 @@ void WebServer::handleGetCurrentWeather() {
         return;
     }
     
-    auto& data = _dataStorage->getData();
+    WeatherData& data = _dataStorage->weather();
     
     String response = "{";
-    response += "\"valid\":" + String(data.current_weather_valid ? "true" : "false") + ",";
-    response += "\"temperature\":" + String(data.current_temperature, 1) + ",";
-    response += "\"apparent_temperature\":" + String(data.current_apparent_temperature, 1) + ",";
-    response += "\"wind_speed\":" + String(data.current_wind_speed, 1) + ",";
-    response += "\"wind_direction\":" + String(data.current_wind_direction) + ",";
-    response += "\"humidity\":" + String(data.current_humidity) + ",";
-    response += "\"cloud_cover\":" + String(data.current_cloud_cover) + ",";
-    response += "\"weather_code\":" + String(data.current_weather_code) + ",";
-    response += "\"last_update\":" + String(data.current_weather_last_update);
-    if (!data.current_weather_error.isEmpty()) {
-        response += ",\"error\":\"" + data.current_weather_error + "\"";
+    response += "\"valid\":" + String(data.current.valid ? "true" : "false") + ",";
+    response += "\"temperature\":" + String(data.current.temperature, 1) + ",";
+    response += "\"apparent_temperature\":" + String(data.current.apparent_temperature, 1) + ",";
+    response += "\"wind_speed\":" + String(data.current.wind_speed, 1) + ",";
+    response += "\"wind_direction\":" + String(data.current.wind_direction) + ",";
+    response += "\"humidity\":" + String(data.current.humidity) + ",";
+    response += "\"cloud_cover\":" + String(data.current.cloud_cover) + ",";
+    response += "\"weather_code\":" + String(data.current.weather_code) + ",";
+    response += "\"last_update\":" + String(data.current.last_update);
+    if (!data.current.error.isEmpty()) {
+        response += ",\"error\":\"" + data.current.error + "\"";
     }
     response += "}";
     
