@@ -59,6 +59,7 @@ void WebServer::begin() {
     _server->on("/api/status", std::bind(&WebServer::handleStatus, this));
     _server->on("/api/led/patterns", std::bind(&WebServer::handleGetLEDPatterns, this));
     _server->on("/api/led/current", std::bind(&WebServer::handleGetLEDCurrent, this));
+    _server->on("/api/weather/current", std::bind(&WebServer::handleGetCurrentWeather, this));
     
     // Form routes (used by HTML pages)
     _server->on("/wifi_sta", HTTP_POST, std::bind(&WebServer::handleWifiSTAApply, this));
@@ -212,6 +213,32 @@ void WebServer::handleGetLEDCurrent() {
     }
     
     String response = _getLEDCurrentCallback();
+    _server->send(200, "application/json", response);
+}
+
+void WebServer::handleGetCurrentWeather() {
+    if (!_dataStorage) {
+        _server->send(500, "application/json", "{\"error\":\"Data storage not available\"}");
+        return;
+    }
+    
+    auto& data = _dataStorage->getData();
+    
+    String response = "{";
+    response += "\"valid\":" + String(data.current_weather_valid ? "true" : "false") + ",";
+    response += "\"temperature\":" + String(data.current_temperature, 1) + ",";
+    response += "\"apparent_temperature\":" + String(data.current_apparent_temperature, 1) + ",";
+    response += "\"wind_speed\":" + String(data.current_wind_speed, 1) + ",";
+    response += "\"wind_direction\":" + String(data.current_wind_direction) + ",";
+    response += "\"humidity\":" + String(data.current_humidity) + ",";
+    response += "\"cloud_cover\":" + String(data.current_cloud_cover) + ",";
+    response += "\"weather_code\":" + String(data.current_weather_code) + ",";
+    response += "\"last_update\":" + String(data.current_weather_last_update);
+    if (!data.current_weather_error.isEmpty()) {
+        response += ",\"error\":\"" + data.current_weather_error + "\"";
+    }
+    response += "}";
+    
     _server->send(200, "application/json", response);
 }
 

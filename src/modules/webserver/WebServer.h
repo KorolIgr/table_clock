@@ -61,6 +61,7 @@ private:
     void handleStatus();
     void handleGetLEDPatterns();
     void handleGetLEDCurrent();
+    void handleGetCurrentWeather();
     void handleApplyLEDSettings();
 };
 

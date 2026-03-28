@@ -56,14 +56,26 @@ struct SharedData {
     unsigned long geo_last_update = 0;  // timestamp of last update
     String geo_ip_address = "";         // IP address from geolocation service
     
-    // Weather information
-    WeatherDay weather_forecast[7];  // 7-day forecast
-    unsigned long weather_last_update = 0;  // timestamp of last update
-    bool weather_valid = false;
-    String weather_error = "";
-    
-    // Additional fields can be added as needed
-    String last_error = "";
+     // Weather information
+     WeatherDay weather_forecast[7];  // 7-day forecast
+     unsigned long weather_last_update = 0;  // timestamp of last update
+     bool weather_valid = false;
+     String weather_error = "";
+     
+     // Current weather data
+     float current_temperature = 0.0f;
+     float current_apparent_temperature = 0.0f;
+     float current_wind_speed = 0.0f;
+     int current_wind_direction = 0;  // degrees
+     int current_humidity = 0;        // percentage
+     int current_cloud_cover = 0;     // percentage
+     int current_weather_code = 0;    // WMO weather code
+     unsigned long current_weather_last_update = 0;
+     bool current_weather_valid = false;
+     String current_weather_error = "";
+     
+     // Additional fields can be added as needed
+     String last_error = "";
 };
 
 class DataStorage {
@@ -84,6 +96,7 @@ public:
     void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
     void updateGeolocation(const String& continent, const String& country, const String& city, float latitude = 0.0f, float longitude = 0.0f, const String& ip_address = "");
     void updateWeather(const WeatherDay* forecast, int days, bool valid = true, const String& error = "");
+    void updateCurrentWeather(float temperature, float apparent_temperature, float wind_speed, int wind_direction, int humidity, int cloud_cover, int weather_code, bool valid = true, const String& error = "");
     
     // WiFi STA configuration methods
     void setStaCredentials(const String& ssid, const String& password);

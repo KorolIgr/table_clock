@@ -15,6 +15,7 @@ void Weather::update() {
     if (shouldAttemptUpdate()) {
         _lastUpdateAttempt = millis();
         fetchWeather();
+        fetchCurrentWeather();
     }
 }
 
@@ -190,4 +191,104 @@ void Weather::updateDataStorage(const WeatherDay* forecast, int days) {
     if (_dataStorage && forecast && days == 7) {
         _dataStorage->updateWeather(forecast, days, true, "");
     }
+}
+
+void Weather::updateCurrentDataStorage(float temperature, float apparent_temperature, float wind_speed, int wind_direction, int humidity, int cloud_cover, int weather_code) {
+    if (_dataStorage) {
+        _dataStorage->updateCurrentWeather(temperature, apparent_temperature, wind_speed, wind_direction, humidity, cloud_cover, weather_code, true, "");
+    }
+}
+
+bool Weather::fetchCurrentWeather() {
+    if (!_dataStorage) return false;
+    
+    auto& data = _dataStorage->getData();
+    
+    if (!data.wifi_connected) {
+        Serial.println("CurrentWeather: WiFi not connected, skipping update");
+        return false;
+    }
+    
+    if (!hasValidCoordinates()) {
+        Serial.println("CurrentWeather: No valid coordinates available, skipping update");
+        return false;
+    }
+    
+    float lat = data.latitude;
+    float lon = data.longitude;
+    
+    Serial.print("CurrentWeather: Fetching current weather for lat=");
+    Serial.print(lat);
+    Serial.print(", lon=");
+    Serial.println(lon);
+    
+    HTTPClient http;
+    WiFiClient client;
+    client.setTimeout(2000); // 2-second timeout to avoid WDT
+    
+    String url = "http://api.open-meteo.com/v1/forecast";
+    url += "?latitude=" + String(lat, 6);
+    url += "&longitude=" + String(lon, 6);
+    url += "&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,relative_humidity_2m,cloud_cover,weather_code";
+    url += "&timezone=auto";
+    
+    // Feed watchdog before blocking network operation
+    yield();
+    
+    http.begin(client, url);
+    
+    int httpCode = http.GET();
+    
+    if (httpCode != HTTP_CODE_OK) {
+        Serial.print("CurrentWeather: HTTP request failed, code: ");
+        Serial.println(httpCode);
+        http.end();
+        String error = "HTTP error " + String(httpCode);
+        _dataStorage->updateCurrentWeather(0, 0, 0, 0, 0, 0, 0, false, error);
+        return false;
+    }
+    
+    String payload = http.getString();
+    http.end();
+    
+    Serial.println("CurrentWeather: Response received:");
+    Serial.println(payload);
+    
+    StaticJsonDocument<1024> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+    
+    if (error) {
+        Serial.print("CurrentWeather: JSON parse failed: ");
+        Serial.println(error.c_str());
+        _dataStorage->updateCurrentWeather(0, 0, 0, 0, 0, 0, 0, false, "JSON parse error");
+        return false;
+    }
+    
+    JsonObject current = doc["current"].as<JsonObject>();
+    if (!current) {
+        Serial.println("CurrentWeather: Invalid response - missing current object");
+        _dataStorage->updateCurrentWeather(0, 0, 0, 0, 0, 0, 0, false, "Invalid response format");
+        return false;
+    }
+    
+    float temperature = current["temperature_2m"].as<float>();
+    float apparent_temperature = current["apparent_temperature"].as<float>();
+    float wind_speed = current["wind_speed_10m"].as<float>();
+    int wind_direction = current["wind_direction_10m"].as<int>();
+    int humidity = current["relative_humidity_2m"].as<int>();
+    int cloud_cover = current["cloud_cover"].as<int>();
+    int weather_code = current["weather_code"].as<int>();
+    
+    updateCurrentDataStorage(temperature, apparent_temperature, wind_speed, wind_direction, humidity, cloud_cover, weather_code);
+    
+    Serial.println("CurrentWeather: Data updated successfully");
+    Serial.print("  Temperature: "); Serial.println(temperature);
+    Serial.print("  Apparent: "); Serial.println(apparent_temperature);
+    Serial.print("  Wind speed: "); Serial.println(wind_speed);
+    Serial.print("  Wind dir: "); Serial.println(wind_direction);
+    Serial.print("  Humidity: "); Serial.println(humidity);
+    Serial.print("  Cloud cover: "); Serial.println(cloud_cover);
+    Serial.print("  Weather code: "); Serial.println(weather_code);
+    
+    return true;
 }

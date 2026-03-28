@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table Clock - Current Weather</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/skeleton.css">
+    <style>
+        .weather-card {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .temperature {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .weather-detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: #fff;
+            border-radius: 4px;
+        }
+        .detail-label {
+            font-weight: bold;
+        }
+        .detail-value {
+            color: #333;
+        }
+        .refresh-btn {
+            display: block;
+            width: 100%;
+            margin: 20px 0;
+        }
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+        }
+        .last-update {
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="twelve columns">
+                <h1>Current Weather</h1>
+                
+                <div id="nav"></div>
+                
+                <div class="weather-card">
+                    <button class="button refresh-btn" onclick="loadCurrentWeather()">Refresh</button>
+                    
+                    <div id="weather-data">
+                        <p class="error-message">Loading weather data...</p>
+                    </div>
+                    
+                    <p id="last-update" class="last-update"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="/js/nav.js"></script>
+
+<script>
+    // Convert wind direction from degrees to compass direction
+    function degreesToCompass(degrees) {
+        const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
+                           'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+        const index = Math.round(degrees / 22.5) % 16;
+        return directions[index];
+    }
+
+    // Get weather symbol based on WMO code
+    function getWeatherSymbol(code) {
+        if (code === 0) return '☀️'; // Clear
+        if (code <= 3) return '⛅'; // Cloudy
+        if (code <= 9) return '🌧️'; // Rain
+        if (code <= 19) return '🌦️'; // Drizzle
+        if (code <= 39) return '❄️'; // Snow
+        if (code <= 49) return '🌫️'; // Fog
+        if (code <= 59) return '🌧️'; // Rain
+        if (code <= 69) return '🌨️'; // Snow
+        if (code <= 79) return '🌧️'; // Rain
+        if (code <= 99) return '⛈️'; // Thunderstorm
+        return '?';
+    }
+
+    // Format timestamp to readable time
+    function formatTime(timestamp) {
+        if (!timestamp || timestamp === 0) return 'Never';
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString() + ' ' + date.toLocaleDateString();
+    }
+
+    function loadCurrentWeather() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/weather/current', true);
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                var weatherData = document.getElementById('weather-data');
+                var lastUpdateEl = document.getElementById('last-update');
+                
+                if (xhr.status === 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    
+                    if (data.valid) {
+                        var symbol = getWeatherSymbol(data.weather_code);
+                        var windCompass = degreesToCompass(data.wind_direction);
+                        
+                        var html = '<div class="temperature">' + data.temperature.toFixed(1) + '°C ' + symbol + '</div>';
+                        html += '<div class="weather-detail"><span class="detail-label">Feels Like:</span><span class="detail-value">' + data.apparent_temperature.toFixed(1) + '°C</span></div>';
+                        html += '<div class="weather-detail"><span class="detail-label">Wind:</span><span class="detail-value">' + data.wind_speed.toFixed(1) + ' m/s, ' + windCompass + ' (' + data.wind_direction + '°)</span></div>';
+                        html += '<div class="weather-detail"><span class="detail-label">Humidity:</span><span class="detail-value">' + data.humidity + '%</span></div>';
+                        html += '<div class="weather-detail"><span class="detail-label">Cloud Cover:</span><span class="detail-value">' + data.cloud_cover + '%</span></div>';
+                        
+                        weatherData.innerHTML = html;
+                        lastUpdateEl.textContent = 'Last updated: ' + formatTime(data.last_update);
+                    } else {
+                        var errorMsg = data.error || 'No valid weather data available';
+                        weatherData.innerHTML = '<p class="error-message">Error: ' + errorMsg + '</p>';
+                        lastUpdateEl.textContent = '';
+                    }
+                } else {
+                    weatherData.innerHTML = '<p class="error-message">Error fetching weather data</p>';
+                    lastUpdateEl.textContent = '';
+                }
+            }
+        };
+        
+        xhr.send();
+    }
+
+    // Load weather data when page is loaded
+    window.onload = function() {
+        loadCurrentWeather();
+        // Refresh every 5 minutes
+        setInterval(loadCurrentWeather, 300000);
+    };
+</script>

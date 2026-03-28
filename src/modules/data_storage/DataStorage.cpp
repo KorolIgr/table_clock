@@ -140,3 +140,23 @@ void DataStorage::updateAPInfo(bool active, const String& ssid, const String& pa
         _sharedData.ap_connected_clients = connectedClients;
     }
 }
+
+void DataStorage::updateCurrentWeather(float temperature, float apparent_temperature, float wind_speed, int wind_direction, int humidity, int cloud_cover, int weather_code, bool valid, const String& error) {
+    if (!_locked) {
+        if (valid) {
+            _sharedData.current_temperature = temperature;
+            _sharedData.current_apparent_temperature = apparent_temperature;
+            _sharedData.current_wind_speed = wind_speed;
+            _sharedData.current_wind_direction = wind_direction;
+            _sharedData.current_humidity = humidity;
+            _sharedData.current_cloud_cover = cloud_cover;
+            _sharedData.current_weather_code = weather_code;
+            _sharedData.current_weather_last_update = millis();
+            _sharedData.current_weather_valid = true;
+            _sharedData.current_weather_error = "";
+        } else {
+            _sharedData.current_weather_valid = false;
+            _sharedData.current_weather_error = error;
+        }
+    }
+}

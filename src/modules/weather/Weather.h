@@ -32,6 +32,8 @@ private:
     
     bool fetchWeather();
     void updateDataStorage(const WeatherDay* forecast, int days);
+    bool fetchCurrentWeather();
+    void updateCurrentDataStorage(float temperature, float apparent_temperature, float wind_speed, int wind_direction, int humidity, int cloud_cover, int weather_code);
     bool shouldAttemptUpdate() const;
     bool hasValidCoordinates() const;
 };
