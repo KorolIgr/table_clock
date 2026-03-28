@@ -5,7 +5,7 @@
 #include "pages/WiFiStaPage.h"
 #include "pages/WiFiApPage.h"
 #include "pages/GeoPage.h"
-#include "pages/WeatherPage.h"
+#include "pages/WeekWeatherPage.h"
 #include "pages/CurrentWeatherPage.h"
 
 PageManager::PageManager(DataStorage* dataStorage) : _dataStorage(dataStorage), _wifiStaPage(nullptr), _wifiApPage(nullptr), _geoPage(nullptr), _weatherPage(nullptr), _currentWeatherPage(nullptr) {
@@ -13,7 +13,7 @@ PageManager::PageManager(DataStorage* dataStorage) : _dataStorage(dataStorage), 
         _wifiStaPage = new WiFiStaPage(_dataStorage);
         _wifiApPage = new WiFiApPage(_dataStorage);
         _geoPage = new GeoPage(_dataStorage);
-        _weatherPage = new WeatherPage(_dataStorage);
+        _weatherPage = new WeekWeatherPage(_dataStorage);
         _currentWeatherPage = new CurrentWeatherPage(_dataStorage);
     }
 }

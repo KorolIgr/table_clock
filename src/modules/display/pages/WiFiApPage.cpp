@@ -1,6 +1,7 @@
 #include "WiFiApPage.h"
 #include <U8g2lib.h>
 #include <cstdio>
+#include "../DisplayUtils.h"
 
 // XBMP icon for WiFi AP: 32x32 pixel bitmap (signal bars icon)
 // Designed as three horizontal bars of increasing width and a dot below
@@ -40,65 +41,28 @@ void WiFiApPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t di
             // Display 1: Network name (SSID) - each letter on a new line
             display->drawStr(0, 20, "SSID");
             String ssid = data.ap_ssid;
-            int y = 40;
-
-            for (int i = 0; i < ssid.length(); i += 6) {
-                String line = ssid.substring(i, i + 6);
-                display->drawStr(0, y, line.c_str());
-                y += 20;
-            }
+            displayMultilineText(display, ssid, 40, 20, 6);
             break;
         }
         case 2: {
             // Display 2: Network password - each letter on a new line
             display->drawStr(0, 20, "PWD");
             String pwd = data.ap_password;
-            int y = 40;
-            for (int i = 0; i < pwd.length(); i += 6) {
-                String line = pwd.substring(i, i + 6);
-                display->drawStr(0, y, line.c_str());
-                y += 20;
-            }
+            displayMultilineText(display, pwd, 40, 20, 6);
             break;
         }
         case 3: {
             // Display 3: Network IP - each octet on a new line
             display->drawStr(0, 20, "IP");
             String ip = data.ap_ip;
-            int o1, o2, o3, o4;
-            if (sscanf(ip.c_str(), "%d.%d.%d.%d", &o1, &o2, &o3, &o4) == 4) {
-                char buf[16];
-                sprintf(buf, "%d", o1);
-                display->drawStr(0, 2 * 20, buf);
-                sprintf(buf, "%d", o2);
-                display->drawStr(0, 3 * 20, buf);
-                sprintf(buf, "%d", o3);
-                display->drawStr(0, 4 * 20, buf);
-                sprintf(buf, "%d", o4);
-                display->drawStr(0, 5 * 20, buf);
-            } else {
-                display->drawStr(0, 0, "Invalid IP");
-            }
+            displayIPAddress(display, ip, 40, 20);
             break;
         }
         case 4: {
             // Display 4: Network mask - each octet on a new line
             display->drawStr(0, 20, "MASK");
             String mask = data.ap_mask;
-            int o1, o2, o3, o4;
-            if (sscanf(mask.c_str(), "%d.%d.%d.%d", &o1, &o2, &o3, &o4) == 4) {
-                char buf[16];
-                sprintf(buf, "%d", o1);
-                display->drawStr(0, 2 * 20, buf);
-                sprintf(buf, "%d", o2);
-                display->drawStr(0, 3 * 20, buf);
-                sprintf(buf, "%d", o3);
-                display->drawStr(0, 4 * 20, buf);
-                sprintf(buf, "%d", o4);
-                display->drawStr(0, 5 * 20, buf);
-            } else {
-                display->drawStr(0, 0, "Invalid mask");
-            }
+            displayIPAddress(display, mask, 40, 20);
             break;
         }
         case 5: {

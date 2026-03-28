@@ -6,7 +6,7 @@
 #include "pages/WiFiStaPage.h"
 #include "pages/WiFiApPage.h"
 #include "pages/GeoPage.h"
-#include "pages/WeatherPage.h"
+#include "pages/WeekWeatherPage.h"
 #include "pages/CurrentWeatherPage.h"
 
 // Forward declaration to avoid circular dependency
@@ -46,7 +46,7 @@ private:
     WiFiStaPage* _wifiStaPage;
     WiFiApPage* _wifiApPage;
     GeoPage* _geoPage;
-    WeatherPage* _weatherPage;
+    WeekWeatherPage* _weatherPage;
     CurrentWeatherPage* _currentWeatherPage;
 };
 

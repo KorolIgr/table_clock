@@ -1,5 +1,6 @@
 #include "WiFiStaPage.h"
 #include <cstdio>
+#include "../DisplayUtils.h"
 
 static const unsigned char wifi_icon_bits[] PROGMEM = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -34,33 +35,15 @@ void WiFiStaPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t d
         case 1: {
             display->drawStr(0, 20, "STATE");
             String msg = data.wifi_connected ? "Connected" : "Disconnected";
-            int y = 40;
-            for (size_t i = 0; i < msg.length(); i += 6) {
-                String line = msg.substring(i, i + 6);
-                display->drawStr(0, y, line.c_str());
-                y += 20;
-            }
+            displayMultilineText(display, msg, 40, 20, 6);
             break;
         }
         case 2: {
             display->drawStr(0, 20, "IP");
-            const char* ip = data.ip_address.c_str();
-            int o1, o2, o3, o4;
-            if (sscanf(ip, "%d.%d.%d.%d", &o1, &o2, &o3, &o4) == 4) {
-                char buf[16];
-                sprintf(buf, "%d", o1);
-                display->drawStr(0, 2 * 20, buf);
-                sprintf(buf, "%d", o2);
-                display->drawStr(0, 3 * 20, buf);
-                sprintf(buf, "%d", o3);
-                display->drawStr(0, 4 * 20, buf);
-                sprintf(buf, "%d", o4);
-                display->drawStr(0, 5 * 20, buf);
-            } else {
-                display->drawStr(0, 0, "Invalid IP");
-            }
+            String ip = data.ip_address;
+            displayIPAddress(display, ip, 40, 20);
             break;
-        }        
+        }
         case 3:      
             display->clear();
             break; 
