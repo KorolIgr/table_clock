@@ -26,3 +26,14 @@ void displayMultilineText(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const St
         y += lineHeight;
     }
 }
+
+void displayTitle(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& text, uint8_t startY, const uint8_t* font, uint8_t lineHeight) {
+
+    String displayText = text;
+    if (text.length() > 6) {
+        displayText = text.substring(0, 5) + "*";
+    }
+
+    display->drawStr(0, startY, displayText.c_str());
+
+}

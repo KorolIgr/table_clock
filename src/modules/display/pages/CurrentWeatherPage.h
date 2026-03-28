@@ -20,8 +20,6 @@ private:
     String formatTemp(float temp) const;
     // Helper to format wind direction from degrees to compass
     String formatWindDirection(int degrees) const;
-    // Helper to get weather symbol (simple character representation)
-    char getWeatherSymbol(int code) const;
 };
 
 #endif // CURRENT_WEATHER_PAGE_H

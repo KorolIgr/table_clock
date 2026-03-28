@@ -1,6 +1,7 @@
 #include "WeekWeatherPage.h"
 #include "../../data_storage/DataStorage.h"
-#include "WeatherIcons.h"
+#include "../Icons.h"
+#include "../DisplayUtils.h"
 
 WeekWeatherPage::WeekWeatherPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
@@ -25,8 +26,8 @@ void WeekWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8
     if (displayIndex == 0) {
         //display->setFont(u8g2_font_fub30_tf);
         //display->drawStr(0, 40, "WTH");
-        display->drawXBMP(0,0,WEATHER_ICON_WIDTH,WEATHER_ICON_HEIGHT,sun_icon);
-        display->drawStr(0, 50, "WEEK"); // 8px line spacing
+        display->drawXBMP(0,0,L_ICON_WIDTH,L_ICON_HEIGHT,weather_icon);
+        displayTitle(display, "WEEK", 50);
 
         return;
     }

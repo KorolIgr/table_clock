@@ -1,4 +1,6 @@
 #include "CurrentWeatherPage.h"
+#include "../Icons.h"
+#include "../DisplayUtils.h"
 
 CurrentWeatherPage::CurrentWeatherPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
@@ -21,8 +23,9 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
     
     // Display 0 shows "CURRENT" label
     if (displayIndex == 0) {
-        display->setFont(u8g2_font_fub20_tf);
-        display->drawStr(0, 35, "CURRENT");
+        display->drawXBMP(0,0,L_ICON_WIDTH,L_ICON_HEIGHT,weather_icon);
+        displayTitle(display, "NOW", 50);
+
         return;
     }
     
@@ -32,8 +35,7 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
         String feelsStr = formatTemp(data.current_apparent_temperature);
         char symbol = getWeatherSymbol(data.current_weather_code);
         
-        display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 20, "TEMP");
+        displayTitle(display, "TEMP");
         
         display->setFont(u8g2_font_fub20_tf);
         display->drawStr(0, 45, tempStr.c_str());
@@ -52,8 +54,7 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
         String windStr = String(data.current_wind_speed, 1) + " m/s";
         String dirStr = formatWindDirection(data.current_wind_direction);
         
-        display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 20, "WIND");
+        displayTitle(display, "WIND");
         
         display->setFont(u8g2_font_fub20_tf);
         display->drawStr(0, 45, windStr.c_str());
@@ -66,9 +67,8 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
     // Display 3: Humidity
     if (displayIndex == 3) {
         String humStr = String(data.current_humidity) + "%";
-        
-        display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 20, "HUMIDITY");
+
+        displayTitle(display, "HUMIDITY");
         
         display->setFont(u8g2_font_fub30_tf);
         display->drawStr(0, 55, humStr.c_str());
@@ -78,9 +78,8 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
     // Display 4: Cloud cover
     if (displayIndex == 4) {
         String cloudStr = String(data.current_cloud_cover) + "%";
-        
-        display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 20, "CLOUDS");
+
+        displayTitle(display, "CLOUDS");
         
         display->setFont(u8g2_font_fub30_tf);
         display->drawStr(0, 55, cloudStr.c_str());
@@ -90,9 +89,8 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
     // Display 5: Weather code / symbol
     if (displayIndex == 5) {
         char symbol = getWeatherSymbol(data.current_weather_code);
-        
-        display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 20, "COND");
+
+        displayTitle(display, "COND");
         
         display->setFont(u8g2_font_fub30_tf);
         char symStr[2] = { symbol, '\0' };
@@ -111,18 +109,4 @@ String CurrentWeatherPage::formatWindDirection(int degrees) const {
                                 "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"};
     int index = (int)round(degrees / 22.5) % 16;
     return directions[index];
-}
-
-char CurrentWeatherPage::getWeatherSymbol(int code) const {
-    if (code == 0) return 'O'; // Clear
-    if (code <= 3) return 'C'; // Cloudy
-    if (code <= 9) return 'R'; // Rain
-    if (code <= 19) return 'D'; // Drizzle
-    if (code <= 39) return 'S'; // Snow
-    if (code <= 49) return 'F'; // Fog
-    if (code <= 59) return 'R'; // Rain
-    if (code <= 69) return 'S'; // Snow
-    if (code <= 79) return 'R'; // Rain
-    if (code <= 99) return 'T'; // Thunderstorm
-    return '?';
 }
