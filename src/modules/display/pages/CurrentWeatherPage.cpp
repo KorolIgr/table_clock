@@ -60,14 +60,13 @@ void CurrentWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, ui
            break;
        }
        case 6: {
-           displayTitle(display, "ICON");
-           char symbol = getWeatherSymbol(data.current.weather_code);
-           char symStr[2] = { symbol, '\0' };
-           displayValue(display, symStr, 45);
-           break;
+            displayTitle(display, "ICON");
+            const unsigned char* symbol = getWeatherSymbol(data.current.weather_code);
+            display->drawXBMP(0, 20, L_ICON_WIDTH, L_ICON_HEIGHT, symbol);
+            break;
        }
        case 7: {
-           display->clear();
+            display->clear();
            break;
        }
     }

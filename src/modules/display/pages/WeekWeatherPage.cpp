@@ -41,22 +41,19 @@ void WeekWeatherPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8
         String dateStr = formatDate(day.date);
         String tempMaxStr = formatTemp(day.temp_max);
         String tempMinStr = formatTemp(day.temp_min);
-        char symbol = ::getWeatherSymbol(day.weather_code);
+        const unsigned char* symbol = ::getWeatherSymbol(day.weather_code);
         
-        // Layout with proper vertical spacing for 128x64 display
-        // Line 1: date (y=20)
-        display->setFont(u8g2_font_fub14_tf);
-        display->drawStr(0, 20, dateStr.c_str());
+        String title = "DAY ";
+        title += (dayIndex + 1);
+        displayTitle(display, title, 20);
+
+        displayValue(display, dateStr, 45);
         
-        // Line 2: temperatures (y=45)
-        display->setFont(u8g2_font_fub20_tf);
-        display->drawStr(0, 45, tempMaxStr.c_str());
-        display->drawStr(0, 70, tempMinStr.c_str());
-        
-        // Line 3: weather symbol (y=60) in medium font
-        display->setFont(u8g2_font_fub14_tf);
-        char symStr[2] = { symbol, '\0' };
-        display->drawStr(0, 100, symStr);
+        displayValue(display, tempMaxStr.c_str(), 70);
+        display->drawLine(0, 73, 64, 73);
+        displayValue(display, tempMinStr.c_str(), 90);
+
+        display->drawXBMP(0,100,L_ICON_WIDTH,L_ICON_HEIGHT,symbol);
     }
 }
 
