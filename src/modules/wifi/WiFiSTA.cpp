@@ -89,6 +89,15 @@ void WiFiSTA::updateDataStorage() {
     if (_dataStorage) {
         if (_lastConnectedStatus) {
             _dataStorage->updateWifiStatus(true, "Connected to STA", WiFi.localIP().toString());
+            
+            // Update additional WiFi information
+            _dataStorage->updateWifiStaInfo(
+                WiFi.SSID(),
+                WiFi.subnetMask().toString(),
+                WiFi.gatewayIP().toString(),
+                WiFi.RSSI(),
+                WiFi.channel()
+            );
         } else {
             _dataStorage->updateWifiStatus(false, "STA not connected", "");
         }

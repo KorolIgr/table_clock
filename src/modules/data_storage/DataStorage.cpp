@@ -45,6 +45,16 @@ void DataStorage::updateWifiStatus(bool connected, const String& status, const S
     }
 }
 
+void DataStorage::updateWifiStaInfo(const String& ssid, const String& subnetMask, const String& gatewayIp, int rssi, uint8_t channel) {
+    if (!_locked) {
+        _wifiData.sta.ssid = ssid;
+        _wifiData.sta.subnet_mask = subnetMask;
+        _wifiData.sta.gateway_ip = gatewayIp;
+        _wifiData.sta.rssi = rssi;
+        _wifiData.sta.channel = channel;
+    }
+}
+
 void DataStorage::updateLedStatus(bool enabled, uint8_t brightness) {
     if (!_locked) {
         _ledData.enabled = enabled;

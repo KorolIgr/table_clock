@@ -8,6 +8,11 @@ struct WiFiSTAData {
     bool connected = false;
     String status = "";
     String ip_address = "";
+    String ssid = "";
+    String subnet_mask = "";
+    String gateway_ip = "";
+    int rssi = 0;
+    uint8_t channel = 0;
     
     // Credentials for dynamic connection requests
     String sta_ssid = "";

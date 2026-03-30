@@ -28,6 +28,7 @@ public:
     
     // Update methods - delegate to specific data structures
     void updateWifiStatus(bool connected, const String& status, const String& ip);
+    void updateWifiStaInfo(const String& ssid, const String& subnetMask, const String& gatewayIp, int rssi, uint8_t channel);
     void updateLedStatus(bool enabled, uint8_t brightness);
     void updateBuiltinLEDPattern(int pattern);
     //void updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError = "");
