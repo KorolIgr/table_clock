@@ -7,6 +7,7 @@
 //#include "SystemData.h"
 #include "GeoData.h"
 #include "WeatherData.h"
+#include "AirQualityData.h"
 
 // Forward declarations
 //class ConfigManager;
@@ -21,6 +22,7 @@ public:
     //SystemData& system();
     GeoData& geo();
     WeatherData& weather();
+    AirQualityData& airQuality();
     
     // Thread-safe access methods
     void lock();
@@ -39,6 +41,8 @@ public:
     void updateGeolocation(const String& continent, const String& country, const String& city, float latitude = 0.0f, float longitude = 0.0f, const String& ip_address = "");
     void updateWeatherForecast(const WeatherDay* forecast, int days, bool valid = true, const String& error = "");
     void updateCurrentWeather(float temperature, float apparent_temperature, float wind_speed, int wind_direction, int humidity, int cloud_cover, int weather_code, bool valid = true, const String& error = "");
+    void updateAirQuality(float tvoc, float eco2, int aqi, bool valid = true, const String& error = "");
+    void updateAirQualityCompensation(float temperature, float humidity);
     
 private:
     WiFiData _wifiData;
@@ -46,6 +50,7 @@ private:
     //SystemData _systemData;
     GeoData _geoData;
     WeatherData _weatherData;
+    AirQualityData _airQualityData;
     
     bool _locked;
     

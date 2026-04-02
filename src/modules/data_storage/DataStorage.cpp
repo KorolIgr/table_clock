@@ -6,6 +6,7 @@ DataStorage::DataStorage() : _locked(false) {
     // System data is initialized by its constructor
     // Geo data is initialized by its constructors
     // Weather data is initialized by its constructors
+    // Air quality data is initialized by its constructor
 }
 
 // Accessor methods
@@ -27,6 +28,10 @@ GeoData& DataStorage::geo() {
 
 WeatherData& DataStorage::weather() {
     return _weatherData;
+}
+
+AirQualityData& DataStorage::airQuality() {
+    return _airQualityData;
 }
 
 void DataStorage::lock() {
@@ -157,5 +162,28 @@ void DataStorage::updateCurrentWeather(float temperature, float apparent_tempera
             _weatherData.current.valid = false;
             _weatherData.current.error = error;
         }
+    }
+}
+
+void DataStorage::updateAirQuality(float tvoc, float eco2, int aqi, bool valid, const String& error) {
+    if (!_locked) {
+        if (valid) {
+            _airQualityData.tvoc = tvoc;
+            _airQualityData.eco2 = eco2;
+            _airQualityData.aqi = aqi;
+            _airQualityData.last_update = millis();
+            _airQualityData.valid = true;
+            _airQualityData.error = "";
+        } else {
+            _airQualityData.valid = false;
+            _airQualityData.error = error;
+        }
+    }
+}
+
+void DataStorage::updateAirQualityCompensation(float temperature, float humidity) {
+    if (!_locked) {
+        _airQualityData.temperature = temperature;
+        _airQualityData.humidity = humidity;
     }
 }

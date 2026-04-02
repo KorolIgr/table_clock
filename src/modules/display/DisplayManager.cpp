@@ -9,9 +9,6 @@ DisplayManager::DisplayManager(uint8_t multiplexerAddress, uint8_t channel, uint
 }
 
 void DisplayManager::begin() {
-    Wire.begin(_sdaPin, _sclPin);
-    Wire.setClock(10000);
-    
     // Configure U8g2 for the specific display
     selectChannel();  // Select the correct channel before initializing
     _display->setI2CAddress(0x3C << 1); // U8g2 uses shifted address
