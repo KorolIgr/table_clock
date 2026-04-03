@@ -21,7 +21,7 @@ static const int LED_PATTERN_COUNT = 5;
 MainApplication::MainApplication()
     : _ledController(nullptr), _displayManager(nullptr),
       _configManager(nullptr), _dataStorage(nullptr),
-      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr), _airQuality(nullptr) {
+      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr), _airQuality(nullptr), _lora(nullptr) {
 }
 
 void MainApplication::begin() {
@@ -47,6 +47,7 @@ void MainApplication::begin() {
     initGeolocation();
     initWeather();
     initAirQuality();
+    initLoRa();
     initWebServer();
     delay(20); // Combined delay was 200ms at end of old initWiFi()
     
@@ -109,6 +110,16 @@ void MainApplication::appLoop() {
     // Update air quality sensor (handles periodic updates internally)
     if (_airQuality) {
         _airQuality->update();
+    }
+
+    // Send TVOC data via LoRa every second
+    static unsigned long lastLoRaSend = 0;
+    if (_lora && _lora->isInitialized() && _dataStorage && millis() - lastLoRaSend >= 1000) {
+        lastLoRaSend = millis();
+        AirQualityData& aq = _dataStorage->airQuality();
+        if (aq.valid) {
+            _lora->sendTVOCData(aq.tvoc, millis());
+        }
     }
     
     // Update web server
@@ -327,6 +338,17 @@ void MainApplication::initAirQuality() {
     if (_airQuality) {
         _airQuality->begin(I2C_SDA_PIN, I2C_SCL_PIN);
         Serial.println("AirQuality sensor initialized");
+    }
+}
+
+void MainApplication::initLoRa() {
+    // Create and initialize LoRa module with DataStorage dependency
+    _lora = new LoRa();
+    
+    if (_lora) {
+        _lora->setDataStorage(_dataStorage);
+        _lora->begin();
+        Serial.println("LoRa module initialized");
     }
 }
 

@@ -14,6 +14,7 @@
 #include "modules/geolocation/Geolocation.h"
 #include "modules/weather/Weather.h"
 #include "modules/AirQuality/AirQuality.h"
+#include "modules/lora/LoRa.h"
 
 // Forward declarations
 class MainApplication {
@@ -50,6 +51,7 @@ public:
     // Private helper methods
     // Removed updateAllDisplays method - counter functionality removed
     void initAirQuality();
+    void initLoRa();
 
 private:
     LEDController* _ledController;
@@ -65,6 +67,7 @@ private:
     Geolocation* _geolocation;
     Weather* _weather;
     AirQuality* _airQuality;
+    LoRa* _lora;
     DeviceConfig _deviceConfig;
     
     // Removed counter-related variables - using page system instead
