@@ -21,7 +21,7 @@ static const int LED_PATTERN_COUNT = 5;
 MainApplication::MainApplication()
     : _ledController(nullptr), _displayManager(nullptr),
       _configManager(nullptr), _dataStorage(nullptr),
-      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr), _aht21(nullptr), _ens160(nullptr) {
+      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr), _airQuality(nullptr) {
 }
 
 void MainApplication::begin() {
@@ -46,8 +46,7 @@ void MainApplication::begin() {
     initWiFiSTA();
     initGeolocation();
     initWeather();
-    initAHT21();
-    initENS160();
+    initAirQuality();
     initWebServer();
     delay(20); // Combined delay was 200ms at end of old initWiFi()
     
@@ -107,66 +106,9 @@ void MainApplication::appLoop() {
         _weather->update();
     }
     
-    // Update air quality sensors (AHT21 and ENS160)
-    static unsigned long lastAirQualityUpdate = 0;
-    static bool aht21Initialized = false;
-    static bool ens160Initialized = false;
-    
-    // Check if sensors are ready (give them time to initialize after startup)
-    if (_aht21 && _aht21->isInitialized()) {
-        aht21Initialized = true;
-    }
-    if (_ens160 && _ens160->isInitialized()) {
-        ens160Initialized = true;
-    }
-    
-    // Only proceed if both sensors are initialized and 10 seconds have passed
-    if (aht21Initialized && ens160Initialized && (millis() - lastAirQualityUpdate >= 10000)) {
-        // Step 1: Read temperature and humidity from AHT21
-        float temperature = 0.0f;
-        float humidity = 0.0f;
-        if (_aht21->read(temperature, humidity)) {
-            Serial.print("AHT21: Temperature=");
-            Serial.print(temperature);
-            Serial.print("C, Humidity=");
-            Serial.print(humidity);
-            Serial.println("%");
-            
-            // Store compensation data in DataStorage (for display)
-            if (_dataStorage) {
-                _dataStorage->updateAirQualityCompensation(temperature, humidity);
-            }
-            
-            // Step 2: Send compensation data to ENS160
-            _ens160->setCompensation(temperature, humidity);
-            
-            // Step 3: Read air quality data from ENS160
-            float tvoc = 0.0f;
-            float eco2 = 0.0f;
-            int aqi = 0;
-            if (_ens160->read(tvoc, eco2, aqi)) {
-                Serial.print("ENS160: TVOC=");
-                Serial.print(tvoc);
-                Serial.print("ppb, eCO2=");
-                Serial.print(eco2);
-                Serial.print("ppm, AQI=");
-                Serial.println(aqi);
-                
-                // Store air quality data
-                if (_dataStorage) {
-                    _dataStorage->updateAirQuality(tvoc, eco2, aqi, true, "");
-                }
-            } else {
-                Serial.println("ENS160: Failed to read data");
-                if (_dataStorage) {
-                    _dataStorage->updateAirQuality(0, 0, 0, false, "Read failed");
-                }
-            }
-        } else {
-            Serial.println("AHT21: Failed to read data");
-        }
-        
-        lastAirQualityUpdate = millis();
+    // Update air quality sensor (handles periodic updates internally)
+    if (_airQuality) {
+        _airQuality->update();
     }
     
     // Update web server
@@ -377,29 +319,14 @@ void MainApplication::initWeather() {
     }
 }
 
-void MainApplication::initAHT21() {
-    // Create and initialize AHT21 temperature/humidity sensor
+void MainApplication::initAirQuality() {
+    // Create and initialize AirQuality sensor with DataStorage dependency
     // Connected directly to ESP8266 I2C pins (not through multiplexer)
-    _aht21 = new AHT21Wrapper();
+    _airQuality = new AirQuality(_dataStorage);
     
-    if (_aht21) {
-        _aht21->begin(I2C_SDA_PIN, I2C_SCL_PIN);
-        Serial.println("AHT21 sensor initialized");
-    }
-}
-
-void MainApplication::initENS160() {
-    // Create and initialize ENS160 air quality sensor
-    // Connected directly to ESP8266 I2C pins (not through multiplexer)
-    _ens160 = new ENS160Wrapper();
-    
-    if (_ens160) {
-        _ens160->begin(I2C_SDA_PIN, I2C_SCL_PIN);
-        if (_ens160->isInitialized()) {
-            Serial.println("ENS160 sensor ready");
-        } else {
-            Serial.println("ENS160 sensor failed to initialize");
-        }
+    if (_airQuality) {
+        _airQuality->begin(I2C_SDA_PIN, I2C_SCL_PIN);
+        Serial.println("AirQuality sensor initialized");
     }
 }
 

@@ -165,7 +165,7 @@ void DataStorage::updateCurrentWeather(float temperature, float apparent_tempera
     }
 }
 
-void DataStorage::updateAirQuality(float tvoc, float eco2, int aqi, bool valid, const String& error) {
+void DataStorage::updateAirQuality(float tvoc, float eco2, int aqi, uint8_t flags, bool valid, const String& error) {
     if (!_locked) {
         if (valid) {
             _airQualityData.tvoc = tvoc;
@@ -174,6 +174,7 @@ void DataStorage::updateAirQuality(float tvoc, float eco2, int aqi, bool valid, 
             _airQualityData.last_update = millis();
             _airQualityData.valid = true;
             _airQualityData.error = "";
+            _airQualityData.flags = flags;
         } else {
             _airQualityData.valid = false;
             _airQualityData.error = error;

@@ -9,80 +9,55 @@ void AirQualityPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_
     
     AirQualityData& data = _dataStorage->airQuality();
     
-    // Display layout based on index:
-    // 0: "AIR" heading
-    // 1: Temperature
-    // 2: Humidity
-    // 3: TVOC
-    // 4: eCO2
-    // 5: AQI
-    // 6-7: blank
+     // Display layout based on index:
+     // 0: "AIR" heading
+     // 1: Temperature
+     // 2: Humidity
+     // 3: TVOC
+     // 4: eCO2
+     // 5: AQI
+     // 6: blank
+     // 7: Sensor status
     
     switch (displayIndex) {
         case 0: {
-            displayTitle(display, "AIR QUALITY");
+            displayTitle(display, "AIR");
             break;
         }
         case 1: {
-            displayTitle(display, "TEMPERATURE");
-            if (data.valid || data.temperature != 0) {
-                String value = String((int)round(data.temperature)) + "C";
-                displayValue(display, value, 45, u8g2_font_10x20_tf, 20);
-            } else {
-                displayValue(display, "--", 45, u8g2_font_10x20_tf, 20);
-            }
+            displayTitle(display, "T");
+            String value = String((int)round(data.temperature)) + "C";
+            displayValue(display, value, 45);
             break;
         }
         case 2: {
-            displayTitle(display, "HUMIDITY");
-            if (data.valid || data.humidity != 0) {
-                String value = String((int)round(data.humidity)) + "%";
-                displayValue(display, value, 45, u8g2_font_10x20_tf, 20);
-            } else {
-                displayValue(display, "--", 45, u8g2_font_10x20_tf, 20);
-            }
+            displayTitle(display, "H");
+            String value = String((int)round(data.humidity)) + "%";
+            displayValue(display, value, 45);
             break;
         }
         case 3: {
             displayTitle(display, "TVOC");
-            if (data.valid) {
-                String value = String((int)round(data.tvoc)) + " ppb";
-                displayValue(display, value, 45, u8g2_font_10x20_tf, 20);
-            } else {
-                displayValue(display, "--", 45, u8g2_font_10x20_tf, 20);
-            }
+            String value = String((int)round(data.tvoc)) + " ppb";
+            displayValue(display, value, 45);
             break;
         }
         case 4: {
             displayTitle(display, "eCO2");
-            if (data.valid) {
-                String value = String((int)round(data.eco2)) + " ppm";
-                displayValue(display, value, 45, u8g2_font_10x20_tf, 20);
-            } else {
-                displayValue(display, "--", 45, u8g2_font_10x20_tf, 20);
-            }
+            String value = String((int)round(data.eco2)) + " ppm";
+            displayValue(display, value, 45);
             break;
         }
         case 5: {
             displayTitle(display, "AQI");
-            if (data.valid && data.aqi > 0) {
-                String value = String(data.aqi);
-                // Color code based on AQI
-                display->setFont(u8g2_font_fub30_tf);
-                display->setDrawColor(1);
-                int xPos = (128 - display->getStrWidth(value.c_str())) / 2;
-                display->drawStr(xPos, 45, value.c_str());
-            } else {
-                display->setFont(u8g2_font_fub30_tf);
-                display->setDrawColor(1);
-                String value = "--";
-                int xPos = (128 - display->getStrWidth(value.c_str())) / 2;
-                display->drawStr(xPos, 45, value.c_str());
-            }
+            String value = String(data.aqi);
+            displayValue(display, value, 45);
             break;
         }
         case 6: {
-            display->clear();
+            displayTitle(display, "STATUS");
+            String value = String(data.flags);
+            displayValue(display, value, 45);
             break;
         }
         case 7: {

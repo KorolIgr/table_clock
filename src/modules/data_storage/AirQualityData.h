@@ -12,6 +12,7 @@ struct AirQualityData {
     unsigned long last_update = 0;
     bool valid = false;
     String error = "";
+    uint8_t flags = 0;            // Bitfield for sensor status flags (e.g., error states)
     
     // Compensation data from AHT21
     float temperature = 0.0f;  // Temperature in Celsius for compensation

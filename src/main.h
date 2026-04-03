@@ -13,8 +13,7 @@
 #include "modules/data_storage/DataStorage.h"
 #include "modules/geolocation/Geolocation.h"
 #include "modules/weather/Weather.h"
-#include "modules/AHT21/AHT21.h"
-#include "modules/ENS160/ENS160.h"
+#include "modules/AirQuality/AirQuality.h"
 
 // Forward declarations
 class MainApplication {
@@ -50,8 +49,7 @@ public:
     
     // Private helper methods
     // Removed updateAllDisplays method - counter functionality removed
-    void initAHT21();
-    void initENS160();
+    void initAirQuality();
 
 private:
     LEDController* _ledController;
@@ -66,8 +64,7 @@ private:
     WebServer* _wifiWebServer;
     Geolocation* _geolocation;
     Weather* _weather;
-    AHT21Wrapper* _aht21;
-    ENS160Wrapper* _ens160;
+    AirQuality* _airQuality;
     DeviceConfig _deviceConfig;
     
     // Removed counter-related variables - using page system instead
