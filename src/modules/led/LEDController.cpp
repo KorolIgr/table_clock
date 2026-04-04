@@ -76,13 +76,10 @@ void LEDController::updatePattern() {
     }
 }
 
-PatternConfig LEDController::getCurrentConfig() const {
-    return _currentConfig;
-}
-
-// Removed savePatternConfig and loadPatternConfig functions
-// These are now handled by the ConfigManager in the main application
-
-void LEDController::setDataStorage(DataStorage* dataStorage) {
+ PatternConfig LEDController::getCurrentConfig() const {
+     return _currentConfig;
+ }
+ 
+ void LEDController::setDataStorage(DataStorage* dataStorage) {
     _dataStorage = dataStorage;
 }

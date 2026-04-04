@@ -1,28 +1,23 @@
 #include "DataStorage.h"
 
-DataStorage::DataStorage() : _locked(false) {
-    // WiFi data is initialized by its constructors
-    // LED data is initialized by its constructor
-    // System data is initialized by its constructor
-    // Geo data is initialized by its constructors
-    // Weather data is initialized by its constructors
-    // Air quality data is initialized by its constructor
-}
+ DataStorage::DataStorage() : _locked(false) {
+     // WiFi data is initialized by its constructors
+     // LED data is initialized by its constructor
+     // Geo data is initialized by its constructors
+     // Weather data is initialized by its constructors
+     // Air quality data is initialized by its constructor
+ }
 
 // Accessor methods
 WiFiData& DataStorage::wifi() {
     return _wifiData;
 }
 
-LEDData& DataStorage::led() {
-    return _ledData;
-}
-
-//SystemData& DataStorage::system() {
-//    return _systemData;
-//}
-
-GeoData& DataStorage::geo() {
+ LEDData& DataStorage::led() {
+     return _ledData;
+ }
+ 
+ GeoData& DataStorage::geo() {
     return _geoData;
 }
 
@@ -67,24 +62,13 @@ void DataStorage::updateLedStatus(bool enabled, uint8_t brightness) {
     }
 }
 
-void DataStorage::updateBuiltinLEDPattern(int pattern) {
-    if (!_locked) {
-        _ledData.builtin_led_pattern = pattern;
-    }
-}
+ void DataStorage::updateBuiltinLEDPattern(int pattern) {
+     if (!_locked) {
+         _ledData.builtin_led_pattern = pattern;
+     }
+ }
 
-/*
-void DataStorage::updateSystemStatus(float temp, uint32_t uptime, bool error, const String& lastError) {
-    if (!_locked) {
-        _systemData.temperature = temp;
-        _systemData.uptime = uptime;
-        _systemData.system_error = error;
-        _systemData.last_error = lastError;
-    }
-}
-
-*/
-void DataStorage::setStaCredentials(const String& ssid, const String& password) {
+ void DataStorage::setStaCredentials(const String& ssid, const String& password) {
     if (!_locked) {
         _wifiData.sta.sta_ssid = ssid;
         _wifiData.sta.sta_password = password;

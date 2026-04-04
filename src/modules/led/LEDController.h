@@ -22,10 +22,9 @@ public:
     void setLED(uint8_t index, uint8_t red, uint8_t green, uint8_t blue);
     void show();
     void clear();
-    void setPattern(const PatternConfig& config);
-    void updatePattern();
-    // Removed savePatternConfig and loadPatternConfig - now handled by ConfigManager
-    PatternConfig getCurrentConfig() const;
+     void setPattern(const PatternConfig& config);
+     void updatePattern();
+     PatternConfig getCurrentConfig() const;
 
 private:
     DataStorage* _dataStorage;            // Pointer to shared data storage

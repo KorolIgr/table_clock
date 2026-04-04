@@ -19,7 +19,7 @@ static const char* LED_PATTERN_NAMES[] = {
 static const int LED_PATTERN_COUNT = 5;
 
 MainApplication::MainApplication()
-    : _ledController(nullptr), _displayManager(nullptr),
+    : _ledController(nullptr),
       _configManager(nullptr), _dataStorage(nullptr),
       _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr), _airQuality(nullptr), _lora(nullptr) {
 }
@@ -52,12 +52,9 @@ void MainApplication::begin() {
     delay(20); // Combined delay was 200ms at end of old initWiFi()
     
     initDisplay();
-    delay(20); // Small delay after display init
+     delay(20); // Small delay after display init
 
-    
-    //connectLEDControllerToWiFi();
-    
-    Serial.println("Table Clock Application started successfully.");
+     Serial.println("Table Clock Application started successfully.");
 }
 
 void MainApplication::appLoop() {
@@ -155,12 +152,10 @@ void MainApplication::appLoop() {
         _pageManager->updateSingleDisplay(_allDisplays[currentDisplayIndex], currentDisplayIndex);
     }
     
-    // Move to next display in the next cycle
-    currentDisplayIndex = (currentDisplayIndex + 1) % 8;
-    
-    // Removed counter functionality - now handled by page system
-    
-    // Periodic heartbeat to indicate the device is running
+     // Move to next display in the next cycle
+     currentDisplayIndex = (currentDisplayIndex + 1) % 8;
+     
+     // Periodic heartbeat to indicate the device is running
     static unsigned long lastHeartbeat = 0;
     if (millis() - lastHeartbeat > 5000) { // Every 5 seconds
         Serial.print("Device running... Heartbeat: ");
@@ -280,19 +275,14 @@ void MainApplication::initDisplay() {
         _allDisplays[i]->begin();
         delay(50);
     }
-    
-    // Also keep the first display in the original variable for backward compatibility
-    _displayManager = _allDisplays[0];
-    
-    // Create a single PageManager to control all displays
+     
+     // Create a single PageManager to control all displays
     if (_dataStorage) {
         _pageManager = new PageManager(_dataStorage);
-    }
-    
-    // Counter functionality removed - now using page system
-}
+     }
+ }
 
-void MainApplication::initLED() {
+ void MainApplication::initLED() {
     // Initialize external LED controller
     _ledController = new LEDController(LED_DATA_PIN);
     if (_dataStorage) {
@@ -352,10 +342,6 @@ void MainApplication::initLoRa() {
     }
 }
 
-void MainApplication::connectLEDControllerToWiFi() {
-    // No longer needed - dependencies are injected directly
-}
-
 // Global application instance
 MainApplication app;
 MainApplication* appInstance = &app;  // Global pointer to access the instance from callbacks
@@ -378,12 +364,9 @@ void MainApplication::saveWifiStaConfig(const char* ssid, const char* password) 
         _deviceConfig.wifi.sta_ssid[sizeof(_deviceConfig.wifi.sta_ssid) - 1] = '\0';
         
         strncpy(_deviceConfig.wifi.sta_password, password, sizeof(_deviceConfig.wifi.sta_password) - 1);
-        _deviceConfig.wifi.sta_password[sizeof(_deviceConfig.wifi.sta_password) - 1] = '\0';
-        
-        // Save to EEPROM
-        //_configManager->saveConfig(_deviceConfig);
-        
-        // Store credentials in DataStorage and request connection
+         _deviceConfig.wifi.sta_password[sizeof(_deviceConfig.wifi.sta_password) - 1] = '\0';
+         
+         // Store credentials in DataStorage and request connection
         _dataStorage->setStaCredentials(ssid, password);
         _dataStorage->requestStaConnection();
         
@@ -404,12 +387,9 @@ void MainApplication::saveWifiApConfig(const char* ssid, const char* password, c
         if (ip && strlen(ip) > 0) {
             strncpy(_deviceConfig.wifi.ap_ip, ip, sizeof(_deviceConfig.wifi.ap_ip) - 1);
             _deviceConfig.wifi.ap_ip[sizeof(_deviceConfig.wifi.ap_ip) - 1] = '\0';
-        }
-        
-        // Save to EEPROM
-        //_configManager->saveConfig(_deviceConfig);
-        
-        // Reinitialize AP with new settings
+         }
+         
+         // Reinitialize AP with new settings
         if (_wifiAP) {
             _wifiAP->begin(_deviceConfig.wifi.ap_ssid, _deviceConfig.wifi.ap_password, _deviceConfig.wifi.ap_ip);
         }
@@ -420,12 +400,9 @@ void MainApplication::forgetWifiConfig() {
     if (_configManager && _dataStorage) {
         // Clear the STA configuration
         strcpy(_deviceConfig.wifi.sta_ssid, "");
-        strcpy(_deviceConfig.wifi.sta_password, "");
-        
-        // Save to EEPROM
-        //_configManager->saveConfig(_deviceConfig);
-        
-        // Clear credentials from DataStorage
+         strcpy(_deviceConfig.wifi.sta_password, "");
+         
+         // Clear credentials from DataStorage
         _dataStorage->setStaCredentials("", "");
         
         // Disconnect STA
@@ -470,12 +447,9 @@ void MainApplication::saveConfig() {
 void MainApplication::saveLedConfig(const PatternConfig& config) {
     if (_configManager) {
         // Update the configuration
-        _deviceConfig.led = config;
-        
-        // Save to EEPROM
-        //_configManager->saveConfig(_deviceConfig);
-        
-        // Update the LED controller
+         _deviceConfig.led = config;
+         
+         // Update the LED controller
         if (_ledController) {
             _ledController->setPattern(_deviceConfig.led);
         }
@@ -592,12 +566,9 @@ void MainApplication::applyLEDSettings(const char* pattern, const char* color, u
     // Update LED controller
     _ledController->setPattern(config);
     
-    // Update device configuration
-    _deviceConfig.led = config;
-    
-    // Save to EEPROM (optional, can be done separately)
-    // _configManager->saveConfig(_deviceConfig);
-}
+     // Update device configuration
+     _deviceConfig.led = config;
+ }
 
 String MainApplication::onGetLEDPatterns() {
     if (appInstance) {

@@ -28,10 +28,9 @@ public:
     PageManager(DataStorage* dataStorage);
     ~PageManager();
     
-    void updateAllDisplays(DisplayManager** displays, uint8_t count);
-    void updateSingleDisplay(DisplayManager* display, uint8_t displayIndex);
-    //void updatePageDisplay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display);
-    void setCurrentPage(DisplayPage page);
+     void updateAllDisplays(DisplayManager** displays, uint8_t count);
+     void updateSingleDisplay(DisplayManager* display, uint8_t displayIndex);
+     void setCurrentPage(DisplayPage page);
     void nextPage();
     void setPageInterval(unsigned long intervalMs);
     DisplayPage getCurrentPage() const { return _currentPage; }

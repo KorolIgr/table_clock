@@ -47,15 +47,13 @@ public:
     static String onGetLEDPatterns();
     static String onGetLEDCurrent();
     static void onApplyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction);
-    
-    // Private helper methods
-    // Removed updateAllDisplays method - counter functionality removed
-    void initAirQuality();
-    void initLoRa();
+     
+     // Private helper methods
+     void initAirQuality();
+     void initLoRa();
 
 private:
     LEDController* _ledController;
-    DisplayManager* _displayManager;  // First display (channel 0) - keeping for backward compatibility
     DisplayManager* _allDisplays[8];  // Array to hold all 8 displays
     PageManager* _pageManager;        // Central page manager for all displays
     ConfigManager* _configManager;
@@ -67,12 +65,10 @@ private:
     Geolocation* _geolocation;
     Weather* _weather;
     AirQuality* _airQuality;
-    LoRa* _lora;
-    DeviceConfig _deviceConfig;
-    
-    // Removed counter-related variables - using page system instead
-    
-    void initHardware();
+     LoRa* _lora;
+     DeviceConfig _deviceConfig;
+     
+     void initHardware();
     void initConfig();
     void initWiFiAP();
     void initWiFiSTA();
@@ -81,7 +77,6 @@ private:
     void initLED();
     void initGeolocation();
     void initWeather();
-    void connectLEDControllerToWiFi();
     void saveConfig();
 };
 
