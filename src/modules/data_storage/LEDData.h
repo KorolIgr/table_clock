@@ -2,7 +2,7 @@
 #define LED_DATA_H
 
 #include <Arduino.h>
-#include "../led/LEDTypes.h"  // For PatternConfig and LEDPattern
+#include "../led_line/LEDTypes.h"  // For PatternConfig and LEDPattern
 
 // LED data structure
 struct LEDData {

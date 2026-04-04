@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
-#include "../led/LEDController.h"
+#include "../led_line/LEDController.h"
 #include "../data_storage/DataStorage.h"
 #include "../../app_config.h"
 
