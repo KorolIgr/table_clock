@@ -2,6 +2,7 @@
 #define MAIN_H
 
 #include "app_config.h"
+#include <TaskScheduler.h>
 #include "modules/led/LEDController.h"
 #include "modules/display/DisplayManager.h"
 #include "modules/display/PageManager.h"
@@ -68,7 +69,26 @@ private:
      LoRa* _lora;
      DeviceConfig _deviceConfig;
      
-     void initHardware();
+      // TaskScheduler tasks for interval-based processes
+      Scheduler scheduler;
+      Task *tLoRaSend;
+      Task *tHeartbeat;
+      Task *tPageRotation;
+      Task *tAirQualityUpdate;
+      Task *tGeolocationUpdate;
+      Task *tWeatherUpdate;
+      Task *tBuiltInLEDUpdate;
+      
+      // Static task callback methods
+      static void staticLoRaSend();
+      static void staticHeartbeat();
+      static void staticPageRotation();
+      static void staticAirQualityUpdate();
+      static void staticGeolocationUpdate();
+      static void staticWeatherUpdate();
+      static void staticBuiltInLEDUpdate();
+      
+      void initHardware();
     void initConfig();
     void initWiFiAP();
     void initWiFiSTA();

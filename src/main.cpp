@@ -21,7 +21,8 @@ static const int LED_PATTERN_COUNT = 5;
 MainApplication::MainApplication()
     : _ledController(nullptr),
       _configManager(nullptr), _dataStorage(nullptr),
-      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr), _airQuality(nullptr), _lora(nullptr) {
+      _builtInLED(nullptr), _wifiAP(nullptr), _wifiSTA(nullptr), _wifiWebServer(nullptr), _geolocation(nullptr), _weather(nullptr), _airQuality(nullptr), _lora(nullptr),
+      tLoRaSend(nullptr), tHeartbeat(nullptr), tPageRotation(nullptr), tAirQualityUpdate(nullptr), tGeolocationUpdate(nullptr), tWeatherUpdate(nullptr), tBuiltInLEDUpdate(nullptr) {
 }
 
 void MainApplication::begin() {
@@ -52,9 +53,31 @@ void MainApplication::begin() {
     delay(20); // Combined delay was 200ms at end of old initWiFi()
     
     initDisplay();
-     delay(20); // Small delay after display init
+    delay(20); // Small delay after display init
 
-     Serial.println("Table Clock Application started successfully.");
+    // Create and enable scheduled tasks
+    // LoRa TVOC data transmission every 10 seconds
+    tLoRaSend = new Task(10000, -1, staticLoRaSend, &scheduler, true, nullptr, nullptr);
+
+    // Heartbeat/debug output every 5 seconds
+    tHeartbeat = new Task(5000, -1, staticHeartbeat, &scheduler, true, nullptr, nullptr);
+
+    // Page rotation check every 1 second (actual interval controlled by PageManager)
+    tPageRotation = new Task(1000, -1, staticPageRotation, &scheduler, true, nullptr, nullptr);
+
+    // Air quality sensor update every 1 second
+    tAirQualityUpdate = new Task(1000, -1, staticAirQualityUpdate, &scheduler, true, nullptr, nullptr);
+
+    // Geolocation update attempt every 5 minutes (300000 ms)
+    tGeolocationUpdate = new Task(300000, -1, staticGeolocationUpdate, &scheduler, true, nullptr, nullptr);
+
+    // Weather update attempt every 5 minutes (300000 ms)
+    tWeatherUpdate = new Task(300000, -1, staticWeatherUpdate, &scheduler, true, nullptr, nullptr);
+
+    // Built-in LED pattern update every 250ms (for fast blink support)
+    tBuiltInLEDUpdate = new Task(250, -1, staticBuiltInLEDUpdate, &scheduler, true, nullptr, nullptr);
+
+    Serial.println("Table Clock Application started successfully.");
 }
 
 void MainApplication::appLoop() {
@@ -79,11 +102,6 @@ void MainApplication::appLoop() {
     }
     lastWifiConnected = wifiConnected;
     
-    // Update geolocation (periodic fetch)
-    if (_geolocation) {
-        _geolocation->update();
-    }
-    
     // Check for new geolocation to trigger weather update
     static float lastLat = 0.0f;
     static float lastLon = 0.0f;
@@ -99,32 +117,12 @@ void MainApplication::appLoop() {
         }
     }
     
-    // Update weather (periodic fetch)
-    if (_weather) {
-        _weather->update();
-    }
-    
-    // Update air quality sensor (handles periodic updates internally)
-    if (_airQuality) {
-        _airQuality->update();
-    }
-
-    // Send TVOC data via LoRa every second
-    static unsigned long lastLoRaSend = 0;
-    if (_lora && _lora->isInitialized() && _dataStorage && millis() - lastLoRaSend >= 10000) {
-        lastLoRaSend = millis();
-        AirQualityData& aq = _dataStorage->airQuality();
-        if (aq.valid) {
-            _lora->sendTVOCData(aq.tvoc, millis());
-        }
-    }
-    
     // Update web server
     if (_wifiWebServer) {
         _wifiWebServer->update();
     }
     
-    // Update built-in LED based on WiFi STA connection status
+    // Update built-in LED based on WiFi STA connection status (pattern set only)
     if (_builtInLED && _wifiSTA) {
         bool connected = _wifiSTA->isConnected();
         static bool lastConnected = !connected; // Opposite to trigger initial set
@@ -136,11 +134,10 @@ void MainApplication::appLoop() {
                 _builtInLED->setPattern(1); // Slow blink
             }
         }
-        // Actually update the LED state
-        _builtInLED->update();
+        // _builtInLED->update() removed; now handled by task
     }
     
-    // Update external LED controller
+    // Update external LED controller (animation frame)
     if (_ledController) {
         _ledController->updatePattern();
     }
@@ -152,16 +149,11 @@ void MainApplication::appLoop() {
         _pageManager->updateSingleDisplay(_allDisplays[currentDisplayIndex], currentDisplayIndex);
     }
     
-     // Move to next display in the next cycle
-     currentDisplayIndex = (currentDisplayIndex + 1) % 8;
-     
-     // Periodic heartbeat to indicate the device is running
-    static unsigned long lastHeartbeat = 0;
-    if (millis() - lastHeartbeat > 5000) { // Every 5 seconds
-        Serial.print("Device running... Heartbeat: ");
-        Serial.println(millis());
-        lastHeartbeat = millis();
-    }
+    // Move to next display in the next cycle
+    currentDisplayIndex = (currentDisplayIndex + 1) % 8;
+    
+    // Execute scheduled tasks
+    scheduler.execute();
 }
 
 void MainApplication::initConfig() {
@@ -587,5 +579,50 @@ String MainApplication::onGetLEDCurrent() {
 void MainApplication::onApplyLEDSettings(const char* pattern, const char* color, uint16_t speed, bool direction) {
     if (appInstance) {
         appInstance->applyLEDSettings(pattern, color, speed, direction);
+    }
+}
+
+// Static task callback implementations
+void MainApplication::staticLoRaSend() {
+    if (appInstance && appInstance->_lora && appInstance->_lora->isInitialized() && appInstance->_dataStorage) {
+        AirQualityData& aq = appInstance->_dataStorage->airQuality();
+        if (aq.valid) {
+            appInstance->_lora->sendTVOCData(aq.tvoc, millis());
+        }
+    }
+}
+
+void MainApplication::staticHeartbeat() {
+    Serial.print("Device running... Heartbeat: ");
+    Serial.println(millis());
+}
+
+void MainApplication::staticPageRotation() {
+    if (appInstance && appInstance->_pageManager) {
+        appInstance->_pageManager->updateRotation();
+    }
+}
+
+void MainApplication::staticAirQualityUpdate() {
+    if (appInstance && appInstance->_airQuality) {
+        appInstance->_airQuality->update();
+    }
+}
+
+void MainApplication::staticGeolocationUpdate() {
+    if (appInstance && appInstance->_geolocation) {
+        appInstance->_geolocation->update();
+    }
+}
+
+void MainApplication::staticWeatherUpdate() {
+    if (appInstance && appInstance->_weather) {
+        appInstance->_weather->update();
+    }
+}
+
+void MainApplication::staticBuiltInLEDUpdate() {
+    if (appInstance && appInstance->_builtInLED) {
+        appInstance->_builtInLED->update();
     }
 }

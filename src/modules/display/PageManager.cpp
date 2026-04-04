@@ -41,15 +41,18 @@ PageManager::~PageManager() {
     }
 }
 
-void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
-    if (!_dataStorage || count == 0) return;
-    
-    // Handle automatic page switching
+void PageManager::updateRotation() {
     unsigned long currentTime = millis();
     if (currentTime - _lastPageChange >= _pageInterval) {
         nextPage();
         _lastPageChange = currentTime;
     }
+}
+
+void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
+    if (!_dataStorage || count == 0) return;
+    
+    // (page rotation is handled by separate task)
     
     // Update each display with distributed content
     for (uint8_t i = 0; i < count; i++) {
@@ -99,60 +102,53 @@ void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
     }
 }
 
-    void PageManager::updateSingleDisplay(DisplayManager* display, uint8_t displayIndex) {
-        if (!_dataStorage || !display) return;
-        
-        // Handle automatic page switching (only for the first display in the cycle to avoid multiple switches)
-        if (displayIndex == 0) {
-            unsigned long currentTime = millis();
-            if (currentTime - _lastPageChange >= _pageInterval) {
-                nextPage();
-                _lastPageChange = currentTime;
-            }
+void PageManager::updateSingleDisplay(DisplayManager* display, uint8_t displayIndex) {
+    if (!_dataStorage || !display) return;
+    
+    // (page rotation handled by separate task)
+    
+    display->clear();
+    
+    // Get the U8G2 display object
+    U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* u8g2 = display->getU8g2();
+    if (u8g2) {
+        // Render content based on current page for this display index
+        switch (_currentPage) {
+            case DisplayPage::WIFI_STA:
+                if (_wifiStaPage) {
+                    _wifiStaPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::WIFI_AP:
+                if (_wifiApPage) {
+                    _wifiApPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::GEO_PAGE:
+                if (_geoPage) {
+                    _geoPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::WEATHER_PAGE:
+                if (_weatherPage) {
+                    _weatherPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::CURRENT_WEATHER_PAGE:
+                if (_currentWeatherPage) {
+                    _currentWeatherPage->render(u8g2, displayIndex);
+                }
+                break;
+            case DisplayPage::AIR_QUALITY_PAGE:
+                if (_airQualityPage) {
+                    _airQualityPage->render(u8g2, displayIndex);
+                }
+                break;
         }
-        
-        display->clear();
-        
-        // Get the U8G2 display object
-        U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* u8g2 = display->getU8g2();
-        if (u8g2) {
-            // Render content based on current page for this display index
-            switch (_currentPage) {
-                case DisplayPage::WIFI_STA:
-                    if (_wifiStaPage) {
-                        _wifiStaPage->render(u8g2, displayIndex);
-                    }
-                    break;
-                case DisplayPage::WIFI_AP:
-                    if (_wifiApPage) {
-                        _wifiApPage->render(u8g2, displayIndex);
-                    }
-                    break;
-                case DisplayPage::GEO_PAGE:
-                    if (_geoPage) {
-                        _geoPage->render(u8g2, displayIndex);
-                    }
-                    break;
-                case DisplayPage::WEATHER_PAGE:
-                    if (_weatherPage) {
-                        _weatherPage->render(u8g2, displayIndex);
-                    }
-                    break;
-                case DisplayPage::CURRENT_WEATHER_PAGE:
-                    if (_currentWeatherPage) {
-                        _currentWeatherPage->render(u8g2, displayIndex);
-                    }
-                    break;
-                case DisplayPage::AIR_QUALITY_PAGE:
-                    if (_airQualityPage) {
-                        _airQualityPage->render(u8g2, displayIndex);
-                    }
-                    break;
-            }
-        }
-        
-         display->display();
-     }
+    }
+    
+    display->display();
+}
 
  void PageManager::setCurrentPage(DisplayPage page) {
     _currentPage = page;

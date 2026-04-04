@@ -31,9 +31,10 @@ public:
      void updateAllDisplays(DisplayManager** displays, uint8_t count);
      void updateSingleDisplay(DisplayManager* display, uint8_t displayIndex);
      void setCurrentPage(DisplayPage page);
-    void nextPage();
-    void setPageInterval(unsigned long intervalMs);
-    DisplayPage getCurrentPage() const { return _currentPage; }
+     void nextPage();
+     void setPageInterval(unsigned long intervalMs);
+     void updateRotation();  // Check interval and rotate page if needed
+     DisplayPage getCurrentPage() const { return _currentPage; }
     uint8_t getCurrentDisplayIndex() const { return _currentDisplayIndex; }
     void resetDisplayCycle() { _currentDisplayIndex = 0; }
 
