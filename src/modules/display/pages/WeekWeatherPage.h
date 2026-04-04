@@ -5,21 +5,32 @@
 #include "../../data_storage/DataStorage.h"
 #include <U8g2lib.h>
 #include <avr/pgmspace.h>
+#include "BasePage.h"
 
-class WeekWeatherPage {
+class WeekWeatherPage : public BasePage {
 public:
     WeekWeatherPage(DataStorage* dataStorage);
     ~WeekWeatherPage() = default;
-    
-    void render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displayIndex);
-    
+
+protected:
+    void onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+    void onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+    void onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+    void onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+    void onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+    void onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+    void onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+    void onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) override;
+
 private:
     DataStorage* _dataStorage;
-    
+
     // Helper to format temperature
     String formatTemp(float temp) const;
     // Helper to format date (extract MM-DD from YYYY-MM-DD)
     String formatDate(const String& fullDate) const;
+    // Helper to render a single day's forecast
+    void renderDay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, int dayIndex);
 };
 
 #endif // WEEK_WEATHER_PAGE_H

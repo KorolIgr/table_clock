@@ -5,60 +5,55 @@
 GeoPage::GeoPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
 
-void GeoPage::render(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, uint8_t displayIndex) {
-    if (!_dataStorage) return;
-    
+void GeoPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    display->drawXBMP(0, 0, L_ICON_WIDTH, L_ICON_HEIGHT, geo_icon);
+    displayTitle(display, "GEO", 50);
+}
+
+void GeoPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     GeoData& data = _dataStorage->geo();
 
-    display->setFont(u8g2_font_10x20_tf);
+    displayTitle(display, "IP");
+    String ip = data.ip_address;
+    displayIPAddress(display, ip, 40, 20);
+}
 
-    switch (displayIndex) {
-        case 0: {
-            // Display 0: WiFi icon (XBMP)
-            display->drawXBMP(0, 0, L_ICON_WIDTH, L_ICON_HEIGHT, geo_icon);
-            displayTitle(display, "GEO", 50);
+void GeoPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    GeoData& data = _dataStorage->geo();
 
-            //display->drawFrame(5, 80, 32, 26); // вместо 32x32
-            break;
-        }
-        case 1: {
-            displayTitle(display, "IP");
-            String ip = data.ip_address;
-            displayIPAddress(display, ip, 40, 20);
-            break;
-        }
-        case 2: {
-            displayTitle(display, "COUNTRY");
-            String msg = data.country;
-            displayMultilineText(display, msg, 40, 20, 6);
-            break;
-        }
-        case 3: {
-            displayTitle(display, "CITY");
-            String msg = data.city;
-            displayMultilineText(display, msg, 40, 20, 6);
-            break;
-        }
-        case 4: {
-            displayTitle(display, "LAT");
-            String str = String(data.latitude, 4);
-            display->drawStr(0, 40, str.c_str());
-            break;
-        }
-        case 5: {
-            displayTitle(display, "LON");
-            String str = String(data.longitude, 4);
-            display->drawStr(0, 40, str.c_str());
-            break;
-        }
-        case 6: {
-            display->clear();
-            break;
-        }
-        case 7: {
-            display->clear();
-            break;
-        }
-    }
-    
+    displayTitle(display, "COUNTRY");
+    String msg = data.country;
+    displayMultilineText(display, msg, 40, 20, 6);
+}
+
+void GeoPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    GeoData& data = _dataStorage->geo();
+
+    displayTitle(display, "CITY");
+    String msg = data.city;
+    displayMultilineText(display, msg, 40, 20, 6);
+}
+
+void GeoPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    GeoData& data = _dataStorage->geo();
+
+    displayTitle(display, "LAT");
+    String str = String(data.latitude, 4);
+    display->drawStr(0, 40, str.c_str());
+}
+
+void GeoPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    GeoData& data = _dataStorage->geo();
+
+    displayTitle(display, "LON");
+    String str = String(data.longitude, 4);
+    display->drawStr(0, 40, str.c_str());
+}
+
+void GeoPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    display->clear();
+}
+
+void GeoPage::onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+    display->clear();
 }
