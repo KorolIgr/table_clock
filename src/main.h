@@ -6,14 +6,14 @@
 #include "modules/display/DisplayManager.h"
 #include "modules/display/PageManager.h"
 #include "modules/builtin_led/BuiltInLED.h"
-#include "modules/wifi/WiFiAP.h"
-#include "modules/wifi/WiFiSTA.h"
+#include "modules/wifi_sta/WiFiSTA.h"
+#include "modules/wifi_ap/WiFiAP.h"
 #include "modules/webserver/WebServer.h"
 #include "modules/config/ConfigManager.h"
 #include "modules/data_storage/DataStorage.h"
 #include "modules/geolocation/Geolocation.h"
 #include "modules/weather/Weather.h"
-#include "modules/AirQuality/AirQuality.h"
+#include "modules/air_quality/AirQuality.h"
 #include "modules/lora/LoRa.h"
 
 // Forward declarations
