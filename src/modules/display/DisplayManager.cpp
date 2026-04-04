@@ -3,7 +3,7 @@
 
 DisplayManager::DisplayManager(uint8_t multiplexerAddress, uint8_t channel, uint8_t sdaPin, uint8_t sclPin)
     : _multiplexerAddress(multiplexerAddress), _channel(channel), _sdaPin(sdaPin), _sclPin(sclPin), _dataStorage(nullptr) {
-    _display = new U8G2_SSD1306_128X64_NONAME_F_HW_I2C(U8G2_R1, U8X8_PIN_NONE);
+    _display = new U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C(U8G2_R1, U8X8_PIN_NONE);
     _cursorX = 0;
     _cursorY = 0;
 }

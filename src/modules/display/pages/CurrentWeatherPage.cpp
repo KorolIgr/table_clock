@@ -5,7 +5,7 @@
 CurrentWeatherPage::CurrentWeatherPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
 
-void CurrentWeatherPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay0(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.current.valid) {
@@ -15,10 +15,10 @@ void CurrentWeatherPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
     }
 
     display->drawXBMP(0, 0, L_ICON_WIDTH, L_ICON_HEIGHT, weather_icon);
-    displayTitle(display, "NOW", 50);
+    displayTitle(display, "NOW", 25);
 }
 
-void CurrentWeatherPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay1(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.current.valid) {
@@ -32,7 +32,7 @@ void CurrentWeatherPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
     displayValue(display, value, 45);
 }
 
-void CurrentWeatherPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay2(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.current.valid) {
@@ -45,7 +45,7 @@ void CurrentWeatherPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
     displayValue(display, value, 45);
 }
 
-void CurrentWeatherPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay3(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.current.valid) {
@@ -58,7 +58,7 @@ void CurrentWeatherPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
     displayValue(display, value, 45);
 }
 
-void CurrentWeatherPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay4(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.current.valid) {
@@ -69,11 +69,11 @@ void CurrentWeatherPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
     displayTitle(display, "WIND");
     String speed = String(data.current.wind_speed, 1) + " m/s";
     String direction = formatWindDirection(data.current.wind_direction);
-    displayValue(display, speed, 45);
-    displayValue(display, direction, 65);
+    displayValue(display, speed, 22);
+    displayValue(display, direction, 32);
 }
 
-void CurrentWeatherPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay5(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.current.valid) {
@@ -86,7 +86,7 @@ void CurrentWeatherPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
     displayValue(display, value, 45);
 }
 
-void CurrentWeatherPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay6(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.current.valid) {
@@ -96,10 +96,10 @@ void CurrentWeatherPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display
 
     displayTitle(display, "ICON");
     const unsigned char* symbol = getWeatherSymbol(data.current.weather_code);
-    display->drawXBMP(0, 20, L_ICON_WIDTH, L_ICON_HEIGHT, symbol);
+    display->drawXBMP(0, 10, L_ICON_WIDTH, L_ICON_HEIGHT, symbol);
 }
 
-void CurrentWeatherPage::onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void CurrentWeatherPage::onDisplay7(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     display->clear();
 }
 

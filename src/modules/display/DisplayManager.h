@@ -16,7 +16,7 @@ public:
     void print(const char* text);
     void setCursor(uint8_t col, uint8_t row);
     void setDataStorage(DataStorage* dataStorage);
-    U8G2_SSD1306_128X64_NONAME_F_HW_I2C* getU8g2() const { return _display; }
+    U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* getU8g2() const { return _display; }
     uint8_t getChannel() const { return _channel; }
 
 private:
@@ -24,7 +24,7 @@ private:
     uint8_t _channel;
     uint8_t _sdaPin;
     uint8_t _sclPin;
-    U8G2_SSD1306_128X64_NONAME_F_HW_I2C* _display;
+    U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* _display;
     uint8_t _cursorX;
     uint8_t _cursorY;
     DataStorage* _dataStorage;

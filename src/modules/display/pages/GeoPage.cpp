@@ -5,12 +5,12 @@
 GeoPage::GeoPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
 
-void GeoPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay0(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     display->drawXBMP(0, 0, L_ICON_WIDTH, L_ICON_HEIGHT, geo_icon);
     displayTitle(display, "GEO", 50);
 }
 
-void GeoPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay1(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     GeoData& data = _dataStorage->geo();
 
     displayTitle(display, "IP");
@@ -18,23 +18,23 @@ void GeoPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayIPAddress(display, ip, 40, 20);
 }
 
-void GeoPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay2(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     GeoData& data = _dataStorage->geo();
 
     displayTitle(display, "COUNTRY");
     String msg = data.country;
-    displayMultilineText(display, msg, 40, 20, 6);
+    displayMultilineText(display, msg, 40, 20);
 }
 
-void GeoPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay3(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     GeoData& data = _dataStorage->geo();
 
     displayTitle(display, "CITY");
     String msg = data.city;
-    displayMultilineText(display, msg, 40, 20, 6);
+    displayMultilineText(display, msg, 40, 20);
 }
 
-void GeoPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay4(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     GeoData& data = _dataStorage->geo();
 
     displayTitle(display, "LAT");
@@ -42,7 +42,7 @@ void GeoPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     display->drawStr(0, 40, str.c_str());
 }
 
-void GeoPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay5(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     GeoData& data = _dataStorage->geo();
 
     displayTitle(display, "LON");
@@ -50,10 +50,10 @@ void GeoPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     display->drawStr(0, 40, str.c_str());
 }
 
-void GeoPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay6(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     display->clear();
 }
 
-void GeoPage::onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void GeoPage::onDisplay7(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     display->clear();
 }

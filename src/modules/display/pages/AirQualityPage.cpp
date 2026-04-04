@@ -4,11 +4,11 @@
 AirQualityPage::AirQualityPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
 
-void AirQualityPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay0(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     displayTitle(display, "AIR");
 }
 
-void AirQualityPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay1(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     AirQualityData& data = _dataStorage->airQuality();
 
     displayTitle(display, "T");
@@ -16,7 +16,7 @@ void AirQualityPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayValue(display, value, 45);
 }
 
-void AirQualityPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay2(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     AirQualityData& data = _dataStorage->airQuality();
 
     displayTitle(display, "H");
@@ -24,7 +24,7 @@ void AirQualityPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayValue(display, value, 45);
 }
 
-void AirQualityPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay3(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     AirQualityData& data = _dataStorage->airQuality();
 
     displayTitle(display, "TVOC");
@@ -32,7 +32,7 @@ void AirQualityPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayValue(display, value, 45);
 }
 
-void AirQualityPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay4(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     AirQualityData& data = _dataStorage->airQuality();
 
     displayTitle(display, "eCO2");
@@ -40,7 +40,7 @@ void AirQualityPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayValue(display, value, 45);
 }
 
-void AirQualityPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay5(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     AirQualityData& data = _dataStorage->airQuality();
 
     displayTitle(display, "AQI");
@@ -48,7 +48,7 @@ void AirQualityPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayValue(display, value, 45);
 }
 
-void AirQualityPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay6(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     AirQualityData& data = _dataStorage->airQuality();
 
     displayTitle(display, "STATUS");
@@ -56,6 +56,6 @@ void AirQualityPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayValue(display, value, 45);
 }
 
-void AirQualityPage::onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void AirQualityPage::onDisplay7(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     display->clear();
 }

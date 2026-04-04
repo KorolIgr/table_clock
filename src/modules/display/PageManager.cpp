@@ -57,7 +57,7 @@ void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
             displays[i]->clear();
             
             // Get the U8G2 display object
-            U8G2_SSD1306_128X64_NONAME_F_HW_I2C* u8g2 = displays[i]->getU8g2();
+            U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* u8g2 = displays[i]->getU8g2();
             if (u8g2) {
             // Render content based on current page for this display index
             switch (_currentPage) {
@@ -114,7 +114,7 @@ void PageManager::updateAllDisplays(DisplayManager** displays, uint8_t count) {
         display->clear();
         
         // Get the U8G2 display object
-        U8G2_SSD1306_128X64_NONAME_F_HW_I2C* u8g2 = display->getU8g2();
+        U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* u8g2 = display->getU8g2();
         if (u8g2) {
             // Render content based on current page for this display index
             switch (_currentPage) {

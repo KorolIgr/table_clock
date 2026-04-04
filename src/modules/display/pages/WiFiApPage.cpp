@@ -7,28 +7,28 @@
 WiFiApPage::WiFiApPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
 
-void WiFiApPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay0(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     display->drawXBMP(0, 0, L_ICON_WIDTH, L_ICON_HEIGHT, wifi_icon);
     displayTitle(display, "AP", 50);
 }
 
-void WiFiApPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay1(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WiFiData& data = _dataStorage->wifi();
 
     displayTitle(display, "SSID");
     String ssid = data.ap.ssid;
-    displayMultilineText(display, ssid, 40, 20, 6);
+    displayMultilineText(display, ssid, 40, 20);
 }
 
-void WiFiApPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay2(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WiFiData& data = _dataStorage->wifi();
 
     displayTitle(display, "PWD");
     String pwd = data.ap.password;
-    displayMultilineText(display, pwd, 40, 20, 6);
+    displayMultilineText(display, pwd, 40, 20);
 }
 
-void WiFiApPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay3(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WiFiData& data = _dataStorage->wifi();
 
     displayTitle(display, "IP");
@@ -36,7 +36,7 @@ void WiFiApPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayIPAddress(display, ip, 40, 20);
 }
 
-void WiFiApPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay4(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WiFiData& data = _dataStorage->wifi();
 
     displayTitle(display, "MASK");
@@ -44,7 +44,7 @@ void WiFiApPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayIPAddress(display, mask, 40, 20);
 }
 
-void WiFiApPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay5(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WiFiData& data = _dataStorage->wifi();
 
     displayTitle(display, "MAC");
@@ -58,7 +58,7 @@ void WiFiApPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     }
 }
 
-void WiFiApPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay6(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WiFiData& data = _dataStorage->wifi();
 
     displayTitle(display, "CLIENT");
@@ -69,7 +69,7 @@ void WiFiApPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     display->drawStr(0, 60, buf);
 }
 
-void WiFiApPage::onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WiFiApPage::onDisplay7(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WiFiData& data = _dataStorage->wifi();
 
     displayTitle(display, "CH");

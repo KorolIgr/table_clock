@@ -1,7 +1,7 @@
 #include "DisplayUtils.h"
 #include <cstdio>
 
-void displayIPAddress(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& ip, uint8_t startY, uint8_t lineHeight) {
+void displayIPAddress(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display, const String& ip, uint8_t startY, uint8_t lineHeight) {
     int o1, o2, o3, o4;
     if (sscanf(ip.c_str(), "%d.%d.%d.%d", &o1, &o2, &o3, &o4) == 4) {
         char buf[16];
@@ -18,7 +18,7 @@ void displayIPAddress(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String
     }
 }
 
-void displayMultilineText(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& text, uint8_t startY, uint8_t lineHeight, uint8_t charsPerLine) {
+void displayMultilineText(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display, const String& text, uint8_t startY, uint8_t lineHeight, uint8_t charsPerLine) {
     uint8_t y = startY;
     for (size_t i = 0; i < text.length(); i += charsPerLine) {
         String line = text.substring(i, i + charsPerLine);
@@ -27,7 +27,7 @@ void displayMultilineText(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const St
     }
 }
 
-void displayTitle(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& text, uint8_t startY, const uint8_t* font, uint8_t lineHeight) {
+void displayTitle(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display, const String& text, uint8_t startY, const uint8_t* font, uint8_t lineHeight) {
 
     String displayText = text;
     if (text.length() > 6) {
@@ -38,7 +38,7 @@ void displayTitle(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& te
 
 }
 
-void displayValue(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, const String& text, uint8_t startY, const uint8_t* font, uint8_t lineHeight) {
+void displayValue(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display, const String& text, uint8_t startY, const uint8_t* font, uint8_t lineHeight) {
 
     String displayText = text;
     if (text.length() > 6) {

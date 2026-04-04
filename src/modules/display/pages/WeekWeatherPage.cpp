@@ -6,7 +6,7 @@
 WeekWeatherPage::WeekWeatherPage(DataStorage* dataStorage) : _dataStorage(dataStorage) {
 }
 
-void WeekWeatherPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay0(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -19,7 +19,7 @@ void WeekWeatherPage::onDisplay0(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     displayTitle(display, "WEEK", 50);
 }
 
-void WeekWeatherPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay1(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -30,7 +30,7 @@ void WeekWeatherPage::onDisplay1(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     renderDay(display, 0);
 }
 
-void WeekWeatherPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay2(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -41,7 +41,7 @@ void WeekWeatherPage::onDisplay2(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     renderDay(display, 1);
 }
 
-void WeekWeatherPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay3(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -52,7 +52,7 @@ void WeekWeatherPage::onDisplay3(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     renderDay(display, 2);
 }
 
-void WeekWeatherPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay4(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -63,7 +63,7 @@ void WeekWeatherPage::onDisplay4(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     renderDay(display, 3);
 }
 
-void WeekWeatherPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay5(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -74,7 +74,7 @@ void WeekWeatherPage::onDisplay5(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     renderDay(display, 4);
 }
 
-void WeekWeatherPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay6(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -85,7 +85,7 @@ void WeekWeatherPage::onDisplay6(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     renderDay(display, 5);
 }
 
-void WeekWeatherPage::onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
+void WeekWeatherPage::onDisplay7(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display) {
     WeatherData& data = _dataStorage->weather();
 
     if (!data.forecast.valid) {
@@ -96,7 +96,7 @@ void WeekWeatherPage::onDisplay7(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display) {
     renderDay(display, 6);
 }
 
-void WeekWeatherPage::renderDay(U8G2_SSD1306_128X64_NONAME_F_HW_I2C* display, int dayIndex) {
+void WeekWeatherPage::renderDay(U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C* display, int dayIndex) {
     if (dayIndex < 0 || dayIndex >= 7) return;
 
     WeatherDay day = _dataStorage->weather().forecast.forecast[dayIndex];
