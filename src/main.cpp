@@ -114,7 +114,7 @@ void MainApplication::appLoop() {
 
     // Send TVOC data via LoRa every second
     static unsigned long lastLoRaSend = 0;
-    if (_lora && _lora->isInitialized() && _dataStorage && millis() - lastLoRaSend >= 1000) {
+    if (_lora && _lora->isInitialized() && _dataStorage && millis() - lastLoRaSend >= 10000) {
         lastLoRaSend = millis();
         AirQualityData& aq = _dataStorage->airQuality();
         if (aq.valid) {

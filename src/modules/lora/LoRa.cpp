@@ -34,6 +34,8 @@ void LoRa::begin() {
     _loraSerial->begin(9600); // ASR6601 default baud rate
     delay(100); // Wait for module to stabilize
 
+    sendATCommand("+++", "Entry AT", 1000);
+
     // Test AT communication
     if (!sendATCommand("AT", "OK", 1000)) {
         Serial.println("LoRa: Module not responding to AT command");
@@ -45,11 +47,14 @@ void LoRa::begin() {
     Serial.println("LoRa: Module connected");
 
     // Configure module for LoRa mode
-    sendATCommand("AT+TEST=LORA", NULL, 1000);
-    Serial.println("LoRa: LoRa mode configured");
+    //sendATCommand("AT+TEST=LORA", NULL, 1000);
+    //Serial.println("LoRa: LoRa mode configured");
 
     // Disable continuous transmit mode
-    sendATCommand("AT+TEST=TX,0", NULL, 1000);
+    //sendATCommand("AT+TEST=TX,0", NULL, 1000);
+
+    sendATCommand("AT+RESET", "OK", 1000);
+     _loraSerial->begin(9600); // ASR6601 default baud rate
 
     _initialized = true;
     _lastCommandTime = millis();
@@ -91,6 +96,7 @@ bool LoRa::sendData(const String& data) {
 
     return sendATCommand(payload, "OK", 3000);
 }
+
 
 bool LoRa::sendTVOCData(float tvoc, unsigned long timestamp) {
     if (!_initialized || !_loraSerial) {
